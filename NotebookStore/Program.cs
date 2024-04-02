@@ -4,6 +4,22 @@ namespace NotebookStore
 {
   class Program
   {
+    public static void PrintNotebook(NotebookStore.Models.Notebook notebook)
+    {
+      System.Console.WriteLine("Notebook:");
+      System.Console.WriteLine($"Id: {notebook.Id}");
+      System.Console.WriteLine($"Color: {notebook.Color}");
+      System.Console.WriteLine($"Price: {notebook.Price}");
+      System.Console.WriteLine($"BrandId: {notebook.BrandId}");
+      System.Console.WriteLine($"BrandName: {notebook.Brand.Name}");
+      System.Console.WriteLine($"ModelId: {notebook.ModelId}");
+      System.Console.WriteLine($"CpuId: {notebook.CpuId}");
+      System.Console.WriteLine($"DisplayId: {notebook.DisplayId}");
+      System.Console.WriteLine($"MemoryId: {notebook.MemoryId}");
+      System.Console.WriteLine($"StorageId: {notebook.StorageId}");
+      System.Console.WriteLine();
+    }
+
     static void Main(string[] args)
     {
       var model1 = new Model
