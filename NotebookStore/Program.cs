@@ -6,17 +6,13 @@ namespace NotebookStore
   {
     public static void PrintNotebook(NotebookStore.Models.Notebook notebook)
     {
-      System.Console.WriteLine("Notebook:");
-      System.Console.WriteLine($"Id: {notebook.Id}");
+      System.Console.WriteLine($"{notebook.Brand.Name} {notebook.Model.Name}");
       System.Console.WriteLine($"Color: {notebook.Color}");
       System.Console.WriteLine($"Price: {notebook.Price}");
-      System.Console.WriteLine($"BrandId: {notebook.BrandId}");
-      System.Console.WriteLine($"BrandName: {notebook.Brand.Name}");
-      System.Console.WriteLine($"ModelId: {notebook.ModelId}");
-      System.Console.WriteLine($"CpuId: {notebook.CpuId}");
-      System.Console.WriteLine($"DisplayId: {notebook.DisplayId}");
-      System.Console.WriteLine($"MemoryId: {notebook.MemoryId}");
-      System.Console.WriteLine($"StorageId: {notebook.StorageId}");
+      System.Console.WriteLine($"Cpu: {notebook.Cpu.Brand} {notebook.Cpu.Model}");
+      System.Console.WriteLine($"Display: {notebook.Display.Size} {notebook.Display.Resolution} {notebook.Display.PanelType}");
+      System.Console.WriteLine($"Memory: {notebook.Memory.Capacity}GB {notebook.Memory.Speed}MHz");
+      System.Console.WriteLine($"Storage: {notebook.Storage.Capacity}GB {notebook.Storage.Type}");
       System.Console.WriteLine();
     }
 
@@ -201,6 +197,10 @@ namespace NotebookStore
         Price = 1299,
         Color = "White"
       };
+
+      PrintNotebook(notebook1);
+      PrintNotebook(notebook2);
+      PrintNotebook(notebook3);
     }
   }
 }
