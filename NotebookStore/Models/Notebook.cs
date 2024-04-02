@@ -11,5 +11,7 @@ namespace NotebookStore.Models
     public int DisplayId { get; set; }
     public int MemoryId { get; set; }
     public int StorageId { get; set; }
+    public Brand Brand { get; set; }
+    public Model Model { get; set; }
   }
 }

@@ -4,5 +4,9 @@ namespace NotebookStore.Models
   {
     public int Id { get; set; }
     public string Name { get; set; }
+
+    public string GetNameById(int id) {
+      return Name;
+    }
   }
 }

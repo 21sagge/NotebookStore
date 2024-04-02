@@ -11,6 +11,7 @@ namespace NotebookStore
       System.Console.WriteLine($"Color: {notebook.Color}");
       System.Console.WriteLine($"Price: {notebook.Price}");
       System.Console.WriteLine($"BrandId: {notebook.BrandId}");
+      System.Console.WriteLine($"BrandName: {notebook.Brand.Name}");
       System.Console.WriteLine($"ModelId: {notebook.ModelId}");
       System.Console.WriteLine($"CpuId: {notebook.CpuId}");
       System.Console.WriteLine($"DisplayId: {notebook.DisplayId}");
@@ -150,7 +151,8 @@ namespace NotebookStore
         DisplayId = 1,
         MemoryId = 1,
         StorageId = 1,
-        Price = 599
+        Price = 599,
+        Brand = brand1
       };
 
       var notebook2 = new NotebookStore.Models.Notebook
@@ -162,7 +164,8 @@ namespace NotebookStore
         DisplayId = 2,
         MemoryId = 2,
         StorageId = 2,
-        Price = 999
+        Price = 999,
+        Brand = brand2
       };
 
       var notebook3 = new NotebookStore.Models.Notebook
@@ -174,7 +177,8 @@ namespace NotebookStore
         DisplayId = 3,
         MemoryId = 3,
         StorageId = 3,
-        Price = 1299
+        Price = 1299,
+        Brand = brand3
       };
 
       var program = new Program();
