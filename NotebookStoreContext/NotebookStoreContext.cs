@@ -13,9 +13,17 @@ public class NotebookStoreContext : DbContext
   public DbSet<Storage> Storages { get; set; }
   public DbSet<Notebook> Notebooks { get; set; }
 
+  public string DbPath { get; }
+
+  public NotebookStoreContext()
+  {
+    DbPath = "notebookstore.db";
+    Database.EnsureCreated();
+  }
+
   protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
   {
-    optionsBuilder.UseSqlite("Data Source=notebookstore.db");
+    optionsBuilder.UseSqlite($"Data Source={DbPath}");
   }
 
   protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -61,12 +69,17 @@ public class NotebookStoreContext : DbContext
       s.Property(s => s.Type).IsRequired();
     });
 
-    // modelBuilder.Entity<Notebook>(n =>
-    // {
-    //   n.HasKey(n => n.Id);
-    //   n.Property(n => n.Color).IsRequired();
-    //   n.Property(n => n.Price).IsRequired();
-    //   n.HasOne<Brand>(n => n.Brand).WithMany().HasForeignKey(n => n.BrandId);
-    // });
+    modelBuilder.Entity<Notebook>(n =>
+    {
+      n.HasKey(n => n.Id);
+      n.Property(n => n.Color).IsRequired();
+      n.Property(n => n.Price).IsRequired();
+      n.Property(n => n.BrandId).IsRequired();
+      n.Property(n => n.ModelId).IsRequired();
+      n.Property(n => n.CpuId).IsRequired();
+      n.Property(n => n.DisplayId).IsRequired();
+      n.Property(n => n.MemoryId).IsRequired();
+      n.Property(n => n.StorageId).IsRequired();
+    });
   }
 }

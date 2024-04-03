@@ -16,3 +16,9 @@ obj/
 
 # Ignore Windows-specific files
 Thumbs.db
+
+# Ignore Database files
+*.db
+*.db-shm
+*.db-wal
+*.db-journal
