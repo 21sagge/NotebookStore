@@ -4,67 +4,78 @@ namespace NotebookStoreTestConsole;
 
 class Program
 {
-  // public static void PrintNotebook(Notebook notebook)
-  // {
-  //   System.Console.WriteLine($"{notebook.Brand.Name} {notebook.Model.Name}");
-  //   System.Console.WriteLine($"Color: {notebook.Color}");
-  //   System.Console.WriteLine($"Price: {notebook.Price}");
-  //   System.Console.WriteLine($"Cpu: {notebook.Cpu.Brand} {notebook.Cpu.Model}");
-  //   System.Console.WriteLine($"Display: {notebook.Display.Size} {notebook.Display.Resolution} {notebook.Display.PanelType}");
-  //   System.Console.WriteLine($"Memory: {notebook.Memory.Capacity}GB {notebook.Memory.Speed}MHz");
-  //   System.Console.WriteLine($"Storage: {notebook.Storage.Capacity}GB {notebook.Storage.Type}");
-  //   System.Console.WriteLine();
-  // }
-
   static void Main(string[] args)
   {
     var context = new NotebookStoreContext.NotebookStoreContext();
 
-    // Read everything from the database.
-    // var notebooks = context.Notebooks.ToList();
-    // var brands = context.Brands.ToList();
-    // var models = context.Models.ToList();
-    // var cpus = context.Cpus.ToList();
-    // var displays = context.Displays.ToList();
-    // var memories = context.Memories.ToList();
-    // var storages = context.Storages.ToList();
+    Create(context);
 
-    // // Join the tables to get the full notebook information usinig LINQ.
-    // var notebookInfo = from notebook in notebooks
-    //                    join brand in brands on notebook.BrandId equals brand.Id
-    //                    join model in models on notebook.ModelId equals model.Id
-    //                    join cpu in cpus on notebook.CpuId equals cpu.Id
-    //                    join display in displays on notebook.DisplayId equals display.Id
-    //                    join memory in memories on notebook.MemoryId equals memory.Id
-    //                    join storage in storages on notebook.StorageId equals storage.Id
-    //                    select new
-    //                    {
-    //                      Brand = brand.Name,
-    //                      Model = model.Name,
-    //                      notebook.Color,
-    //                      notebook.Price,
-    //                      Cpu = $"{cpu.Brand} {cpu.Model}",
-    //                      Display = $"{display.Size} {display.Resolution} {display.PanelType}",
-    //                      Memory = $"{memory.Capacity}GB {memory.Speed}MHz",
-    //                      Storage = $"{storage.Capacity}GB {storage.Type}"
-    //                    };
+    Read(context);
+  }
 
-    // // Print the notebook information.
-    // foreach (var notebook in notebookInfo)
-    // {
-    //   System.Console.WriteLine($"{notebook.Brand} {notebook.Model}");
-    //   System.Console.WriteLine($"Color: {notebook.Color}");
-    //   System.Console.WriteLine($"Price: {notebook.Price}");
-    //   System.Console.WriteLine($"Cpu: {notebook.Cpu}");
-    //   System.Console.WriteLine($"Display: {notebook.Display}");
-    //   System.Console.WriteLine($"Memory: {notebook.Memory}");
-    //   System.Console.WriteLine($"Storage: {notebook.Storage}");
-    //   System.Console.WriteLine();
-    // }
+  private static void Create(NotebookStoreContext.NotebookStoreContext context)
+  {
+    var brand1 = new Brand { Name = "Dell" };
+    var brand2 = new Brand { Name = "HP" };
+    var brand3 = new Brand { Name = "Lenovo" };
 
-    // Add a new notebook to the database.
+    context.Brands.Add(brand1);
+    context.Brands.Add(brand2);
+    context.Brands.Add(brand3);
+
+    var model1 = new Model { Name = "Inspiron" };
+    var model2 = new Model { Name = "Pavilion" };
+    var model3 = new Model { Name = "ThinkPad" };
+
+    context.Models.Add(model1);
+    context.Models.Add(model2);
+    context.Models.Add(model3);
+
+    var cpu1 = new Cpu { Brand = "Intel", Model = "Core i5" };
+    var cpu2 = new Cpu { Brand = "AMD", Model = "Ryzen 5" };
+    var cpu3 = new Cpu { Brand = "Intel", Model = "Core i7" };
+
+    context.Cpus.Add(cpu1);
+    context.Cpus.Add(cpu2);
+    context.Cpus.Add(cpu3);
+
+    var display1 = new Display { Size = 15.6, Resolution = "1920x1080", PanelType = "IPS" };
+    var display2 = new Display { Size = 14, Resolution = "1920x1080", PanelType = "IPS" };
+    var display3 = new Display { Size = 13.3, Resolution = "2560x1600", PanelType = "IPS" };
+
+    context.Displays.Add(display1);
+    context.Displays.Add(display2);
+    context.Displays.Add(display3);
+
+    var memory1 = new Memory { Capacity = 8, Speed = 2666 };
+    var memory2 = new Memory { Capacity = 16, Speed = 3200 };
+    var memory3 = new Memory { Capacity = 32, Speed = 3200 };
+
+    context.Memories.Add(memory1);
+    context.Memories.Add(memory2);
+    context.Memories.Add(memory3);
+
+    var storage1 = new Storage { Capacity = 256, Type = "SSD" };
+    var storage2 = new Storage { Capacity = 512, Type = "SSD" };
+    var storage3 = new Storage { Capacity = 1024, Type = "SSD" };
+
+    context.Storages.Add(storage1);
+    context.Storages.Add(storage2);
+    context.Storages.Add(storage3);
 
     var newNotebook1 = new Notebook
+    {
+      BrandId = 1,
+      ModelId = 1,
+      Color = "Silver",
+      Price = 1000,
+      CpuId = 1,
+      DisplayId = 1,
+      MemoryId = 1,
+      StorageId = 1
+    };
+
+    var newNotebook2 = new Notebook
     {
       BrandId = 2,
       ModelId = 2,
@@ -76,7 +87,7 @@ class Program
       StorageId = 2
     };
 
-    var newNotebook2 = new Notebook
+    var newNotebook3 = new Notebook
     {
       BrandId = 3,
       ModelId = 3,
@@ -90,6 +101,50 @@ class Program
 
     context.Notebooks.Add(newNotebook1);
     context.Notebooks.Add(newNotebook2);
+    context.Notebooks.Add(newNotebook3);
+
     context.SaveChanges();
+  }
+
+  private static void Read(NotebookStoreContext.NotebookStoreContext context)
+  {
+    var notebooks = context.Notebooks.ToList();
+    var brands = context.Brands.ToList();
+    var models = context.Models.ToList();
+    var cpus = context.Cpus.ToList();
+    var displays = context.Displays.ToList();
+    var memories = context.Memories.ToList();
+    var storages = context.Storages.ToList();
+
+    var notebookInfo = from notebook in notebooks
+                       join brand in brands on notebook.BrandId equals brand.Id
+                       join model in models on notebook.ModelId equals model.Id
+                       join cpu in cpus on notebook.CpuId equals cpu.Id
+                       join display in displays on notebook.DisplayId equals display.Id
+                       join memory in memories on notebook.MemoryId equals memory.Id
+                       join storage in storages on notebook.StorageId equals storage.Id
+                       select new
+                       {
+                         Brand = brand.Name,
+                         Model = model.Name,
+                         notebook.Color,
+                         notebook.Price,
+                         Cpu = $"{cpu.Brand} {cpu.Model}",
+                         Display = $"{display.Size} {display.Resolution} {display.PanelType}",
+                         Memory = $"{memory.Capacity}GB {memory.Speed}MHz",
+                         Storage = $"{storage.Capacity}GB {storage.Type}"
+                       };
+
+    foreach (var notebook in notebookInfo)
+    {
+      System.Console.WriteLine($"{notebook.Brand} {notebook.Model}");
+      System.Console.WriteLine($"Color: {notebook.Color}");
+      System.Console.WriteLine($"Price: {notebook.Price}");
+      System.Console.WriteLine($"Cpu: {notebook.Cpu}");
+      System.Console.WriteLine($"Display: {notebook.Display}");
+      System.Console.WriteLine($"Memory: {notebook.Memory}");
+      System.Console.WriteLine($"Storage: {notebook.Storage}");
+      System.Console.WriteLine();
+    }
   }
 }
