@@ -1,4 +1,0 @@
-Attività da svolgere:
-1 - Collegare DbContext con SqlLite
-2 - Creare ed aggiungere al db entità Notebook
-3 - Leggere da db le entità Notebook
