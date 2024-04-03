@@ -10,8 +10,8 @@ using NotebookStoreContext;
 namespace NotebookStoreContext.Migrations
 {
     [DbContext(typeof(NotebookStoreContext))]
-    [Migration("20240403132422_Update")]
-    partial class Update
+    [Migration("20240403151431_InitialMigration")]
+    partial class InitialMigration
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -67,9 +67,8 @@ namespace NotebookStoreContext.Migrations
                         .IsRequired()
                         .HasColumnType("TEXT");
 
-                    b.Property<string>("Size")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
+                    b.Property<double>("Size")
+                        .HasColumnType("REAL");
 
                     b.HasKey("Id");
 
@@ -82,13 +81,11 @@ namespace NotebookStoreContext.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("INTEGER");
 
-                    b.Property<string>("Capacity")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
+                    b.Property<int>("Capacity")
+                        .HasColumnType("INTEGER");
 
-                    b.Property<string>("Speed")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
+                    b.Property<int>("Speed")
+                        .HasColumnType("INTEGER");
 
                     b.HasKey("Id");
 
@@ -152,9 +149,8 @@ namespace NotebookStoreContext.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("INTEGER");
 
-                    b.Property<string>("Capacity")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
+                    b.Property<int>("Capacity")
+                        .HasColumnType("INTEGER");
 
                     b.Property<string>("Type")
                         .IsRequired()

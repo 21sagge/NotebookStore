@@ -4,6 +4,6 @@ namespace NotebookStore.Entities
   {
     public int Id { get; set; }
     public required string Type { get; set; }
-    public required string Capacity { get; set; }
+    public required int Capacity { get; set; }
   }
 }

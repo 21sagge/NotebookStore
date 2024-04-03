@@ -64,9 +64,8 @@ namespace NotebookStoreContext.Migrations
                         .IsRequired()
                         .HasColumnType("TEXT");
 
-                    b.Property<string>("Size")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
+                    b.Property<double>("Size")
+                        .HasColumnType("REAL");
 
                     b.HasKey("Id");
 
@@ -79,13 +78,11 @@ namespace NotebookStoreContext.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("INTEGER");
 
-                    b.Property<string>("Capacity")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
+                    b.Property<int>("Capacity")
+                        .HasColumnType("INTEGER");
 
-                    b.Property<string>("Speed")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
+                    b.Property<int>("Speed")
+                        .HasColumnType("INTEGER");
 
                     b.HasKey("Id");
 
@@ -149,9 +146,8 @@ namespace NotebookStoreContext.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("INTEGER");
 
-                    b.Property<string>("Capacity")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
+                    b.Property<int>("Capacity")
+                        .HasColumnType("INTEGER");
 
                     b.Property<string>("Type")
                         .IsRequired()

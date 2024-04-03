@@ -5,7 +5,7 @@
 namespace NotebookStoreContext.Migrations
 {
     /// <inheritdoc />
-    public partial class InitialCreate : Migration
+    public partial class InitialMigration : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -43,7 +43,7 @@ namespace NotebookStoreContext.Migrations
                 {
                     Id = table.Column<int>(type: "INTEGER", nullable: false)
                         .Annotation("Sqlite:Autoincrement", true),
-                    Size = table.Column<string>(type: "TEXT", nullable: false),
+                    Size = table.Column<double>(type: "REAL", nullable: false),
                     Resolution = table.Column<string>(type: "TEXT", nullable: false),
                     PanelType = table.Column<string>(type: "TEXT", nullable: false)
                 },
@@ -58,8 +58,8 @@ namespace NotebookStoreContext.Migrations
                 {
                     Id = table.Column<int>(type: "INTEGER", nullable: false)
                         .Annotation("Sqlite:Autoincrement", true),
-                    Capacity = table.Column<string>(type: "TEXT", nullable: false),
-                    Speed = table.Column<string>(type: "TEXT", nullable: false)
+                    Capacity = table.Column<int>(type: "INTEGER", nullable: false),
+                    Speed = table.Column<int>(type: "INTEGER", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -106,7 +106,7 @@ namespace NotebookStoreContext.Migrations
                     Id = table.Column<int>(type: "INTEGER", nullable: false)
                         .Annotation("Sqlite:Autoincrement", true),
                     Type = table.Column<string>(type: "TEXT", nullable: false),
-                    Capacity = table.Column<string>(type: "TEXT", nullable: false)
+                    Capacity = table.Column<int>(type: "INTEGER", nullable: false)
                 },
                 constraints: table =>
                 {

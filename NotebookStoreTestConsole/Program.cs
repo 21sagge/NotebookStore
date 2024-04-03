@@ -8,13 +8,17 @@ class Program
   {
     var context = new NotebookStoreContext.NotebookStoreContext();
 
-    Create(context);
+    // Delete(context);
+
+    // Create(context);
 
     Read(context);
   }
 
   private static void Create(NotebookStoreContext.NotebookStoreContext context)
   {
+    Console.WriteLine("Populating the database with sample data...");
+
     var brand1 = new Brand { Name = "Dell" };
     var brand2 = new Brand { Name = "HP" };
     var brand3 = new Brand { Name = "Lenovo" };
@@ -39,9 +43,9 @@ class Program
     context.Cpus.Add(cpu2);
     context.Cpus.Add(cpu3);
 
-    var display1 = new Display { Size = 15.6, Resolution = "1920x1080", PanelType = "IPS" };
-    var display2 = new Display { Size = 14, Resolution = "1920x1080", PanelType = "IPS" };
-    var display3 = new Display { Size = 13.3, Resolution = "2560x1600", PanelType = "IPS" };
+    var display1 = new Display { Size = 15.6, Resolution = [1920, 1080], PanelType = "IPS" };
+    var display2 = new Display { Size = 17.3, Resolution = [1920, 1080], PanelType = "OLED" };
+    var display3 = new Display { Size = 14, Resolution = [2560, 1440], PanelType = "IPS" };
 
     context.Displays.Add(display1);
     context.Displays.Add(display2);
@@ -130,7 +134,7 @@ class Program
                          notebook.Color,
                          notebook.Price,
                          Cpu = $"{cpu.Brand} {cpu.Model}",
-                         Display = $"{display.Size} {display.Resolution} {display.PanelType}",
+                         Display = $"{display.Size}\" {display.Resolution[0]}x{display.Resolution[1]} {display.PanelType}",
                          Memory = $"{memory.Capacity}GB {memory.Speed}MHz",
                          Storage = $"{storage.Capacity}GB {storage.Type}"
                        };
@@ -146,5 +150,28 @@ class Program
       System.Console.WriteLine($"Storage: {notebook.Storage}");
       System.Console.WriteLine();
     }
+  }
+
+  private static void Delete(NotebookStoreContext.NotebookStoreContext context)
+  {
+    var notebook = context.Notebooks.FirstOrDefault() ?? throw new InvalidOperationException("No notebooks found");
+    context.Notebooks.Remove(notebook);
+
+    var memory = context.Memories.FirstOrDefault() ?? throw new InvalidOperationException("No memories found");
+    context.Memories.Remove(memory);
+
+    var display = context.Displays.FirstOrDefault() ?? throw new InvalidOperationException("No displays found");
+    context.Displays.Remove(display);
+
+    var cpu = context.Cpus.FirstOrDefault() ?? throw new InvalidOperationException("No cpus found");
+    context.Cpus.Remove(cpu);
+
+    var model = context.Models.FirstOrDefault() ?? throw new InvalidOperationException("No models found");
+    context.Models.Remove(model);
+
+    var brand = context.Brands.FirstOrDefault() ?? throw new InvalidOperationException("No brands found");
+    context.Brands.Remove(brand);
+
+    context.SaveChanges();
   }
 }
