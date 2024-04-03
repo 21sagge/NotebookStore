@@ -1,5 +1,4 @@
 ﻿using NotebookStore.Entities;
-using NotebookStoreContext;
 
 namespace NotebookStoreTestConsole;
 

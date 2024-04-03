@@ -61,17 +61,12 @@ public class NotebookStoreContext : DbContext
       s.Property(s => s.Type).IsRequired();
     });
 
-    modelBuilder.Entity<Notebook>(n =>
-    {
-      n.HasKey(n => n.Id);
-      n.Property(n => n.Color).IsRequired();
-      n.Property(n => n.Price).IsRequired();
-      n.HasOne(n => n.Brand).WithMany().HasForeignKey(n => n.BrandId);
-      n.HasOne(n => n.Model).WithMany().HasForeignKey(n => n.ModelId);
-      n.HasOne(n => n.Cpu).WithMany().HasForeignKey(n => n.CpuId);
-      n.HasOne(n => n.Display).WithMany().HasForeignKey(n => n.DisplayId);
-      n.HasOne(n => n.Memory).WithMany().HasForeignKey(n => n.MemoryId);
-      n.HasOne(n => n.Storage).WithMany().HasForeignKey(n => n.StorageId);
-    });
+    // modelBuilder.Entity<Notebook>(n =>
+    // {
+    //   n.HasKey(n => n.Id);
+    //   n.Property(n => n.Color).IsRequired();
+    //   n.Property(n => n.Price).IsRequired();
+    //   n.HasOne<Brand>(n => n.Brand).WithMany().HasForeignKey(n => n.BrandId);
+    // });
   }
 }
