@@ -1,4 +1,4 @@
-namespace NotebookStore.Models
+namespace NotebookStore.Entities
 {
   public class Memory
   {

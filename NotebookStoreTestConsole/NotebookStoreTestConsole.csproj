@@ -7,4 +7,9 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\NotebookStore.Entities\NotebookStore.Entities.csproj" />
+    <ProjectReference Include="..\NotebookStoreContext\NotebookStoreContext.csproj" />
+  </ItemGroup>
+
 </Project>

@@ -1,7 +1,6 @@
-
-namespace NotebookStore.Models
+namespace NotebookStore.Entities
 {
-  public class Brand
+  public class Model
   {
     public int Id { get; set; }
     public required string Name { get; set; }
