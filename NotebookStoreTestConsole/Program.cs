@@ -29,6 +29,7 @@ class Program
         context.Database.EnsureCreated();
 
         var appleBrand = context.Brands.FirstOrDefault(b => b.Name == "Apple") ?? new Brand { Name = "Apple" };
+
         var appleDisplay = context.Displays.FirstOrDefault(d => d.PanelType == "IPS") ??
             new Display
             {
@@ -36,6 +37,20 @@ class Program
                 ResolutionWidth = 2560,
                 ResolutionHeight = 1600,
                 Size = 13.3
+            };
+
+        var ssd256 = context.Storages.FirstOrDefault(s => s.Capacity == 256 && s.Type == "SSD") ??
+            new Storage
+            {
+                Capacity = 256,
+                Type = "SSD"
+            };
+
+        var ssd512 = context.Storages.FirstOrDefault(s => s.Capacity == 512 && s.Type == "SSD") ??
+            new Storage
+            {
+                Capacity = 512,
+                Type = "SSD"
             };
 
         var newNotebook1 = new Notebook
@@ -61,11 +76,7 @@ class Program
                 Capacity = 8,
                 Speed = 2666
             },
-            Storage = new Storage
-            {
-                Capacity = 256,
-                Type = "SSD"
-            }
+            Storage = ssd256
         };
 
         var newNotebook2 = new Notebook
@@ -93,8 +104,8 @@ class Program
             },
             Storage = new Storage
             {
-                Capacity = 512,
-                Type = "SSD"
+                Capacity = 1000,
+                Type = "HDD"
             }
         };
 
@@ -121,11 +132,7 @@ class Program
                 Capacity = 32,
                 Speed = 3200
             },
-            Storage = new Storage
-            {
-                Capacity = 1024,
-                Type = "SSD"
-            }
+            Storage = ssd512
         };
 
         var newNotebook4 = new Notebook
@@ -145,11 +152,7 @@ class Program
                 Capacity = 16,
                 Speed = 3733
             },
-            Storage = new Storage
-            {
-                Capacity = 512,
-                Type = "SSD"
-            }
+            Storage = ssd512
         };
 
         var newNotebook5 = new Notebook
@@ -169,11 +172,7 @@ class Program
                 Capacity = 8,
                 Speed = 3733
             },
-            Storage = new Storage
-            {
-                Capacity = 256,
-                Type = "SSD"
-            }
+            Storage = ssd256
         };
 
         context.Notebooks.Add(newNotebook1);
@@ -189,14 +188,16 @@ class Program
 
     private static void Read(NotebookStoreContext.NotebookStoreContext context)
     {
-        var notebooks = context.Notebooks
-        .Include(n => n.Brand)
-        .Include(n => n.Model)
-        .Include(n => n.Cpu)
-        .Include(n => n.Display)
-        .Include(n => n.Memory)
-        .Include(n => n.Storage)
-        .ToList();
+        // var notebooks = context.Notebooks
+        // .Include(n => n.Brand)
+        // .Include(n => n.Model)
+        // .Include(n => n.Cpu)
+        // .Include(n => n.Display)
+        // .Include(n => n.Memory)
+        // .Include(n => n.Storage)
+        // .ToList();
+
+        var notebooks = context.Notebooks.ToList();
 
         foreach (var notebook in notebooks)
         {
