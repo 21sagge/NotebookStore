@@ -4,9 +4,9 @@ This is a console application that simulates a notebook store. It uses Entity Fr
 
 ## Project Structure
 
--   `NotebookStore.Entities`: This project contains the entity models for the application. You can find it [here](../NotebookStore.Entities/NotebookStore.Entities.csproj).
--   `NotebookStoreContext`: This project contains the DbContext and migrations for Entity Framework Core. You can find it [here](../NotebookStoreContext/NotebookStoreContext.csproj).
--   `NotebookStoreTestConsole`: This is the console application that uses the above projects. You can find it [here](./NotebookStoreTestConsole.csproj).
+-   `NotebookStore.Entities`: This project contains the entity models for the application.
+-   `NotebookStoreContext`: This project contains the DbContext and migrations for Entity Framework Core.
+-   `NotebookStoreTestConsole`: This is the console application that uses the above projects.
 
 ## How to Run
 
