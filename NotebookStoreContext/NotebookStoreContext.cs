@@ -13,15 +13,9 @@ public class NotebookStoreContext : DbContext
     public DbSet<Storage> Storages { get; set; }
     public DbSet<Notebook> Notebooks { get; set; }
 
-    public string DbPath { get; }
-
-    public NotebookStoreContext()
-    {
-        DbPath = "notebookstore.db";
-    }
-
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
+        optionsBuilder.UseLazyLoadingProxies();
         optionsBuilder.UseSqlite($"Data Source=notebookstore.db");
     }
 
@@ -80,7 +74,12 @@ public class NotebookStoreContext : DbContext
             n.Property(n => n.DisplayId).IsRequired();
             n.Property(n => n.MemoryId).IsRequired();
             n.Property(n => n.StorageId).IsRequired();
-            n.HasOne(n => n.Brand).WithMany().HasForeignKey(x => x.BrandId);
+            n.HasOne(n => n.Brand).WithMany().HasForeignKey(n => n.BrandId);
+            n.HasOne(n => n.Model).WithMany().HasForeignKey(n => n.ModelId);
+            n.HasOne(n => n.Cpu).WithMany().HasForeignKey(n => n.CpuId);
+            n.HasOne(n => n.Display).WithMany().HasForeignKey(n => n.DisplayId);
+            n.HasOne(n => n.Memory).WithMany().HasForeignKey(n => n.MemoryId);
+            n.HasOne(n => n.Storage).WithMany().HasForeignKey(n => n.StorageId);
         });
     }
 }

@@ -29,6 +29,14 @@ class Program
         context.Database.EnsureCreated();
 
         var appleBrand = context.Brands.FirstOrDefault(b => b.Name == "Apple") ?? new Brand { Name = "Apple" };
+        var appleDisplay = context.Displays.FirstOrDefault(d => d.PanelType == "IPS") ??
+            new Display
+            {
+                PanelType = "IPS",
+                ResolutionWidth = 2560,
+                ResolutionHeight = 1600,
+                Size = 13.3
+            };
 
         var newNotebook1 = new Notebook
         {
@@ -131,13 +139,7 @@ class Program
                 Brand = "Apple",
                 Model = "M1"
             },
-            Display = new Display
-            {
-                Size = 13.3,
-                ResolutionWidth = 2560,
-                ResolutionHeight = 1600,
-                PanelType = "IPS"
-            },
+            Display = appleDisplay,
             Memory = new Memory
             {
                 Capacity = 16,
@@ -161,13 +163,7 @@ class Program
                 Brand = "Apple",
                 Model = "M2"
             },
-            Display = new Display
-            {
-                Size = 13.3,
-                ResolutionWidth = 2560,
-                ResolutionHeight = 1600,
-                PanelType = "IPS"
-            },
+            Display = appleDisplay,
             Memory = new Memory
             {
                 Capacity = 8,
@@ -194,13 +190,13 @@ class Program
     private static void Read(NotebookStoreContext.NotebookStoreContext context)
     {
         var notebooks = context.Notebooks
-            .Include(n => n.Brand)
-            .Include(n => n.Model)
-            .Include(n => n.Cpu)
-            .Include(n => n.Display)
-            .Include(n => n.Memory)
-            .Include(n => n.Storage)
-            .ToList();
+        .Include(n => n.Brand)
+        .Include(n => n.Model)
+        .Include(n => n.Cpu)
+        .Include(n => n.Display)
+        .Include(n => n.Memory)
+        .Include(n => n.Storage)
+        .ToList();
 
         foreach (var notebook in notebooks)
         {
