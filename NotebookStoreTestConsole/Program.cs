@@ -16,11 +16,19 @@ class Program
         Create(context);
 
         Read(context);
+
+        UpdateColor(context, 1, "Green");
+        UpdateColor(context, 2, "White");
+        UpdateColor(context, 3, "Red");
+
+        Read(context);
     }
 
     private static void Create(NotebookStoreContext.NotebookStoreContext context)
     {
         context.Database.EnsureCreated();
+
+        var appleBrand = context.Brands.FirstOrDefault(b => b.Name == "Apple") ?? new Brand { Name = "Apple" };
 
         var newNotebook1 = new Notebook
         {
@@ -112,9 +120,71 @@ class Program
             }
         };
 
+        var newNotebook4 = new Notebook
+        {
+            Brand = appleBrand,
+            Model = new Model { Name = "MacBook Pro" },
+            Color = "Space Gray",
+            Price = 2000,
+            Cpu = new Cpu
+            {
+                Brand = "Apple",
+                Model = "M1"
+            },
+            Display = new Display
+            {
+                Size = 13.3,
+                ResolutionWidth = 2560,
+                ResolutionHeight = 1600,
+                PanelType = "IPS"
+            },
+            Memory = new Memory
+            {
+                Capacity = 16,
+                Speed = 3733
+            },
+            Storage = new Storage
+            {
+                Capacity = 512,
+                Type = "SSD"
+            }
+        };
+
+        var newNotebook5 = new Notebook
+        {
+            Brand = appleBrand,
+            Model = new Model { Name = "MacBook Air" },
+            Color = "Gold",
+            Price = 1200,
+            Cpu = new Cpu
+            {
+                Brand = "Apple",
+                Model = "M2"
+            },
+            Display = new Display
+            {
+                Size = 13.3,
+                ResolutionWidth = 2560,
+                ResolutionHeight = 1600,
+                PanelType = "IPS"
+            },
+            Memory = new Memory
+            {
+                Capacity = 8,
+                Speed = 3733
+            },
+            Storage = new Storage
+            {
+                Capacity = 256,
+                Type = "SSD"
+            }
+        };
+
         context.Notebooks.Add(newNotebook1);
         context.Notebooks.Add(newNotebook2);
         context.Notebooks.Add(newNotebook3);
+        context.Notebooks.Add(newNotebook4);
+        context.Notebooks.Add(newNotebook5);
 
         context.SaveChanges();
 
@@ -135,17 +205,17 @@ class Program
         foreach (var notebook in notebooks)
         {
             Console.WriteLine($"{notebook.Brand.Name} {notebook.Model.Name}");
-            Console.WriteLine($"  Color: \t{notebook.Color}");
-            Console.WriteLine($"  Price: \t{notebook.Price}€");
-            Console.WriteLine($"  CPU: \t\t{notebook.Cpu.Brand} {notebook.Cpu.Model}");
-            Console.WriteLine($"  Display: \t{notebook.Display.Size}\" {notebook.Display.ResolutionWidth}x{notebook.Display.ResolutionHeight} {notebook.Display.PanelType}");
-            Console.WriteLine($"  Memory: \t{notebook.Memory.Capacity}GB {notebook.Memory.Speed}MHz");
-            Console.WriteLine($"  Storage: \t{notebook.Storage.Capacity}GB {notebook.Storage.Type}");
+            Console.WriteLine($"\tColor: \t\t{notebook.Color}");
+            Console.WriteLine($"\tPrice: \t\t{notebook.Price}€");
+            Console.WriteLine($"\tCPU: \t\t{notebook.Cpu.Brand} {notebook.Cpu.Model}");
+            Console.WriteLine($"\tDisplay: \t{notebook.Display.Size}\" {notebook.Display.ResolutionWidth}x{notebook.Display.ResolutionHeight} {notebook.Display.PanelType}");
+            Console.WriteLine($"\tMemory: \t{notebook.Memory.Capacity}GB {notebook.Memory.Speed}MHz");
+            Console.WriteLine($"\tStorage: \t{notebook.Storage.Capacity}GB {notebook.Storage.Type}");
             Console.WriteLine();
         }
     }
 
-    private static void Update(NotebookStoreContext.NotebookStoreContext context)
+    private static void UpdateColor(NotebookStoreContext.NotebookStoreContext context, int id, string color)
     {
         var notebook = context.Notebooks
             .Include(n => n.Brand)
@@ -154,7 +224,7 @@ class Program
             .Include(n => n.Display)
             .Include(n => n.Memory)
             .Include(n => n.Storage)
-            .FirstOrDefault();
+            .FirstOrDefault(n => n.Id == id);
 
         if (notebook == null)
         {
@@ -162,11 +232,11 @@ class Program
             return;
         }
 
-        notebook.Color = "Red";
+        notebook.Color = color;
 
         context.SaveChanges();
 
-        Console.WriteLine("Notebook updated.\n");
+        Console.WriteLine($"{notebook.Brand.Name} {notebook.Model.Name} updated color to {color}.\n");
     }
 
     private static void Delete(NotebookStoreContext.NotebookStoreContext context)

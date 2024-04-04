@@ -22,7 +22,7 @@ public class NotebookStoreContext : DbContext
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
-        optionsBuilder.UseSqlite($"Data Source={DbPath}");
+        optionsBuilder.UseSqlite($"Data Source=notebookstore.db");
     }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
