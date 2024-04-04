@@ -8,9 +8,9 @@ class Program
   {
     var context = new NotebookStoreContext.NotebookStoreContext();
 
-    // Delete(context);
+    Delete(context);
 
-    // Create(context);
+    Create(context);
 
     Read(context);
   }
@@ -67,40 +67,42 @@ class Program
     context.Storages.Add(storage2);
     context.Storages.Add(storage3);
 
+    context.SaveChanges();
+
     var newNotebook1 = new Notebook
     {
-      BrandId = 1,
-      ModelId = 1,
+      BrandId = context.Brands.First().Id,
+      ModelId = context.Models.First().Id,
       Color = "Silver",
       Price = 1000,
-      CpuId = 1,
-      DisplayId = 1,
-      MemoryId = 1,
-      StorageId = 1
+      CpuId = context.Cpus.First().Id,
+      DisplayId = context.Displays.First().Id,
+      MemoryId = context.Memories.First().Id,
+      StorageId = context.Storages.First().Id
     };
 
     var newNotebook2 = new Notebook
     {
-      BrandId = 2,
-      ModelId = 2,
+      BrandId = context.Brands.Skip(1).First().Id,
+      ModelId = context.Models.Skip(1).First().Id,
       Color = "Black",
       Price = 2000,
-      CpuId = 2,
-      DisplayId = 2,
-      MemoryId = 2,
-      StorageId = 2
+      CpuId = context.Cpus.Skip(1).First().Id,
+      DisplayId = context.Displays.Skip(1).First().Id,
+      MemoryId = context.Memories.Skip(1).First().Id,
+      StorageId = context.Storages.Skip(1).First().Id
     };
 
     var newNotebook3 = new Notebook
     {
-      BrandId = 3,
-      ModelId = 3,
+      BrandId = context.Brands.Skip(2).First().Id,
+      ModelId = context.Models.Skip(2).First().Id,
       Color = "White",
       Price = 3000,
-      CpuId = 3,
-      DisplayId = 3,
-      MemoryId = 3,
-      StorageId = 3
+      CpuId = context.Cpus.Skip(2).First().Id,
+      DisplayId = context.Displays.Skip(2).First().Id,
+      MemoryId = context.Memories.Skip(2).First().Id,
+      StorageId = context.Storages.Skip(2).First().Id
     };
 
     context.Notebooks.Add(newNotebook1);
@@ -131,13 +133,15 @@ class Program
                        {
                          Brand = brand.Name,
                          Model = model.Name,
-                         notebook.Color,
-                         notebook.Price,
+                         Color = notebook.Color,
+                         Price = notebook.Price,
                          Cpu = $"{cpu.Brand} {cpu.Model}",
                          Display = $"{display.Size}\" {display.Resolution[0]}x{display.Resolution[1]} {display.PanelType}",
                          Memory = $"{memory.Capacity}GB {memory.Speed}MHz",
                          Storage = $"{storage.Capacity}GB {storage.Type}"
                        };
+
+    Console.WriteLine($"Notebook Information: {notebookInfo.Count()} items found\n\n");
 
     foreach (var notebook in notebookInfo)
     {
@@ -154,23 +158,26 @@ class Program
 
   private static void Delete(NotebookStoreContext.NotebookStoreContext context)
   {
-    var notebook = context.Notebooks.FirstOrDefault() ?? throw new InvalidOperationException("No notebooks found");
-    context.Notebooks.Remove(notebook);
+    var notebooks = context.Notebooks.ToList();
+    context.Notebooks.RemoveRange(notebooks);
 
-    var memory = context.Memories.FirstOrDefault() ?? throw new InvalidOperationException("No memories found");
-    context.Memories.Remove(memory);
+    var brands = context.Brands.ToList();
+    context.Brands.RemoveRange(brands);
 
-    var display = context.Displays.FirstOrDefault() ?? throw new InvalidOperationException("No displays found");
-    context.Displays.Remove(display);
+    var models = context.Models.ToList();
+    context.Models.RemoveRange(models);
 
-    var cpu = context.Cpus.FirstOrDefault() ?? throw new InvalidOperationException("No cpus found");
-    context.Cpus.Remove(cpu);
+    var cpus = context.Cpus.ToList();
+    context.Cpus.RemoveRange(cpus);
 
-    var model = context.Models.FirstOrDefault() ?? throw new InvalidOperationException("No models found");
-    context.Models.Remove(model);
+    var displays = context.Displays.ToList();
+    context.Displays.RemoveRange(displays);
 
-    var brand = context.Brands.FirstOrDefault() ?? throw new InvalidOperationException("No brands found");
-    context.Brands.Remove(brand);
+    var memories = context.Memories.ToList();
+    context.Memories.RemoveRange(memories);
+
+    var storages = context.Storages.ToList();
+    context.Storages.RemoveRange(storages);
 
     context.SaveChanges();
   }
