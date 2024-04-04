@@ -4,9 +4,9 @@ This is a console application that simulates a notebook store. It uses Entity Fr
 
 ## Project Structure
 
-- `NotebookStore.Entities`: This project contains the entity models for the application.
-- `NotebookStoreContext`: This project contains the DbContext and migrations for Entity Framework Core.
-- `NotebookStoreTestConsole`: This is the console application that uses the above projects.
+-   `NotebookStore.Entities`: This project contains the entity models for the application. You can find it [here](../NotebookStore.Entities/NotebookStore.Entities.csproj).
+-   `NotebookStoreContext`: This project contains the DbContext and migrations for Entity Framework Core. You can find it [here](../NotebookStoreContext/NotebookStoreContext.csproj).
+-   `NotebookStoreTestConsole`: This is the console application that uses the above projects. You can find it [here](./NotebookStoreTestConsole.csproj).
 
 ## How to Run
 
@@ -14,8 +14,14 @@ This is a console application that simulates a notebook store. It uses Entity Fr
 2. Navigate to the `NotebookStoreTestConsole` directory.
 3. Run `dotnet run` to start the application.
 
-## Features
+## Dependencies
 
-- Create new notebooks with different configurations.
-- Read existing notebooks from the database.
-- Delete notebooks from the database.
+This project uses several packages, including:
+
+-   `Microsoft.EntityFrameworkCore`
+-   `Microsoft.EntityFrameworkCore.Proxies`
+-   `Microsoft.EntityFrameworkCore.Design`
+-   `Microsoft.EntityFrameworkCore.Tools`
+-   `Microsoft.EntityFrameworkCore.Sqlite`
+
+These dependencies are automatically restored when you build the project.
