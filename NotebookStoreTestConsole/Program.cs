@@ -181,6 +181,20 @@ class Program
         context.Notebooks.Add(newNotebook4);
         context.Notebooks.Add(newNotebook5);
 
+        var newNotebook6 = new Notebook
+        {
+            BrandId = 1,
+            ModelId = 1,
+            Color = "Blue",
+            Price = 800,
+            CpuId = 1,
+            DisplayId = 1,
+            MemoryId = 1,
+            StorageId = 1
+        };
+
+        context.Notebooks.Add(newNotebook6);
+
         context.SaveChanges();
 
         Console.WriteLine("Notebooks created.\n");
@@ -188,19 +202,23 @@ class Program
 
     private static void Read(NotebookStoreContext.NotebookStoreContext context)
     {
-        // var notebooks = context.Notebooks
-        // .Include(n => n.Brand)
-        // .Include(n => n.Model)
-        // .Include(n => n.Cpu)
-        // .Include(n => n.Display)
-        // .Include(n => n.Memory)
-        // .Include(n => n.Storage)
-        // .ToList();
-
-        var notebooks = context.Notebooks.ToList();
+        var notebooks = context.Notebooks
+        .Include(n => n.Brand)
+        .Include(n => n.Model)
+        .Include(n => n.Cpu)
+        .Include(n => n.Display)
+        .Include(n => n.Memory)
+        .Include(n => n.Storage)
+        .ToList();
 
         foreach (var notebook in notebooks)
         {
+            if (notebook.Brand == null || notebook.Model == null || notebook.Cpu == null || notebook.Display == null || notebook.Memory == null || notebook.Storage == null)
+            {
+                Console.WriteLine("Notebook not found.\n");
+                return;
+            }
+
             Console.WriteLine($"{notebook.Brand.Name} {notebook.Model.Name}");
             Console.WriteLine($"\tColor: \t\t{notebook.Color}");
             Console.WriteLine($"\tPrice: \t\t{notebook.Price}€");
@@ -232,6 +250,12 @@ class Program
         notebook.Color = color;
 
         context.SaveChanges();
+
+        if (notebook.Brand == null || notebook.Model == null || notebook.Cpu == null || notebook.Display == null || notebook.Memory == null || notebook.Storage == null)
+        {
+            Console.WriteLine("Notebook not found.\n");
+            return;
+        }
 
         Console.WriteLine($"{notebook.Brand.Name} {notebook.Model.Name} updated color to {color}.\n");
     }
