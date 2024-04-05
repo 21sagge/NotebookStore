@@ -13,20 +13,22 @@ class Program
 
         Delete(context);
 
+        context.Database.EnsureCreated();
+
         Create(context);
 
         Read(context);
 
-        UpdateColor(context, 1, "Green");
-        UpdateColor(context, 2, "White");
-        UpdateColor(context, 3, "Red");
+        //UpdateColor(context, 1, "Green");
+        //UpdateColor(context, 2, "White");
+        //UpdateColor(context, 3, "Red");
 
-        Read(context);
+        //Read(context);
     }
 
     private static void Create(NotebookStoreContext.NotebookStoreContext context)
     {
-        context.Database.EnsureCreated();
+        
 
         var appleBrand = context.Brands.FirstOrDefault(b => b.Name == "Apple") ?? new Brand { Name = "Apple" };
 
@@ -181,21 +183,33 @@ class Program
         context.Notebooks.Add(newNotebook4);
         context.Notebooks.Add(newNotebook5);
 
-        var newNotebook6 = new Notebook
-        {
-            BrandId = 1,
-            ModelId = 1,
-            Color = "Blue",
-            Price = 800,
-            CpuId = 1,
-            DisplayId = 1,
-            MemoryId = 1,
-            StorageId = 1
-        };
+        //var newNotebook6 = new Notebook
+        //{
+        //    BrandId = 1,
+        //    ModelId = 1,
+        //    Color = "Blue",
+        //    Price = 800,
+        //    CpuId = 1,
+        //    DisplayId = 1,
+        //    MemoryId = 1,
+        //    StorageId = 1
+        //};
 
-        context.Notebooks.Add(newNotebook6);
+        //context.Notebooks.Add(newNotebook6);
 
         context.SaveChanges();
+
+        context.Database.BeginTransaction();
+
+        try
+        {
+            // Facciamo cose su database
+            context.Database.CommitTransaction();
+        }
+        catch
+        {
+            context.Database.RollbackTransaction();
+        }
 
         Console.WriteLine("Notebooks created.\n");
     }
@@ -203,12 +217,12 @@ class Program
     private static void Read(NotebookStoreContext.NotebookStoreContext context)
     {
         var notebooks = context.Notebooks
-        .Include(n => n.Brand)
-        .Include(n => n.Model)
-        .Include(n => n.Cpu)
-        .Include(n => n.Display)
-        .Include(n => n.Memory)
-        .Include(n => n.Storage)
+        //.Include(n => n.Brand)
+        //.Include(n => n.Model)
+        //.Include(n => n.Cpu)
+        //.Include(n => n.Display)
+        //.Include(n => n.Memory)
+        //.Include(n => n.Storage)
         .ToList();
 
         foreach (var notebook in notebooks)
