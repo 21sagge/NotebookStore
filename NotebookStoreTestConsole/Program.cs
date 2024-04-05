@@ -11,21 +11,21 @@ class Program
 
         Console.WriteLine();
 
-        // context.Database.EnsureDeleted();
-        // Console.WriteLine("Database deleted.\n");
+        context.Database.EnsureDeleted();
+        Console.WriteLine("Database deleted.\n");
 
-        // context.Database.EnsureCreated();
-        // Console.WriteLine("Database created.\n");
+        context.Database.EnsureCreated();
+        Console.WriteLine("Database created.\n");
 
-        // Create(context);
+        Create(context);
 
         Read(context);
 
-        // UpdateColor(context, 1, "Green");
-        // UpdateColor(context, 2, "White");
-        // UpdateColor(context, 3, "Red");
+        UpdateColor(context, 1, "Green");
+        UpdateColor(context, 2, "White");
+        UpdateColor(context, 3, "Red");
 
-        // Read(context);
+        Read(context);
     }
 
     private static void Create(NotebookStoreContext.NotebookStoreContext context)
@@ -253,12 +253,12 @@ class Program
     private static void UpdateColor(NotebookStoreContext.NotebookStoreContext context, int id, string color)
     {
         var notebook = context.Notebooks
-            // .Include(n => n.Brand)
-            // .Include(n => n.Model)
-            // .Include(n => n.Cpu)
-            // .Include(n => n.Display)
-            // .Include(n => n.Memory)
-            // .Include(n => n.Storage)
+            .Include(n => n.Brand)
+            .Include(n => n.Model)
+            .Include(n => n.Cpu)
+            .Include(n => n.Display)
+            .Include(n => n.Memory)
+            .Include(n => n.Storage)
             .FirstOrDefault(n => n.Id == id);
 
         if (notebook == null)
