@@ -58,7 +58,6 @@ public class NotebookStoreContext : DbContext
             m.Property(m => m.Capacity).IsRequired();
             m.Property(m => m.Speed).IsRequired();
             m.HasIndex(m => new { m.Capacity, m.Speed }).IsUnique();
-
         });
 
         modelBuilder.Entity<Storage>(s =>
