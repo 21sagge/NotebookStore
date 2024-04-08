@@ -1,0 +1,16 @@
+﻿@model NotebookStore.Entities.Brand
+@{
+    ViewData["Title"] = "Brand";
+}
+
+<div class="text-center">
+    <h1 class="display-4">Brand</h1>
+    @foreach (var brand in ViewBag.Brands)
+    {
+        <div class="card">
+            <p>
+                <strong>@brand.Name</strong>
+            </p>
+        </div>
+    }
+</div>

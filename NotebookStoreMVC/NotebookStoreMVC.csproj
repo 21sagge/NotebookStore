@@ -1,0 +1,24 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net7.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+  </PropertyGroup>
+
+  <PropertyGroup Condition=" '$(RunConfiguration)' == 'https' " />
+  <PropertyGroup Condition=" '$(RunConfiguration)' == 'http' " />
+
+   <ItemGroup>
+    <ProjectReference Include="..\NotebookStore.Entities\NotebookStore.Entities.csproj" />
+    <ProjectReference Include="..\NotebookStoreContext\NotebookStoreContext.csproj" />
+  </ItemGroup>
+   <ItemGroup>
+     <None Remove="Views\Brand\" />
+     <None Remove="Models\" />
+   </ItemGroup>
+   <ItemGroup>
+     <Folder Include="Views\Brand\" />
+     <Folder Include="Models\" />
+   </ItemGroup>
+</Project>

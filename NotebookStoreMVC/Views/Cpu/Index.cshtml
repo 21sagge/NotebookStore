@@ -1,0 +1,17 @@
+@model NotebookStore.Entities.Cpu
+@{
+  ViewData["Title"] = "Cpu";
+}
+
+<div class="text-center">
+  <h1 class="display-4">Cpu</h1>
+  @foreach (var cpu in ViewBag.Cpus)
+  {
+    <div class="card">
+      <p>
+        <strong>@cpu.Brand</strong>
+        <strong>@cpu.Model</strong>
+      </p>
+    </div>
+  }
+</div>

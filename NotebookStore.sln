@@ -9,6 +9,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NotebookStoreTestConsole", 
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NotebookStoreContext", "NotebookStoreContext\NotebookStoreContext.csproj", "{EA4F908E-6B51-40F1-9EC3-AB4284D69DF6}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NotebookStoreMVC", "NotebookStoreMVC\NotebookStoreMVC.csproj", "{C439A7A2-C8FA-45F3-B88D-653A00F098B8}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -30,5 +32,9 @@ Global
 		{EA4F908E-6B51-40F1-9EC3-AB4284D69DF6}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{EA4F908E-6B51-40F1-9EC3-AB4284D69DF6}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{EA4F908E-6B51-40F1-9EC3-AB4284D69DF6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C439A7A2-C8FA-45F3-B88D-653A00F098B8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C439A7A2-C8FA-45F3-B88D-653A00F098B8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C439A7A2-C8FA-45F3-B88D-653A00F098B8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C439A7A2-C8FA-45F3-B88D-653A00F098B8}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
