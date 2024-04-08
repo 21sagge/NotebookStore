@@ -1,10 +1,16 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using NotebookStore.Entities;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Options;
 
 namespace NotebookStoreContext;
 
+
+
 public class NotebookStoreContext : DbContext
 {
+
     public DbSet<Brand> Brands { get; set; }
     public DbSet<Model> Models { get; set; }
     public DbSet<Cpu> Cpus { get; set; }
@@ -15,9 +21,17 @@ public class NotebookStoreContext : DbContext
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
+
+        var builder = new ConfigurationBuilder();
+        builder.SetBasePath(Directory.GetCurrentDirectory())
+           .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true);
+
+        IConfiguration config = builder.Build();
+
         optionsBuilder.UseLazyLoadingProxies();
-        optionsBuilder.UseSqlite($"Data Source=notebookstore.db");
-    }
+        optionsBuilder.UseSqlite(config.GetSection("ConnectionStrings").GetSection("SqlLite").Value);
+        optionsBuilder.LogTo(Console.WriteLine, LogLevel.Information).EnableDetailedErrors();
+}
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

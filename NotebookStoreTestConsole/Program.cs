@@ -7,17 +7,18 @@ class Program
 {
     static void Main(string[] args)
     {
+
         var context = new NotebookStoreContext.NotebookStoreContext();
 
         Console.WriteLine();
 
-        context.Database.EnsureDeleted();
-        Console.WriteLine("Database deleted.\n");
+        //context.Database.EnsureDeleted();
+        //Console.WriteLine("Database deleted.\n");
 
         context.Database.EnsureCreated();
-        Console.WriteLine("Database created.\n");
+        //Console.WriteLine("Database created.\n");
 
-        Create(context);
+        //Create(context);
 
         Read(context);
 
@@ -187,12 +188,12 @@ class Program
     private static void Read(NotebookStoreContext.NotebookStoreContext context)
     {
         var notebooks = context.Notebooks
-        .Include(n => n.Brand)
-        .Include(n => n.Model)
-        .Include(n => n.Cpu)
-        .Include(n => n.Display)
-        .Include(n => n.Memory)
-        .Include(n => n.Storage)
+        //.Include(n => n.Brand)
+        //.Include(n => n.Model)
+        //.Include(n => n.Cpu)
+        //.Include(n => n.Display)
+        //.Include(n => n.Memory)
+        //.Include(n => n.Storage)
         .ToList();
 
         foreach (var notebook in notebooks)
