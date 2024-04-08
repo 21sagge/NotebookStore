@@ -21,11 +21,11 @@ class Program
 
         Read(context);
 
-        UpdateColor(context, 1, "Green");
-        UpdateColor(context, 2, "White");
-        UpdateColor(context, 3, "Red");
+        // UpdateColor(context, 1, "Green");
+        // UpdateColor(context, 2, "White");
+        // UpdateColor(context, 3, "Red");
 
-        Read(context);
+        // Read(context);
     }
 
     private static void Create(NotebookStoreContext.NotebookStoreContext context)
@@ -177,35 +177,6 @@ class Program
             Storage = ssd256
         };
 
-        // var proxyNotebook = context.Notebooks.CreateProxy();
-
-        // proxyNotebook.Brand = new Brand { Name = "Proxy" };
-        // proxyNotebook.Model = new Model { Name = "Proxy" };
-        // proxyNotebook.Color = "Proxy";
-        // proxyNotebook.Price = 0;
-        // proxyNotebook.Cpu = new Cpu
-        // {
-        //     Brand = "Proxy",
-        //     Model = "Proxy"
-        // };
-        // proxyNotebook.Display = new Display
-        // {
-        //     Size = 0,
-        //     ResolutionWidth = 0,
-        //     ResolutionHeight = 0,
-        //     PanelType = "Proxy"
-        // };
-        // proxyNotebook.Memory = new Memory
-        // {
-        //     Capacity = 0,
-        //     Speed = 0
-        // };
-        // proxyNotebook.Storage = new Storage
-        // {
-        //     Capacity = 0,
-        //     Type = "Proxy"
-        // };
-
         context.Notebooks.AddRange(newNotebook1, newNotebook2, newNotebook3, newNotebook4, newNotebook5);
 
         context.SaveChanges();
@@ -216,8 +187,6 @@ class Program
     private static void Read(NotebookStoreContext.NotebookStoreContext context)
     {
         var notebooks = context.Notebooks
-        // Entity Framework Core non traccerà le entità restituite e non riutilizzerà le entità già caricate nelle query successive.
-        .AsNoTracking()
         .Include(n => n.Brand)
         .Include(n => n.Model)
         .Include(n => n.Cpu)

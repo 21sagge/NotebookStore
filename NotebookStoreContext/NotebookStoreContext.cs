@@ -15,7 +15,7 @@ public class NotebookStoreContext : DbContext
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
-        optionsBuilder.UseLazyLoadingProxies(false);
+        optionsBuilder.UseLazyLoadingProxies();
         optionsBuilder.UseSqlite($"Data Source=notebookstore.db");
     }
 
