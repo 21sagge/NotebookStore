@@ -1,13 +1,9 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using NotebookStore.Entities;
-using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Options;
 
 namespace NotebookStoreContext;
-
-
 
 public class NotebookStoreContext : DbContext
 {
@@ -32,7 +28,7 @@ public class NotebookStoreContext : DbContext
         optionsBuilder.UseLazyLoadingProxies();
         optionsBuilder.UseSqlite(config.GetSection("ConnectionStrings").GetSection("SqlLite").Value);
         optionsBuilder.LogTo(Console.WriteLine, LogLevel.Information).EnableDetailedErrors();
-}
+    }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

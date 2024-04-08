@@ -7,7 +7,6 @@ class Program
 {
     static void Main(string[] args)
     {
-
         var context = new NotebookStoreContext.NotebookStoreContext();
 
         Console.WriteLine();
@@ -198,19 +197,13 @@ class Program
 
         foreach (var notebook in notebooks)
         {
-            if (notebook.Brand == null || notebook.Model == null || notebook.Cpu == null || notebook.Display == null || notebook.Memory == null || notebook.Storage == null)
-            {
-                Console.WriteLine("Notebook not found.\n");
-                return;
-            }
-
-            Console.WriteLine($"{notebook.Brand.Name} {notebook.Model.Name}");
+            Console.WriteLine($"{notebook.Brand?.Name} {notebook.Model?.Name}");
             Console.WriteLine($"\tColor: \t\t{notebook.Color}");
             Console.WriteLine($"\tPrice: \t\t{notebook.Price}€");
-            Console.WriteLine($"\tCPU: \t\t{notebook.Cpu.Brand} {notebook.Cpu.Model}");
-            Console.WriteLine($"\tDisplay: \t{notebook.Display.Size}\" {notebook.Display.ResolutionWidth}x{notebook.Display.ResolutionHeight} {notebook.Display.PanelType}");
-            Console.WriteLine($"\tMemory: \t{notebook.Memory.Capacity}GB {notebook.Memory.Speed}MHz");
-            Console.WriteLine($"\tStorage: \t{notebook.Storage.Capacity}GB {notebook.Storage.Type}");
+            Console.WriteLine($"\tCPU: \t\t{notebook.Cpu?.Brand} {notebook.Cpu?.Model}");
+            Console.WriteLine($"\tDisplay: \t{notebook.Display?.Size}\" {notebook.Display?.ResolutionWidth}x{notebook.Display?.ResolutionHeight} {notebook.Display?.PanelType}");
+            Console.WriteLine($"\tMemory: \t{notebook.Memory?.Capacity}GB {notebook.Memory?.Speed}MHz");
+            Console.WriteLine($"\tStorage: \t{notebook.Storage?.Capacity}GB {notebook.Storage?.Type}");
             Console.WriteLine();
         }
     }
