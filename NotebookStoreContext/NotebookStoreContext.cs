@@ -1,22 +1,24 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using NotebookStore.Entities;
 
 namespace NotebookStoreContext;
 
 public class NotebookStoreContext : DbContext
 {
-    public DbSet<Brand> Brands { get; set; }
-    public DbSet<Model> Models { get; set; }
-    public DbSet<Cpu> Cpus { get; set; }
-    public DbSet<Display> Displays { get; set; }
-    public DbSet<Memory> Memories { get; set; }
-    public DbSet<Storage> Storages { get; set; }
-    public DbSet<Notebook> Notebooks { get; set; }
+    public virtual DbSet<Brand> Brands { get; set; }
+    public virtual DbSet<Model> Models { get; set; }
+    public virtual DbSet<Cpu> Cpus { get; set; }
+    public virtual DbSet<Display> Displays { get; set; }
+    public virtual DbSet<Memory> Memories { get; set; }
+    public virtual DbSet<Storage> Storages { get; set; }
+    public virtual DbSet<Notebook> Notebooks { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
         optionsBuilder.UseLazyLoadingProxies();
         optionsBuilder.UseSqlite($"Data Source=notebookstore.db");
+        optionsBuilder.LogTo(Console.WriteLine, LogLevel.Information);
     }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
