@@ -54,11 +54,11 @@ namespace NotebookStoreMVC.Controllers
         public IActionResult Create()
         {
             ViewData["BrandId"] = new SelectList(_context.Brands, "Id", "Name");
-            ViewData["CpuId"] = new SelectList(_context.Cpus, "Id", "Brand");
-            ViewData["DisplayId"] = new SelectList(_context.Displays, "Id", "PanelType");
-            ViewData["MemoryId"] = new SelectList(_context.Memories, "Id", "Id");
+            ViewData["CpuId"] = new SelectList(_context.Cpus, "Id", "Name");
+            ViewData["DisplayId"] = new SelectList(_context.Displays, "Id", "Name");
+            ViewData["MemoryId"] = new SelectList(_context.Memories, "Id", "CapacityAndSpeed");
             ViewData["ModelId"] = new SelectList(_context.Models, "Id", "Name");
-            ViewData["StorageId"] = new SelectList(_context.Storages, "Id", "Type");
+            ViewData["StorageId"] = new SelectList(_context.Storages, "Id", "TypeAndCapacity");
             return View();
         }
 
@@ -98,11 +98,11 @@ namespace NotebookStoreMVC.Controllers
                 return NotFound();
             }
             ViewData["BrandId"] = new SelectList(_context.Brands, "Id", "Name", notebook.BrandId);
-            ViewData["CpuId"] = new SelectList(_context.Cpus, "Id", "Brand", notebook.CpuId);
-            ViewData["DisplayId"] = new SelectList(_context.Displays, "Id", "PanelType", notebook.DisplayId);
+            ViewData["CpuId"] = new SelectList(_context.Cpus, "Id", "Name", notebook.CpuId);
+            ViewData["DisplayId"] = new SelectList(_context.Displays, "Id", "Name", notebook.DisplayId);
             ViewData["MemoryId"] = new SelectList(_context.Memories, "Id", "CapacityAndSpeed", notebook.MemoryId);
             ViewData["ModelId"] = new SelectList(_context.Models, "Id", "Name", notebook.ModelId);
-            ViewData["StorageId"] = new SelectList(_context.Storages, "Id", "Type", notebook.StorageId);
+            ViewData["StorageId"] = new SelectList(_context.Storages, "Id", "TypeAndCapacity", notebook.StorageId);
             return View(notebook);
         }
 

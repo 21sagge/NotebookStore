@@ -29,4 +29,6 @@ public class Display
   /// </summary>
   [MaxLength(10)]
   public required string PanelType { get; set; }
+
+  public string Name => $"{Size}\" {ResolutionWidth}x{ResolutionHeight} {PanelType}";
 }
