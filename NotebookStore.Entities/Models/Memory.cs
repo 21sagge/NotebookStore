@@ -17,4 +17,6 @@ public class Memory
   /// </summary>
   [Range(800, 6400)]
   public required int Speed { get; set; }
+
+  public string CapacityAndSpeed => $"{Capacity}GB {Speed}MHz";
 }
