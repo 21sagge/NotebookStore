@@ -22,9 +22,9 @@ namespace NotebookStoreMVC.Controllers
         // GET: Memory
         public async Task<IActionResult> Index()
         {
-              return _context.Memories != null ? 
-                          View(await _context.Memories.ToListAsync()) :
-                          Problem("Entity set 'NotebookStoreContext.Memories'  is null.");
+            return _context.Memories != null ?
+                        View(await _context.Memories.ToListAsync()) :
+                        Problem("Entity set 'NotebookStoreContext.Memories'  is null.");
         }
 
         // GET: Memory/Details/5
@@ -150,14 +150,14 @@ namespace NotebookStoreMVC.Controllers
             {
                 _context.Memories.Remove(memory);
             }
-            
+
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
 
         private bool MemoryExists(int id)
         {
-          return (_context.Memories?.Any(e => e.Id == id)).GetValueOrDefault();
+            return (_context.Memories?.Any(e => e.Id == id)).GetValueOrDefault();
         }
     }
 }

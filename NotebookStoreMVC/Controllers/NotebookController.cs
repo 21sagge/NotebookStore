@@ -100,7 +100,7 @@ namespace NotebookStoreMVC.Controllers
             ViewData["BrandId"] = new SelectList(_context.Brands, "Id", "Name", notebook.BrandId);
             ViewData["CpuId"] = new SelectList(_context.Cpus, "Id", "Brand", notebook.CpuId);
             ViewData["DisplayId"] = new SelectList(_context.Displays, "Id", "PanelType", notebook.DisplayId);
-            ViewData["MemoryId"] = new SelectList(_context.Memories, "Id", "Id", notebook.MemoryId);
+            ViewData["MemoryId"] = new SelectList(_context.Memories, "Id", "CapacityAndSpeed", notebook.MemoryId);
             ViewData["ModelId"] = new SelectList(_context.Models, "Id", "Name", notebook.ModelId);
             ViewData["StorageId"] = new SelectList(_context.Storages, "Id", "Type", notebook.StorageId);
             return View(notebook);
@@ -185,14 +185,14 @@ namespace NotebookStoreMVC.Controllers
             {
                 _context.Notebooks.Remove(notebook);
             }
-            
+
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
 
         private bool NotebookExists(int id)
         {
-          return (_context.Notebooks?.Any(e => e.Id == id)).GetValueOrDefault();
+            return (_context.Notebooks?.Any(e => e.Id == id)).GetValueOrDefault();
         }
     }
 }
