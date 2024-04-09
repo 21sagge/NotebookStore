@@ -4,38 +4,22 @@
     ViewData["Title"] = "Index";
 }
 
-<h1>Index</h1>
-
-<p>
-    <a asp-action="Create">Create New</a>
-</p>
-<table class="table">
-    <thead>
-        <tr>
-            <th>
-                @Html.DisplayNameFor(model => model.Brand)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Model)
-            </th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-@foreach (var item in Model) {
-        <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.Brand)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Model)
-            </td>
-            <td>
-                <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
-                <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
-                <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
-            </td>
-        </tr>
-}
-    </tbody>
-</table>
+    <h1>Cpu</h1>
+    <h3 class="fs-5 text-start font-bold pt-3 pr-3 pb-3">List of Cpu</h3>
+    <div class="container">
+        <div class="row border-bottom fs-6 text-gray-500 text-start py-3 d-flex flex-nowrap">
+            <div class="col-2">@Html.DisplayNameFor(model => model.Brand)</div>
+            <div class="col-2">@Html.DisplayNameFor(model => model.Model)</div>
+        </div>
+        @foreach (var item in Model) {
+            <div class="d-flex justify-content-between row py-4">
+                <div class="col-2">@Html.DisplayFor(modelItem => item.Brand)</div>
+                <div class="col-2">@Html.DisplayFor(modelItem => item.Model)</div>
+                <div class="col-4 text-end">
+                    <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-outline-dark">Edit</a>
+                    <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-sm btn-outline-dark">Details</a>
+                    <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-sm btn-danger">Delete</a>
+                </div>
+            </div>
+        }
+    </div>
