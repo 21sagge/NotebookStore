@@ -1,23 +1,108 @@
-@model NotebookStore.Entities.Notebook
+@model IEnumerable<NotebookStore.Entities.Notebook>
+
 @{
-  ViewData["Title"] = "Notebook";
+	ViewData["Title"] = "Index";
 }
 
-<div class="text-center">
-  <h1 class="display-4">Notebook</h1>
-  @foreach (var notebook in ViewBag.Notebooks)
-  {
-    <div class="card">
-      <p>
-        <strong>@notebook.Brand.Name</strong>
-        <strong>@notebook.Model.Name</strong>
-        <strong>@notebook.Price</strong>
-        <strong>@notebook.Color</strong>
-        <strong>@notebook.Display.Size" @notebook.Display.ResolutionWidth x @notebook.Display.ResolutionHeight</strong>
-        <strong>@notebook.Cpu.Brand @notebook.Cpu.Model</strong>
-        <strong>@notebook.Memory.Capacity Gb @notebook.Memory.Speed MHz</strong>
-        <strong>@notebook.Storage.Capacity Gb @notebook.Storage.Type</strong>
-      </p>
-    </div>
-  }
-</div>
+<h1>Index</h1>
+
+<p>
+	<a asp-action="Create">Create New</a>
+</p>
+<table class="table">
+	<thead>
+		<tr>
+			<th>
+				@Html.DisplayNameFor(model => model.Color)
+			</th>
+			<th>
+				@Html.DisplayNameFor(model => model.Price)
+			</th>
+			<th>
+				@Html.DisplayNameFor(model => model.Brand)
+			</th>
+			<th>
+				@Html.DisplayNameFor(model => model.Model)
+			</th>
+			<th>
+				@Html.DisplayNameFor(model => model.Cpu)
+			</th>
+			<th>
+				@Html.DisplayNameFor(model => model.Display)
+			</th>
+			<th>
+				@Html.DisplayNameFor(model => model.Memory)
+			</th>
+			<th>
+				@Html.DisplayNameFor(model => model.Storage)
+			</th>
+			<th></th>
+		</tr>
+	</thead>
+	<tbody>
+		@foreach (var item in Model)
+		{
+			<tr>
+				<td>
+					@item.Color
+				</td>
+				<td>
+					@item.Price
+				</td>
+				<td>
+				@if (item.Brand != null)
+				{
+					@item.Brand.Name
+				}
+				else
+				{
+					@:
+				}
+				</td>
+				<td>
+					@if (item.Model != null)
+					{
+						@item.Model.Name
+					}
+					else
+					{
+						@:
+					}
+				</td>
+				<td>
+					@if (item.Cpu != null)
+					{
+						@item.Cpu.Brand @(" ") @item.Cpu.Model
+					}
+					else
+					{
+						@:
+					}
+				</td>
+				<td>
+					@if (item.Display != null)
+					{
+						@item.Display.Size @(" ") @item.Display.ResolutionWidth @("x") @item.Display.ResolutionHeight
+					}
+				</td>
+				<td>
+					@if (item.Memory != null)
+					{
+						@item.Memory.Capacity @(" Gb ") @item.Memory.Speed @(" MHz")
+					}
+				</td>
+				<td>
+					@if (item.Storage != null)
+					{
+						@item.Storage.Capacity @(" Gb ") @item.Storage.Type
+					}
+				</td>
+				<td>
+					<a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
+					<a asp-action="Details" asp-route-id="@item.Id">Details</a> |
+					<a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
+				</td>
+			</tr>
+		}
+	</tbody>
+</table>

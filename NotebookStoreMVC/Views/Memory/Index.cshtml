@@ -1,17 +1,41 @@
-@model NotebookStore.Entities.Memory
+@model IEnumerable<NotebookStore.Entities.Memory>
+
 @{
-  ViewData["Title"] = "Memory";
+    ViewData["Title"] = "Index";
 }
 
-<div class="text-center">
-  <h1 class="display-4">Memory</h1>
-  @foreach (var memory in ViewBag.Memories)
-  {
-    <div class="card">
-      <p>
-        <strong>@memory.Capacity GB</strong>
-        <strong>@memory.Speed MHz</strong>
-      </p>
-    </div>
-  }
-</div>
+<h1>Index</h1>
+
+<p>
+    <a asp-action="Create">Create New</a>
+</p>
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.Capacity)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Speed)
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+@foreach (var item in Model) {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.Capacity)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Speed)
+            </td>
+            <td>
+                <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
+                <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
+                <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
+            </td>
+        </tr>
+}
+    </tbody>
+</table>

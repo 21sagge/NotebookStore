@@ -1,7 +1,13 @@
-﻿var builder = WebApplication.CreateBuilder(args);
+﻿using Microsoft.EntityFrameworkCore;
+using NotebookStoreContext;
+
+var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
+
+builder.Services.AddDbContext<NotebookStoreContext.NotebookStoreContext>(options =>
+    options.UseSqlite(builder.Configuration.GetConnectionString("SqlLite")));
 
 var app = builder.Build();
 
