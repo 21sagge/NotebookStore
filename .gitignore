@@ -22,3 +22,9 @@ Thumbs.db
 *.db-shm
 *.db-wal
 *.db-journal
+
+# Ignore Log files
+*.log
+
+# Ignore environment-specific appsettings files
+appsettings.*.json
