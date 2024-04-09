@@ -4,50 +4,30 @@
     ViewData["Title"] = "Index";
 }
 
-<h1>Index</h1>
-
-<p>
-    <a asp-action="Create">Create New</a>
-</p>
-<table class="table">
-    <thead>
-        <tr>
-            <th>
-                @Html.DisplayNameFor(model => model.Size)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.ResolutionWidth)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.ResolutionHeight)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.PanelType)
-            </th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-@foreach (var item in Model) {
-        <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.Size)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.ResolutionWidth)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.ResolutionHeight)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.PanelType)
-            </td>
-            <td>
-                <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
-                <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
-                <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
-            </td>
-        </tr>
-}
-    </tbody>
-</table>
+<header class="d-flex justify-content-between align-items-center">
+    <h1>Displays</h1>
+    <a asp-action="Create" class="btn btn-outline-primary">Create New</a>
+</header>
+<div class="container">
+    <div class="border-bottom fs-6 justify-content-between text-gray-500 text-start py-3 d-flex flex-nowrap">
+        <div class="col-2">@Html.DisplayNameFor(model => model.Size)</div>
+        <div class="col-2">@Html.DisplayNameFor(model => model.ResolutionWidth)</div>
+        <div class="col-2">@Html.DisplayNameFor(model => model.ResolutionHeight)</div>
+        <div class="col-2">@Html.DisplayNameFor(model => model.PanelType)</div>
+        <div class="col-4"></div>
+    </div>
+    @foreach (var item in Model)
+    {
+        <div class="d-flex justify-content-between w-100 align-items-center py-4 flex-nowrap">
+            <div class="d-flex col-2">@Html.DisplayFor(modelItem => item.Size)"</div>
+            <div class="d-flex col-2">@Html.DisplayFor(modelItem => item.ResolutionWidth)px</div>
+            <div class="d-flex col-2">@Html.DisplayFor(modelItem => item.ResolutionHeight)px</div>
+            <div class="d-flex col-2">@Html.DisplayFor(modelItem => item.PanelType)</div>
+            <div class="d-flex col-4 column-gap-2 justify-content-end">
+                <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-outline-success">Edit</a>
+                <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-sm btn-outline-info">Details</a>
+                <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-sm btn-danger">Delete</a>
+            </div>
+        </div>
+    }
+</div>
