@@ -1,49 +1,35 @@
-﻿@model NotebookStore.Entities.Brand
+@model IEnumerable<NotebookStore.Entities.Brand>
+
 @{
-    ViewData["Title"] = "Brand";
+    ViewData["Title"] = "Index";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Brand</h1>
-    <div class="table-responsive">
-    <div class="w-100">
-        <h3 class="border-bottom fs-5 text-start font-bold pt-3 pr-3 pb-3">List of brands</h3>
-        <div class="container">
-            @foreach (var brand in ViewBag.Brands)
-            {
-                <div class="row border-bottom fs-6 text-gray-500 text-start py-3 d-flex flex-nowrap">
-                    <div class="col-lg-9">@brand.Name</div>
-                    <div class="col-lg-3 d-flex gap-0 column-gap-3">
-                        <div class="g-col-3">
-                            <form method="post" asp-action="Create" asp-route-id="@brand.Id">
-                                <button type="submit" class="text-red-500">Create</button>
-                            </form>
-                        </div>
-                        <div class="g-col-3">
-                            <form method="post" asp-action="Update" asp-route-id="@brand.Id">
-                                <button type="submit" class="text-red-500">Edit</button>
-                            </form>
-                        </div>
-                        <div class="g-col-3">
-                            <form method="post" asp-action="Delete" asp-route-id="@brand.Id">
-                                <button type="submit" class="text-red-500">Delete</button>
-                            </form>
-                        </div>
-                    </div>
-                </div>
-            }
-        </div>
-    </div>
+<h1>Index</h1>
 
-    @* <dialog class="flex fixed bg-[rgba(0,0,0,.5)] top-0 left-0 w-full h-full flex items-center justify-center" close>
-        
-        <div class="bg-white w-[50%] h-[50vh] rounded-xl p-4 flex flex-col">
-            <p class="text-xl mb-4">Edit name brand: brandName</p>
-            <form method="dialog" class="flex flex-col">
-                <input class="border-1 p-2 mb-2" type="text" value="" />
-                <button class="bg-primary py-2 px-4  self-end text-white text-end w-fit">Save</button>
-            </form>
-        </div>
-            
-    </dialog> *@
-</div>
+<p>
+    <a asp-action="Create">Create New</a>
+</p>
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.Name)
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+@foreach (var item in Model) {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.Name)
+            </td>
+            <td>
+                <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
+                <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
+                <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
+            </td>
+        </tr>
+}
+    </tbody>
+</table>
