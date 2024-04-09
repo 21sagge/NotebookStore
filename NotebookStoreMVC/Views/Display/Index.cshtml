@@ -1,0 +1,18 @@
+@model NotebookStore.Entities.Display
+@{
+  ViewData["Title"] = "Display";
+}
+
+<div class="text-center">
+  <h1 class="display-4">Display</h1>
+  @foreach (var display in ViewBag.Displays)
+  {
+    <div class="card">
+      <p>
+        <strong>@display.Size"</strong>
+        <strong>@display.ResolutionWidth x @display.ResolutionHeight</strong>
+        <strong>@display.PanelType</strong>
+      </p>
+    </div>
+  }
+</div>

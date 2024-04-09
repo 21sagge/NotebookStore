@@ -1,0 +1,17 @@
+@model NotebookStore.Entities.Storage
+@{
+  ViewData["Title"] = "Storage";
+}
+
+<div class="text-center">
+  <h1 class="display-4">Memory</h1>
+  @foreach (var storage in ViewBag.Storages)
+  {
+    <div class="card">
+      <p>
+        <strong>@storage.Capacity Gb</strong>
+        <strong>@storage.Type</strong>
+      </p>
+    </div>
+  }
+</div>

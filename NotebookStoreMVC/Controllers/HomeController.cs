@@ -16,8 +16,8 @@ namespace NotebookStoreMVC.Controllers
             return View();
         }
 
-        // GET: /<controller>/Brand
-        public IActionResult Brand()
+        // GET: /<controller>/Privacy
+        public IActionResult Privacy()
         {
             return View();
         }

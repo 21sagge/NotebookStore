@@ -1,0 +1,23 @@
+@model NotebookStore.Entities.Notebook
+@{
+  ViewData["Title"] = "Notebook";
+}
+
+<div class="text-center">
+  <h1 class="display-4">Notebook</h1>
+  @foreach (var notebook in ViewBag.Notebooks)
+  {
+    <div class="card">
+      <p>
+        <strong>@notebook.Brand.Name</strong>
+        <strong>@notebook.Model.Name</strong>
+        <strong>@notebook.Price</strong>
+        <strong>@notebook.Color</strong>
+        <strong>@notebook.Display.Size" @notebook.Display.ResolutionWidth x @notebook.Display.ResolutionHeight</strong>
+        <strong>@notebook.Cpu.Brand @notebook.Cpu.Model</strong>
+        <strong>@notebook.Memory.Capacity Gb @notebook.Memory.Speed MHz</strong>
+        <strong>@notebook.Storage.Capacity Gb @notebook.Storage.Type</strong>
+      </p>
+    </div>
+  }
+</div>
