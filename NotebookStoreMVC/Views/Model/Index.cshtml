@@ -1,27 +1,27 @@
 @model IEnumerable<NotebookStore.Entities.Model>
 
 @{
-    ViewData["Title"] = "Index";
+	ViewData["Title"] = "Index";
 }
 
 <header class="d-flex justify-content-between align-items-center">
-    <h1>Models</h1>
-    <a asp-action="Create" class="btn btn-outline-primary">Create New</a>
+	<h1>Models</h1>
+	<a asp-action="Create" class="btn btn-outline-primary">Create New</a>
 </header>
 <div class="container">
-    <div class="border-bottom fs-6 justify-content-between text-gray-500 text-start py-3 d-flex flex-nowrap">
-        <div class="col-4">@Html.DisplayNameFor(model => model.Name)</div>
-        <div class="col-8"></div>
-    </div>
-    @foreach (var item in Model)
-    {
-        <div class="d-flex justify-content-between w-100 align-items-center py-4 flex-nowrap">
-            <div class="d-flex col-4">@Html.DisplayFor(modelItem => item.Name)</div>
-            <div class="d-flex col-8 column-gap-2 justify-content-end">
-                <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-outline-success">Edit</a>
-                <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-sm btn-outline-info">Details</a>
-                <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-sm btn-danger">Delete</a>
-            </div>
-        </div>
-    }
+	<div class="border-bottom fs-6 justify-content-between text-gray-500 text-start py-3 d-flex flex-nowrap">
+		<div class="col-4 px-3 text-break">@Html.DisplayNameFor(model => model.Name)</div>
+		<div class="col-8"></div>
+	</div>
+	@foreach (var item in Model)
+	{
+		<div class="d-flex justify-content-between w-100 align-items-center py-4 flex-nowrap">
+			<div class="d-flex col-4 px-3 text-break">@Html.DisplayFor(modelItem => item.Name)</div>
+			<div class="d-flex col-8 column-gap-2 justify-content-end">
+				<a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-outline-success">Edit</a>
+				<a asp-action="Details" asp-route-id="@item.Id" class="btn btn-sm btn-outline-info">Details</a>
+				<a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-sm btn-danger">Delete</a>
+			</div>
+		</div>
+	}
 </div>

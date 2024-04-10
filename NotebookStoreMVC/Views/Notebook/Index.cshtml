@@ -10,28 +10,29 @@
 </header>
 <div class="container">
 	<div class="border-bottom fs-6 justify-content-between text-gray-500 text-start py-3 d-flex flex-nowrap">
-		<div class="col-1">@Html.DisplayNameFor(model => model.Color)</div>
-		<div class="col-1">@Html.DisplayNameFor(model => model.Price)</div>
-		<div class="col-1">@Html.DisplayNameFor(model => model.Brand)</div>
-		<div class="col-1">@Html.DisplayNameFor(model => model.Model)</div>
-		<div class="col-2">@Html.DisplayNameFor(model => model.Cpu)</div>
-		<div class="col-2">@Html.DisplayNameFor(model => model.Display)</div>
-		<div class="col-1">@Html.DisplayNameFor(model => model.Memory)</div>
-		<div class="col-1">@Html.DisplayNameFor(model => model.Storage)</div>
+		<div class="col-1 px-3 text-break">@Html.DisplayNameFor(model => model.Color)</div>
+		<div class="col-1 px-3 text-break">@Html.DisplayNameFor(model => model.Price)</div>
+		<div class="col-1 px-3 text-break">@Html.DisplayNameFor(model => model.Brand)</div>
+		<div class="col-1 px-3 text-break">@Html.DisplayNameFor(model => model.Model)</div>
+		<div class="col-2 px-3 text-break">@Html.DisplayNameFor(model => model.Cpu)</div>
+		<div class="col-2 px-3 text-break">@Html.DisplayNameFor(model => model.Display)</div>
+		<div class="col-1 px-3 text-break">@Html.DisplayNameFor(model => model.Memory)</div>
+		<div class="col-1 px-3 text-break">@Html.DisplayNameFor(model => model.Storage)</div>
 		<div class="col-2"></div>
 	</div>
 	@foreach (var item in Model)
 	{
 		<div class="d-flex justify-content-between w-100 align-items-center py-4 flex-nowrap">
-			<div class="d-flex col-1">@item.Color</div>
-			<div class="d-flex col-1">@item.Price</div>
-			<div class="d-flex col-1">@item.Brand.Name</div>
-			<div class="d-flex col-1">@item.Model.Name</div>
-			<div class="d-flex col-2">@item.Cpu.Brand @item.Cpu.Model</div>
-			<div class="d-flex col-2">@item.Display.Size @item.Display.ResolutionWidth x @item.Display.ResolutionHeight
+			<div class="d-flex col-1 px-3 text-break">@item.Color</div>
+			<div class="d-flex col-1 px-3 text-break">@item.Price</div>
+			<div class="d-flex col-1 px-3 text-break">@item.Brand.Name</div>
+			<div class="d-flex col-1 px-3 text-break">@item.Model.Name</div>
+			<div class="d-flex col-2 px-3 text-break">@item.Cpu.Brand @item.Cpu.Model</div>
+			<div class="d-flex col-2 px-3 text-break">@item.Display.Size @item.Display.ResolutionWidth x
+				@item.Display.ResolutionHeight
 				@item.Display.PanelType</div>
-			<div class="d-flex col-1">@item.Memory.Capacity GB @item.Memory.Speed</div>
-			<div class="d-flex col-1">@item.Storage.Capacity GB @item.Storage.Type</div>
+			<div class="d-flex col-1 px-3 text-break">@item.Memory.Capacity GB @item.Memory.Speed</div>
+			<div class="d-flex col-1 px-3 text-break">@item.Storage.Capacity GB @item.Storage.Type</div>
 			<div class="d-flex col-2 column-gap-2 justify-content-end">
 				<a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-outline-success">Edit</a>
 				<a asp-action="Details" asp-route-id="@item.Id" class="btn btn-sm btn-outline-info">Details</a>
