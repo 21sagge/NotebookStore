@@ -1,12 +1,6 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using NotebookStore.Entities;
-using NotebookStoreContext;
 
 namespace NotebookStoreMVC.Controllers
 {
@@ -20,6 +14,7 @@ namespace NotebookStoreMVC.Controllers
         }
 
         // GET: Brand
+        [HttpGet]
         public async Task<IActionResult> Index()
         {
             return _context.Brands != null ?
@@ -28,6 +23,7 @@ namespace NotebookStoreMVC.Controllers
         }
 
         // GET: Brand/Details/5
+        [HttpGet]
         public async Task<IActionResult> Details(int? id)
         {
             if (id == null || _context.Brands == null)
@@ -46,14 +42,13 @@ namespace NotebookStoreMVC.Controllers
         }
 
         // GET: Brand/Create
+        [HttpGet]
         public IActionResult Create()
         {
             return View();
         }
 
         // POST: Brand/Create
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("Id,Name")] Brand brand)
@@ -84,8 +79,6 @@ namespace NotebookStoreMVC.Controllers
         }
 
         // POST: Brand/Edit/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, [Bind("Id,Name")] Brand brand)
@@ -119,6 +112,7 @@ namespace NotebookStoreMVC.Controllers
         }
 
         // GET: Brand/Delete/5
+        [HttpGet]
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null || _context.Brands == null)

@@ -1,12 +1,6 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using NotebookStore.Entities;
-using NotebookStoreContext;
 
 namespace NotebookStoreMVC.Controllers
 {
@@ -20,14 +14,16 @@ namespace NotebookStoreMVC.Controllers
         }
 
         // GET: Storage
+        [HttpGet]
         public async Task<IActionResult> Index()
         {
-              return _context.Storages != null ? 
-                          View(await _context.Storages.ToListAsync()) :
-                          Problem("Entity set 'NotebookStoreContext.Storages'  is null.");
+            return _context.Storages != null ?
+                        View(await _context.Storages.ToListAsync()) :
+                        Problem("Entity set 'NotebookStoreContext.Storages'  is null.");
         }
 
         // GET: Storage/Details/5
+        [HttpGet]
         public async Task<IActionResult> Details(int? id)
         {
             if (id == null || _context.Storages == null)
@@ -46,14 +42,13 @@ namespace NotebookStoreMVC.Controllers
         }
 
         // GET: Storage/Create
+        [HttpGet]
         public IActionResult Create()
         {
             return View();
         }
 
         // POST: Storage/Create
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("Id,Type,Capacity")] Storage storage)
@@ -68,6 +63,7 @@ namespace NotebookStoreMVC.Controllers
         }
 
         // GET: Storage/Edit/5
+        [HttpGet]
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null || _context.Storages == null)
@@ -84,8 +80,6 @@ namespace NotebookStoreMVC.Controllers
         }
 
         // POST: Storage/Edit/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, [Bind("Id,Type,Capacity")] Storage storage)
@@ -119,6 +113,7 @@ namespace NotebookStoreMVC.Controllers
         }
 
         // GET: Storage/Delete/5
+        [HttpGet]
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null || _context.Storages == null)
@@ -150,14 +145,14 @@ namespace NotebookStoreMVC.Controllers
             {
                 _context.Storages.Remove(storage);
             }
-            
+
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
 
         private bool StorageExists(int id)
         {
-          return (_context.Storages?.Any(e => e.Id == id)).GetValueOrDefault();
+            return (_context.Storages?.Any(e => e.Id == id)).GetValueOrDefault();
         }
     }
 }

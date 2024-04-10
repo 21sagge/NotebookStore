@@ -1,12 +1,6 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using NotebookStore.Entities;
-using NotebookStoreContext;
 
 namespace NotebookStoreMVC.Controllers
 {
@@ -20,14 +14,16 @@ namespace NotebookStoreMVC.Controllers
         }
 
         // GET: Display
+        [HttpGet]
         public async Task<IActionResult> Index()
         {
-              return _context.Displays != null ? 
-                          View(await _context.Displays.ToListAsync()) :
-                          Problem("Entity set 'NotebookStoreContext.Displays'  is null.");
+            return _context.Displays != null ?
+                        View(await _context.Displays.ToListAsync()) :
+                        Problem("Entity set 'NotebookStoreContext.Displays'  is null.");
         }
 
         // GET: Display/Details/5
+        [HttpGet]
         public async Task<IActionResult> Details(int? id)
         {
             if (id == null || _context.Displays == null)
@@ -46,14 +42,13 @@ namespace NotebookStoreMVC.Controllers
         }
 
         // GET: Display/Create
+        [HttpGet]
         public IActionResult Create()
         {
             return View();
         }
 
         // POST: Display/Create
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("Id,Size,ResolutionWidth,ResolutionHeight,PanelType")] Display display)
@@ -68,6 +63,7 @@ namespace NotebookStoreMVC.Controllers
         }
 
         // GET: Display/Edit/5
+        [HttpGet]
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null || _context.Displays == null)
@@ -84,8 +80,6 @@ namespace NotebookStoreMVC.Controllers
         }
 
         // POST: Display/Edit/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, [Bind("Id,Size,ResolutionWidth,ResolutionHeight,PanelType")] Display display)
@@ -119,6 +113,7 @@ namespace NotebookStoreMVC.Controllers
         }
 
         // GET: Display/Delete/5
+        [HttpGet]
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null || _context.Displays == null)
@@ -150,14 +145,14 @@ namespace NotebookStoreMVC.Controllers
             {
                 _context.Displays.Remove(display);
             }
-            
+
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
 
         private bool DisplayExists(int id)
         {
-          return (_context.Displays?.Any(e => e.Id == id)).GetValueOrDefault();
+            return (_context.Displays?.Any(e => e.Id == id)).GetValueOrDefault();
         }
     }
 }

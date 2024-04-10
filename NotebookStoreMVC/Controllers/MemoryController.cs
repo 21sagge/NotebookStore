@@ -1,12 +1,6 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using NotebookStore.Entities;
-using NotebookStoreContext;
 
 namespace NotebookStoreMVC.Controllers
 {
@@ -20,6 +14,7 @@ namespace NotebookStoreMVC.Controllers
         }
 
         // GET: Memory
+        [HttpGet]
         public async Task<IActionResult> Index()
         {
             return _context.Memories != null ?
@@ -28,6 +23,7 @@ namespace NotebookStoreMVC.Controllers
         }
 
         // GET: Memory/Details/5
+        [HttpGet]
         public async Task<IActionResult> Details(int? id)
         {
             if (id == null || _context.Memories == null)
@@ -46,14 +42,13 @@ namespace NotebookStoreMVC.Controllers
         }
 
         // GET: Memory/Create
+        [HttpGet]
         public IActionResult Create()
         {
             return View();
         }
 
         // POST: Memory/Create
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("Id,Capacity,Speed")] Memory memory)
@@ -68,6 +63,7 @@ namespace NotebookStoreMVC.Controllers
         }
 
         // GET: Memory/Edit/5
+        [HttpGet]
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null || _context.Memories == null)
@@ -84,8 +80,6 @@ namespace NotebookStoreMVC.Controllers
         }
 
         // POST: Memory/Edit/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, [Bind("Id,Capacity,Speed")] Memory memory)
@@ -119,6 +113,7 @@ namespace NotebookStoreMVC.Controllers
         }
 
         // GET: Memory/Delete/5
+        [HttpGet]
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null || _context.Memories == null)
