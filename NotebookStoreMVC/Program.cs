@@ -2,11 +2,13 @@
 using NotebookStore.Entities;
 using NotebookStoreMVC;
 using NotebookStoreMVC.Repositories;
+using NotebookStoreMVC.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllersWithViews();
 
+// Registra un servizio che viene creato una volta per ogni richiesta client.
 builder.Services.AddScoped<IRepository<Brand>, BrandRepository>();
 builder.Services.AddScoped<IRepository<Cpu>, CpuRepository>();
 builder.Services.AddScoped<IRepository<Display>, DisplayRepository>();
@@ -14,6 +16,8 @@ builder.Services.AddScoped<IRepository<Memory>, MemoryRepository>();
 builder.Services.AddScoped<IRepository<Model>, ModelRepository>();
 builder.Services.AddScoped<IRepository<Storage>, StorageRepository>();
 builder.Services.AddScoped<INotebookRepository, NotebookRepository>();
+
+builder.Services.AddScoped<ISerializer<Cpu>, Serializer<Cpu>>();
 
 builder.Services.AddDbContext<NotebookStoreContext.NotebookStoreContext>(options =>
     options.UseSqlite(builder.Configuration.GetConnectionString("SqlLite")));
@@ -43,4 +47,3 @@ app.MapControllerRoute(
     pattern: "{controller=Home}/{action=Index}/{id?}");
 
 app.Run();
-
