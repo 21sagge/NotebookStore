@@ -1,8 +1,9 @@
-﻿using System.Text;
+﻿namespace NotebookStoreMVC.Services;
+
+using System.Text;
 using System.Text.Json;
 using System.Xml.Serialization;
-
-namespace NotebookStoreMVC.Services;
+using NotebookStore.Entities;
 
 public class Serializer<T> : ISerializer<T>
 {
@@ -28,9 +29,33 @@ public class Serializer<T> : ISerializer<T>
 
   public string XmlSerialize(IEnumerable<T> data)
   {
-    var serializer = new XmlSerializer(typeof(IEnumerable<T>));
+    var dtoData = data.Select(item =>
+    {
+      switch (item)
+      {
+        case Cpu cpu:
+          return new CpuDto
+          {
+            Id = cpu.Id,
+            Brand = cpu.Brand,
+            Model = cpu.Model
+          } as BaseDto;
+        case Display display:
+          return new DisplayDto
+          {
+            Id = display.Id,
+            Size = display.Size,
+            ResolutionWidth = display.ResolutionWidth,
+            ResolutionHeight = display.ResolutionHeight
+          } as BaseDto;
+        default:
+          throw new InvalidOperationException($"Unsupported type: {item?.GetType()}");
+      }
+    });
+
+    var xmlSerializer = new XmlSerializer(typeof(List<BaseDto>));
     using var stream = new MemoryStream();
-    serializer.Serialize(stream, data);
+    xmlSerializer.Serialize(stream, dtoData.ToList());
     stream.Position = 0;
     using var reader = new StreamReader(stream);
     return reader.ReadToEnd();
