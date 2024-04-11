@@ -1,38 +1,36 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using NotebookStore.Entities;
+using NotebookStoreMVC.Repositories;
 
 namespace NotebookStoreMVC.Controllers
 {
     public class CpuController : Controller
     {
-        private readonly NotebookStoreContext.NotebookStoreContext _context;
+        private readonly IRepository<Cpu> _cpuRepository;
 
-        public CpuController(NotebookStoreContext.NotebookStoreContext context)
+        public CpuController(IRepository<Cpu> repository)
         {
-            _context = context;
+            _cpuRepository = repository;
         }
 
         // GET: Cpu
         [HttpGet]
         public async Task<IActionResult> Index()
         {
-            return _context.Cpus != null ?
-                        View(await _context.Cpus.ToListAsync()) :
-                        Problem("Entity set 'NotebookStoreContext.Cpus'  is null.");
+            return View(await _cpuRepository.Read());
         }
 
         // GET: Cpu/Details/5
         [HttpGet]
         public async Task<IActionResult> Details(int? id)
         {
-            if (id == null || _context.Cpus == null)
+            if (id == null || _cpuRepository.Read() == null)
             {
                 return NotFound();
             }
 
-            var cpu = await _context.Cpus
-                .FirstOrDefaultAsync(m => m.Id == id);
+            var cpu = await _cpuRepository.Find(id);
             if (cpu == null)
             {
                 return NotFound();
@@ -51,12 +49,11 @@ namespace NotebookStoreMVC.Controllers
         // POST: Cpu/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,Brand,Model")] Cpu cpu)
+        public IActionResult Create([Bind("Id,Brand,Model")] Cpu cpu)
         {
             if (ModelState.IsValid)
             {
-                _context.Add(cpu);
-                await _context.SaveChangesAsync();
+                _cpuRepository.Create(cpu);
                 return RedirectToAction(nameof(Index));
             }
             return View(cpu);
@@ -66,12 +63,12 @@ namespace NotebookStoreMVC.Controllers
         [HttpGet]
         public async Task<IActionResult> Edit(int? id)
         {
-            if (id == null || _context.Cpus == null)
+            if (id == null || _cpuRepository.Read() == null)
             {
                 return NotFound();
             }
 
-            var cpu = await _context.Cpus.FindAsync(id);
+            var cpu = await _cpuRepository.Find(id);
             if (cpu == null)
             {
                 return NotFound();
@@ -82,7 +79,7 @@ namespace NotebookStoreMVC.Controllers
         // POST: Cpu/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,Brand,Model")] Cpu cpu)
+        public IActionResult Edit(int id, [Bind("Id,Brand,Model")] Cpu cpu)
         {
             if (id != cpu.Id)
             {
@@ -93,8 +90,7 @@ namespace NotebookStoreMVC.Controllers
             {
                 try
                 {
-                    _context.Update(cpu);
-                    await _context.SaveChangesAsync();
+                    _cpuRepository.Update(cpu);
                 }
                 catch (DbUpdateConcurrencyException)
                 {
@@ -116,13 +112,12 @@ namespace NotebookStoreMVC.Controllers
         [HttpGet]
         public async Task<IActionResult> Delete(int? id)
         {
-            if (id == null || _context.Cpus == null)
+            if (id == null || _cpuRepository.Read() == null)
             {
                 return NotFound();
             }
 
-            var cpu = await _context.Cpus
-                .FirstOrDefaultAsync(m => m.Id == id);
+            var cpu = await _cpuRepository.Find(id);
             if (cpu == null)
             {
                 return NotFound();
@@ -136,23 +131,22 @@ namespace NotebookStoreMVC.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            if (_context.Cpus == null)
+            if (_cpuRepository.Read() == null)
             {
                 return Problem("Entity set 'NotebookStoreContext.Cpus'  is null.");
             }
-            var cpu = await _context.Cpus.FindAsync(id);
+            var cpu = await _cpuRepository.Find(id);
             if (cpu != null)
             {
-                _context.Cpus.Remove(cpu);
+                _cpuRepository.Delete(cpu);
             }
 
-            await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
 
         private bool CpuExists(int id)
         {
-            return (_context.Cpus?.Any(e => e.Id == id)).GetValueOrDefault();
+            return _cpuRepository.Find(id) != null;
         }
     }
 }

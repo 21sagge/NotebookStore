@@ -1,21 +1,28 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using NotebookStore.Entities;
 using NotebookStoreMVC;
+using NotebookStoreMVC.Repositories;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
 builder.Services.AddControllersWithViews();
+
+builder.Services.AddScoped<IRepository<Brand>, BrandRepository>();
+builder.Services.AddScoped<IRepository<Cpu>, CpuRepository>();
+builder.Services.AddScoped<IRepository<Display>, DisplayRepository>();
+builder.Services.AddScoped<IRepository<Memory>, MemoryRepository>();
+builder.Services.AddScoped<IRepository<Model>, ModelRepository>();
+builder.Services.AddScoped<IRepository<Storage>, StorageRepository>();
+builder.Services.AddScoped<INotebookRepository, NotebookRepository>();
 
 builder.Services.AddDbContext<NotebookStoreContext.NotebookStoreContext>(options =>
     options.UseSqlite(builder.Configuration.GetConnectionString("SqlLite")));
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Home/Error");
-    // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
     app.UseHsts();
 }
 

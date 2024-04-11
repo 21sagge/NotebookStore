@@ -2,43 +2,36 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using NotebookStore.Entities;
+using NotebookStoreMVC.Repositories;
 
 namespace NotebookStoreMVC.Controllers
 {
 	public class NotebookController : Controller
 	{
-		private readonly NotebookStoreContext.NotebookStoreContext _context;
+		private readonly INotebookRepository _notebookRepository;
 
-		public NotebookController(NotebookStoreContext.NotebookStoreContext context)
+		public NotebookController(INotebookRepository repository)
 		{
-			_context = context;
+			_notebookRepository = repository;
 		}
 
 		// GET: Notebook
 		[HttpGet]
 		public async Task<IActionResult> Index()
 		{
-			var notebookStoreContext = _context.Notebooks.Include(n => n.Brand).Include(n => n.Cpu).Include(n => n.Display).Include(n => n.Memory).Include(n => n.Model).Include(n => n.Storage);
-			return View(await notebookStoreContext.ToListAsync());
+			return View(await _notebookRepository.Read());
 		}
 
 		// GET: Notebook/Details/5
 		[HttpGet]
 		public async Task<IActionResult> Details(int? id)
 		{
-			if (id == null || _context.Notebooks == null)
+			if (id == null || _notebookRepository.Read() == null)
 			{
 				return NotFound();
 			}
 
-			var notebook = await _context.Notebooks
-				.Include(n => n.Brand)
-				.Include(n => n.Cpu)
-				.Include(n => n.Display)
-				.Include(n => n.Memory)
-				.Include(n => n.Model)
-				.Include(n => n.Storage)
-				.FirstOrDefaultAsync(m => m.Id == id);
+			var notebook = await _notebookRepository.Find(id);
 			if (notebook == null)
 			{
 				return NotFound();
@@ -51,32 +44,31 @@ namespace NotebookStoreMVC.Controllers
 		[HttpGet]
 		public IActionResult Create()
 		{
-			ViewData["BrandId"] = new SelectList(_context.Brands, "Id", "Name");
-			ViewData["CpuId"] = new SelectList(_context.Cpus, "Id", "Name");
-			ViewData["DisplayId"] = new SelectList(_context.Displays, "Id", "Name");
-			ViewData["MemoryId"] = new SelectList(_context.Memories, "Id", "CapacityAndSpeed");
-			ViewData["ModelId"] = new SelectList(_context.Models, "Id", "Name");
-			ViewData["StorageId"] = new SelectList(_context.Storages, "Id", "TypeAndCapacity");
+			ViewData["BrandId"] = new SelectList(_notebookRepository.Brands, "Id", "Name");
+			ViewData["CpuId"] = new SelectList(_notebookRepository.Cpus, "Id", "Name");
+			ViewData["DisplayId"] = new SelectList(_notebookRepository.Displays, "Id", "Name");
+			ViewData["MemoryId"] = new SelectList(_notebookRepository.Memories, "Id", "CapacityAndSpeed");
+			ViewData["ModelId"] = new SelectList(_notebookRepository.Models, "Id", "Name");
+			ViewData["StorageId"] = new SelectList(_notebookRepository.Storages, "Id", "TypeAndCapacity");
 			return View();
 		}
 
 		// POST: Notebook/Create
 		[HttpPost]
 		[ValidateAntiForgeryToken]
-		public async Task<IActionResult> Create([Bind("Id,Color,Price,BrandId,ModelId,CpuId,DisplayId,MemoryId,StorageId")] Notebook notebook)
+		public IActionResult Create([Bind("Id,Color,Price,BrandId,ModelId,CpuId,DisplayId,MemoryId,StorageId")] Notebook notebook)
 		{
 			if (ModelState.IsValid)
 			{
-				_context.Add(notebook);
-				await _context.SaveChangesAsync();
+				_notebookRepository.Create(notebook);
 				return RedirectToAction(nameof(Index));
 			}
-			ViewData["BrandId"] = new SelectList(_context.Brands, "Id", "Name", notebook.BrandId);
-			ViewData["CpuId"] = new SelectList(_context.Cpus, "Id", "Brand", notebook.CpuId);
-			ViewData["DisplayId"] = new SelectList(_context.Displays, "Id", "PanelType", notebook.DisplayId);
-			ViewData["MemoryId"] = new SelectList(_context.Memories, "Id", "Id", notebook.MemoryId);
-			ViewData["ModelId"] = new SelectList(_context.Models, "Id", "Name", notebook.ModelId);
-			ViewData["StorageId"] = new SelectList(_context.Storages, "Id", "Type", notebook.StorageId);
+			ViewData["BrandId"] = new SelectList(_notebookRepository.Brands, "Id", "Name", notebook.BrandId);
+			ViewData["CpuId"] = new SelectList(_notebookRepository.Cpus, "Id", "Brand", notebook.CpuId);
+			ViewData["DisplayId"] = new SelectList(_notebookRepository.Displays, "Id", "PanelType", notebook.DisplayId);
+			ViewData["MemoryId"] = new SelectList(_notebookRepository.Memories, "Id", "Id", notebook.MemoryId);
+			ViewData["ModelId"] = new SelectList(_notebookRepository.Models, "Id", "Name", notebook.ModelId);
+			ViewData["StorageId"] = new SelectList(_notebookRepository.Storages, "Id", "Type", notebook.StorageId);
 			return View(notebook);
 		}
 
@@ -84,29 +76,29 @@ namespace NotebookStoreMVC.Controllers
 		[HttpGet]
 		public async Task<IActionResult> Edit(int? id)
 		{
-			if (id == null || _context.Notebooks == null)
+			if (id == null || _notebookRepository.Read() == null)
 			{
 				return NotFound();
 			}
 
-			var notebook = await _context.Notebooks.FindAsync(id);
+			var notebook = await _notebookRepository.Find(id);
 			if (notebook == null)
 			{
 				return NotFound();
 			}
-			ViewData["BrandId"] = new SelectList(_context.Brands, "Id", "Name", notebook.BrandId);
-			ViewData["CpuId"] = new SelectList(_context.Cpus, "Id", "Name", notebook.CpuId);
-			ViewData["DisplayId"] = new SelectList(_context.Displays, "Id", "Name", notebook.DisplayId);
-			ViewData["MemoryId"] = new SelectList(_context.Memories, "Id", "CapacityAndSpeed", notebook.MemoryId);
-			ViewData["ModelId"] = new SelectList(_context.Models, "Id", "Name", notebook.ModelId);
-			ViewData["StorageId"] = new SelectList(_context.Storages, "Id", "TypeAndCapacity", notebook.StorageId);
+			ViewData["BrandId"] = new SelectList(_notebookRepository.Brands, "Id", "Name", notebook.BrandId);
+			ViewData["CpuId"] = new SelectList(_notebookRepository.Cpus, "Id", "Name", notebook.CpuId);
+			ViewData["DisplayId"] = new SelectList(_notebookRepository.Displays, "Id", "Name", notebook.DisplayId);
+			ViewData["MemoryId"] = new SelectList(_notebookRepository.Memories, "Id", "CapacityAndSpeed", notebook.MemoryId);
+			ViewData["ModelId"] = new SelectList(_notebookRepository.Models, "Id", "Name", notebook.ModelId);
+			ViewData["StorageId"] = new SelectList(_notebookRepository.Storages, "Id", "TypeAndCapacity", notebook.StorageId);
 			return View(notebook);
 		}
 
 		// POST: Notebook/Edit/5
 		[HttpPost]
 		[ValidateAntiForgeryToken]
-		public async Task<IActionResult> Edit(int id, [Bind("Id,Color,Price,BrandId,ModelId,CpuId,DisplayId,MemoryId,StorageId")] Notebook notebook)
+		public IActionResult Edit(int id, [Bind("Id,Color,Price,BrandId,ModelId,CpuId,DisplayId,MemoryId,StorageId")] Notebook notebook)
 		{
 			if (id != notebook.Id)
 			{
@@ -117,8 +109,7 @@ namespace NotebookStoreMVC.Controllers
 			{
 				try
 				{
-					_context.Update(notebook);
-					await _context.SaveChangesAsync();
+					_notebookRepository.Update(notebook);
 				}
 				catch (DbUpdateConcurrencyException)
 				{
@@ -133,12 +124,12 @@ namespace NotebookStoreMVC.Controllers
 				}
 				return RedirectToAction(nameof(Index));
 			}
-			ViewData["BrandId"] = new SelectList(_context.Brands, "Id", "Name", notebook.BrandId);
-			ViewData["CpuId"] = new SelectList(_context.Cpus, "Id", "Brand", notebook.CpuId);
-			ViewData["DisplayId"] = new SelectList(_context.Displays, "Id", "PanelType", notebook.DisplayId);
-			ViewData["MemoryId"] = new SelectList(_context.Memories, "Id", "Id", notebook.MemoryId);
-			ViewData["ModelId"] = new SelectList(_context.Models, "Id", "Name", notebook.ModelId);
-			ViewData["StorageId"] = new SelectList(_context.Storages, "Id", "Type", notebook.StorageId);
+			ViewData["BrandId"] = new SelectList(_notebookRepository.Brands, "Id", "Name", notebook.BrandId);
+			ViewData["CpuId"] = new SelectList(_notebookRepository.Cpus, "Id", "Brand", notebook.CpuId);
+			ViewData["DisplayId"] = new SelectList(_notebookRepository.Displays, "Id", "PanelType", notebook.DisplayId);
+			ViewData["MemoryId"] = new SelectList(_notebookRepository.Memories, "Id", "Id", notebook.MemoryId);
+			ViewData["ModelId"] = new SelectList(_notebookRepository.Models, "Id", "Name", notebook.ModelId);
+			ViewData["StorageId"] = new SelectList(_notebookRepository.Storages, "Id", "Type", notebook.StorageId);
 			return View(notebook);
 		}
 
@@ -146,19 +137,12 @@ namespace NotebookStoreMVC.Controllers
 		[HttpGet]
 		public async Task<IActionResult> Delete(int? id)
 		{
-			if (id == null || _context.Notebooks == null)
+			if (id == null || _notebookRepository.Read() == null)
 			{
 				return NotFound();
 			}
 
-			var notebook = await _context.Notebooks
-				.Include(n => n.Brand)
-				.Include(n => n.Cpu)
-				.Include(n => n.Display)
-				.Include(n => n.Memory)
-				.Include(n => n.Model)
-				.Include(n => n.Storage)
-				.FirstOrDefaultAsync(m => m.Id == id);
+			var notebook = await _notebookRepository.Find(id);
 			if (notebook == null)
 			{
 				return NotFound();
@@ -172,23 +156,22 @@ namespace NotebookStoreMVC.Controllers
 		[ValidateAntiForgeryToken]
 		public async Task<IActionResult> DeleteConfirmed(int id)
 		{
-			if (_context.Notebooks == null)
+			if (_notebookRepository.Read() == null)
 			{
 				return Problem("Entity set 'NotebookStoreContext.Notebooks'  is null.");
 			}
-			var notebook = await _context.Notebooks.FindAsync(id);
+			var notebook = await _notebookRepository.Find(id);
 			if (notebook != null)
 			{
-				_context.Notebooks.Remove(notebook);
+				_notebookRepository.Delete(notebook);
 			}
 
-			await _context.SaveChangesAsync();
 			return RedirectToAction(nameof(Index));
 		}
 
 		private bool NotebookExists(int id)
 		{
-			return (_context.Notebooks?.Any(e => e.Id == id)).GetValueOrDefault();
+			return _notebookRepository.Find(id) != null;
 		}
 	}
 }

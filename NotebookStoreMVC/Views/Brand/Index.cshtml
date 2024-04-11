@@ -15,7 +15,7 @@
 	</div>
 	@foreach (var item in Model)
 	{
-		<div class="d-flex justify-content-between w-100 align-items-center py-4 flex-nowrap">
+		<div class="d-flex justify-content-between w-100 align-items-center py-2 flex-nowrap">
 			<div class="d-flex col-4 px-3 text-break">@Html.DisplayFor(modelItem => item.Name)</div>
 			<div class="d-flex col-8 column-gap-2 justify-content-end">
 				<a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-outline-success">Edit</a>

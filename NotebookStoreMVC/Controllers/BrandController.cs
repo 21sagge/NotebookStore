@@ -1,38 +1,36 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using NotebookStore.Entities;
+using NotebookStoreMVC.Repositories;
 
 namespace NotebookStoreMVC.Controllers
 {
     public class BrandController : Controller
     {
-        private readonly NotebookStoreContext.NotebookStoreContext _context;
+        private readonly IRepository<Brand> _brandRepository;
 
-        public BrandController(NotebookStoreContext.NotebookStoreContext context)
+        public BrandController(IRepository<Brand> brandRepository)
         {
-            _context = context;
+            _brandRepository = brandRepository;
         }
 
         // GET: Brand
         [HttpGet]
         public async Task<IActionResult> Index()
         {
-            return _context.Brands != null ?
-                        View(await _context.Brands.ToListAsync()) :
-                        Problem("Entity set 'NotebookStoreContext.Brands'  is null.");
+            return View(await _brandRepository.Read());
         }
 
         // GET: Brand/Details/5
         [HttpGet]
         public async Task<IActionResult> Details(int? id)
         {
-            if (id == null || _context.Brands == null)
+            if (id == null || _brandRepository.Read() == null)
             {
                 return NotFound();
             }
 
-            var brand = await _context.Brands
-                .FirstOrDefaultAsync(m => m.Id == id);
+            var brand = await _brandRepository.Find(id);
             if (brand == null)
             {
                 return NotFound();
@@ -51,12 +49,11 @@ namespace NotebookStoreMVC.Controllers
         // POST: Brand/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,Name")] Brand brand)
+        public IActionResult Create([Bind("Id,Name")] Brand brand)
         {
             if (ModelState.IsValid)
             {
-                _context.Add(brand);
-                await _context.SaveChangesAsync();
+                _brandRepository.Create(brand);
                 return RedirectToAction(nameof(Index));
             }
             return View(brand);
@@ -65,12 +62,12 @@ namespace NotebookStoreMVC.Controllers
         // GET: Brand/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {
-            if (id == null || _context.Brands == null)
+            if (id == null || _brandRepository.Read() == null)
             {
                 return NotFound();
             }
 
-            var brand = await _context.Brands.FindAsync(id);
+            var brand = await _brandRepository.Find(id);
             if (brand == null)
             {
                 return NotFound();
@@ -81,7 +78,7 @@ namespace NotebookStoreMVC.Controllers
         // POST: Brand/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,Name")] Brand brand)
+        public IActionResult Edit(int id, [Bind("Id,Name")] Brand brand)
         {
             if (id != brand.Id)
             {
@@ -92,8 +89,7 @@ namespace NotebookStoreMVC.Controllers
             {
                 try
                 {
-                    _context.Update(brand);
-                    await _context.SaveChangesAsync();
+                    _brandRepository.Update(brand);
                 }
                 catch (DbUpdateConcurrencyException)
                 {
@@ -115,13 +111,12 @@ namespace NotebookStoreMVC.Controllers
         [HttpGet]
         public async Task<IActionResult> Delete(int? id)
         {
-            if (id == null || _context.Brands == null)
+            if (id == null || _brandRepository.Read() == null)
             {
                 return NotFound();
             }
 
-            var brand = await _context.Brands
-                .FirstOrDefaultAsync(m => m.Id == id);
+            var brand = await _brandRepository.Find(id);
             if (brand == null)
             {
                 return NotFound();
@@ -135,23 +130,22 @@ namespace NotebookStoreMVC.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            if (_context.Brands == null)
+            if (_brandRepository.Read() == null)
             {
                 return Problem("Entity set 'NotebookStoreContext.Brands'  is null.");
             }
-            var brand = await _context.Brands.FindAsync(id);
+            var brand = await _brandRepository.Find(id);
             if (brand != null)
             {
-                _context.Brands.Remove(brand);
+                _brandRepository.Delete(brand);
             }
 
-            await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
 
         private bool BrandExists(int id)
         {
-            return (_context.Brands?.Any(e => e.Id == id)).GetValueOrDefault();
+            return _brandRepository.Find(id) != null;
         }
     }
 }

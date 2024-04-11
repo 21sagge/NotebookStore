@@ -1,38 +1,36 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using NotebookStore.Entities;
+using NotebookStoreMVC.Repositories;
 
 namespace NotebookStoreMVC.Controllers
 {
     public class DisplayController : Controller
     {
-        private readonly NotebookStoreContext.NotebookStoreContext _context;
+        private readonly IRepository<Display> _displayRepository;
 
-        public DisplayController(NotebookStoreContext.NotebookStoreContext context)
+        public DisplayController(IRepository<Display> repository)
         {
-            _context = context;
+            _displayRepository = repository;
         }
 
         // GET: Display
         [HttpGet]
         public async Task<IActionResult> Index()
         {
-            return _context.Displays != null ?
-                        View(await _context.Displays.ToListAsync()) :
-                        Problem("Entity set 'NotebookStoreContext.Displays'  is null.");
+            return View(await _displayRepository.Read());
         }
 
         // GET: Display/Details/5
         [HttpGet]
         public async Task<IActionResult> Details(int? id)
         {
-            if (id == null || _context.Displays == null)
+            if (id == null || _displayRepository.Read() == null)
             {
                 return NotFound();
             }
 
-            var display = await _context.Displays
-                .FirstOrDefaultAsync(m => m.Id == id);
+            var display = await _displayRepository.Find(id);
             if (display == null)
             {
                 return NotFound();
@@ -51,12 +49,11 @@ namespace NotebookStoreMVC.Controllers
         // POST: Display/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,Size,ResolutionWidth,ResolutionHeight,PanelType")] Display display)
+        public IActionResult Create([Bind("Id,Size,ResolutionWidth,ResolutionHeight,PanelType")] Display display)
         {
             if (ModelState.IsValid)
             {
-                _context.Add(display);
-                await _context.SaveChangesAsync();
+                _displayRepository.Create(display);
                 return RedirectToAction(nameof(Index));
             }
             return View(display);
@@ -66,12 +63,12 @@ namespace NotebookStoreMVC.Controllers
         [HttpGet]
         public async Task<IActionResult> Edit(int? id)
         {
-            if (id == null || _context.Displays == null)
+            if (id == null || _displayRepository.Read() == null)
             {
                 return NotFound();
             }
 
-            var display = await _context.Displays.FindAsync(id);
+            var display = await _displayRepository.Find(id);
             if (display == null)
             {
                 return NotFound();
@@ -82,7 +79,7 @@ namespace NotebookStoreMVC.Controllers
         // POST: Display/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,Size,ResolutionWidth,ResolutionHeight,PanelType")] Display display)
+        public IActionResult Edit(int id, [Bind("Id,Size,ResolutionWidth,ResolutionHeight,PanelType")] Display display)
         {
             if (id != display.Id)
             {
@@ -93,8 +90,7 @@ namespace NotebookStoreMVC.Controllers
             {
                 try
                 {
-                    _context.Update(display);
-                    await _context.SaveChangesAsync();
+                    _displayRepository.Update(display);
                 }
                 catch (DbUpdateConcurrencyException)
                 {
@@ -116,13 +112,12 @@ namespace NotebookStoreMVC.Controllers
         [HttpGet]
         public async Task<IActionResult> Delete(int? id)
         {
-            if (id == null || _context.Displays == null)
+            if (id == null || _displayRepository.Read() == null)
             {
                 return NotFound();
             }
 
-            var display = await _context.Displays
-                .FirstOrDefaultAsync(m => m.Id == id);
+            var display = await _displayRepository.Find(id);
             if (display == null)
             {
                 return NotFound();
@@ -136,23 +131,22 @@ namespace NotebookStoreMVC.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            if (_context.Displays == null)
+            if (_displayRepository.Read() == null)
             {
                 return Problem("Entity set 'NotebookStoreContext.Displays'  is null.");
             }
-            var display = await _context.Displays.FindAsync(id);
+            var display = await _displayRepository.Find(id);
             if (display != null)
             {
-                _context.Displays.Remove(display);
+                _displayRepository.Delete(display);
             }
 
-            await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
 
         private bool DisplayExists(int id)
         {
-            return (_context.Displays?.Any(e => e.Id == id)).GetValueOrDefault();
+            return _displayRepository.Find(id) != null;
         }
     }
 }

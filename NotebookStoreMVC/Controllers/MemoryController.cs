@@ -1,38 +1,36 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using NotebookStore.Entities;
+using NotebookStoreMVC.Repositories;
 
 namespace NotebookStoreMVC.Controllers
 {
     public class MemoryController : Controller
     {
-        private readonly NotebookStoreContext.NotebookStoreContext _context;
+        private readonly IRepository<Memory> _memoryRepository;
 
-        public MemoryController(NotebookStoreContext.NotebookStoreContext context)
+        public MemoryController(IRepository<Memory> repository)
         {
-            _context = context;
+            _memoryRepository = repository;
         }
 
         // GET: Memory
         [HttpGet]
         public async Task<IActionResult> Index()
         {
-            return _context.Memories != null ?
-                        View(await _context.Memories.ToListAsync()) :
-                        Problem("Entity set 'NotebookStoreContext.Memories'  is null.");
+            return View(await _memoryRepository.Read());
         }
 
         // GET: Memory/Details/5
         [HttpGet]
         public async Task<IActionResult> Details(int? id)
         {
-            if (id == null || _context.Memories == null)
+            if (id == null || _memoryRepository.Read() == null)
             {
                 return NotFound();
             }
 
-            var memory = await _context.Memories
-                .FirstOrDefaultAsync(m => m.Id == id);
+            var memory = await _memoryRepository.Find(id);
             if (memory == null)
             {
                 return NotFound();
@@ -51,12 +49,11 @@ namespace NotebookStoreMVC.Controllers
         // POST: Memory/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,Capacity,Speed")] Memory memory)
+        public IActionResult Create([Bind("Id,Capacity,Speed")] Memory memory)
         {
             if (ModelState.IsValid)
             {
-                _context.Add(memory);
-                await _context.SaveChangesAsync();
+                _memoryRepository.Create(memory);
                 return RedirectToAction(nameof(Index));
             }
             return View(memory);
@@ -66,12 +63,12 @@ namespace NotebookStoreMVC.Controllers
         [HttpGet]
         public async Task<IActionResult> Edit(int? id)
         {
-            if (id == null || _context.Memories == null)
+            if (id == null || _memoryRepository.Read() == null)
             {
                 return NotFound();
             }
 
-            var memory = await _context.Memories.FindAsync(id);
+            var memory = await _memoryRepository.Find(id);
             if (memory == null)
             {
                 return NotFound();
@@ -82,7 +79,7 @@ namespace NotebookStoreMVC.Controllers
         // POST: Memory/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,Capacity,Speed")] Memory memory)
+        public IActionResult Edit(int id, [Bind("Id,Capacity,Speed")] Memory memory)
         {
             if (id != memory.Id)
             {
@@ -93,8 +90,7 @@ namespace NotebookStoreMVC.Controllers
             {
                 try
                 {
-                    _context.Update(memory);
-                    await _context.SaveChangesAsync();
+                    _memoryRepository.Update(memory);
                 }
                 catch (DbUpdateConcurrencyException)
                 {
@@ -116,13 +112,12 @@ namespace NotebookStoreMVC.Controllers
         [HttpGet]
         public async Task<IActionResult> Delete(int? id)
         {
-            if (id == null || _context.Memories == null)
+            if (id == null || _memoryRepository.Read() == null)
             {
                 return NotFound();
             }
 
-            var memory = await _context.Memories
-                .FirstOrDefaultAsync(m => m.Id == id);
+            var memory = await _memoryRepository.Find(id);
             if (memory == null)
             {
                 return NotFound();
@@ -136,23 +131,22 @@ namespace NotebookStoreMVC.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            if (_context.Memories == null)
+            if (_memoryRepository.Read() == null)
             {
                 return Problem("Entity set 'NotebookStoreContext.Memories'  is null.");
             }
-            var memory = await _context.Memories.FindAsync(id);
+            var memory = await _memoryRepository.Find(id);
             if (memory != null)
             {
-                _context.Memories.Remove(memory);
+                _memoryRepository.Delete(memory);
             }
 
-            await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
 
         private bool MemoryExists(int id)
         {
-            return (_context.Memories?.Any(e => e.Id == id)).GetValueOrDefault();
+            return _memoryRepository.Find(id) != null;
         }
     }
 }

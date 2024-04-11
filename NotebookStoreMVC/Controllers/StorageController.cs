@@ -1,38 +1,36 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using NotebookStore.Entities;
+using NotebookStoreMVC.Repositories;
 
 namespace NotebookStoreMVC.Controllers
 {
     public class StorageController : Controller
     {
-        private readonly NotebookStoreContext.NotebookStoreContext _context;
+        private readonly IRepository<Storage> _storageRepository;
 
-        public StorageController(NotebookStoreContext.NotebookStoreContext context)
+        public StorageController(IRepository<Storage> repository)
         {
-            _context = context;
+            _storageRepository = repository;
         }
 
         // GET: Storage
         [HttpGet]
         public async Task<IActionResult> Index()
         {
-            return _context.Storages != null ?
-                        View(await _context.Storages.ToListAsync()) :
-                        Problem("Entity set 'NotebookStoreContext.Storages'  is null.");
+            return View(await _storageRepository.Read());
         }
 
         // GET: Storage/Details/5
         [HttpGet]
         public async Task<IActionResult> Details(int? id)
         {
-            if (id == null || _context.Storages == null)
+            if (id == null || _storageRepository.Read() == null)
             {
                 return NotFound();
             }
 
-            var storage = await _context.Storages
-                .FirstOrDefaultAsync(m => m.Id == id);
+            var storage = await _storageRepository.Find(id);
             if (storage == null)
             {
                 return NotFound();
@@ -51,12 +49,11 @@ namespace NotebookStoreMVC.Controllers
         // POST: Storage/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,Type,Capacity")] Storage storage)
+        public IActionResult Create([Bind("Id,Type,Capacity")] Storage storage)
         {
             if (ModelState.IsValid)
             {
-                _context.Add(storage);
-                await _context.SaveChangesAsync();
+                _storageRepository.Create(storage);
                 return RedirectToAction(nameof(Index));
             }
             return View(storage);
@@ -66,12 +63,12 @@ namespace NotebookStoreMVC.Controllers
         [HttpGet]
         public async Task<IActionResult> Edit(int? id)
         {
-            if (id == null || _context.Storages == null)
+            if (id == null || _storageRepository.Read() == null)
             {
                 return NotFound();
             }
 
-            var storage = await _context.Storages.FindAsync(id);
+            var storage = await _storageRepository.Find(id);
             if (storage == null)
             {
                 return NotFound();
@@ -82,7 +79,7 @@ namespace NotebookStoreMVC.Controllers
         // POST: Storage/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,Type,Capacity")] Storage storage)
+        public IActionResult Edit(int id, [Bind("Id,Type,Capacity")] Storage storage)
         {
             if (id != storage.Id)
             {
@@ -93,8 +90,7 @@ namespace NotebookStoreMVC.Controllers
             {
                 try
                 {
-                    _context.Update(storage);
-                    await _context.SaveChangesAsync();
+                    _storageRepository.Update(storage);
                 }
                 catch (DbUpdateConcurrencyException)
                 {
@@ -116,13 +112,12 @@ namespace NotebookStoreMVC.Controllers
         [HttpGet]
         public async Task<IActionResult> Delete(int? id)
         {
-            if (id == null || _context.Storages == null)
+            if (id == null || _storageRepository.Read() == null)
             {
                 return NotFound();
             }
 
-            var storage = await _context.Storages
-                .FirstOrDefaultAsync(m => m.Id == id);
+            var storage = await _storageRepository.Find(id);
             if (storage == null)
             {
                 return NotFound();
@@ -136,23 +131,22 @@ namespace NotebookStoreMVC.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            if (_context.Storages == null)
+            if (_storageRepository.Read() == null)
             {
                 return Problem("Entity set 'NotebookStoreContext.Storages'  is null.");
             }
-            var storage = await _context.Storages.FindAsync(id);
+            var storage = await _storageRepository.Find(id);
             if (storage != null)
             {
-                _context.Storages.Remove(storage);
+                _storageRepository.Delete(storage);
             }
 
-            await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
 
         private bool StorageExists(int id)
         {
-            return (_context.Storages?.Any(e => e.Id == id)).GetValueOrDefault();
+            return _storageRepository.Find(id) != null;
         }
     }
 }

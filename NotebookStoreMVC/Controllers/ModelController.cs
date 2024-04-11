@@ -1,38 +1,36 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using NotebookStore.Entities;
+using NotebookStoreMVC.Repositories;
 
 namespace NotebookStoreMVC.Controllers
 {
     public class ModelController : Controller
     {
-        private readonly NotebookStoreContext.NotebookStoreContext _context;
+        private readonly IRepository<Model> _modelRepository;
 
-        public ModelController(NotebookStoreContext.NotebookStoreContext context)
+        public ModelController(IRepository<Model> repository)
         {
-            _context = context;
+            _modelRepository = repository;
         }
 
         // GET: Model
         [HttpGet]
         public async Task<IActionResult> Index()
         {
-            return _context.Models != null ?
-                        View(await _context.Models.ToListAsync()) :
-                        Problem("Entity set 'NotebookStoreContext.Models'  is null.");
+            return View(await _modelRepository.Read());
         }
 
         // GET: Model/Details/5
         [HttpGet]
         public async Task<IActionResult> Details(int? id)
         {
-            if (id == null || _context.Models == null)
+            if (id == null || _modelRepository.Read() == null)
             {
                 return NotFound();
             }
 
-            var model = await _context.Models
-                .FirstOrDefaultAsync(m => m.Id == id);
+            var model = await _modelRepository.Find(id);
             if (model == null)
             {
                 return NotFound();
@@ -51,12 +49,11 @@ namespace NotebookStoreMVC.Controllers
         // POST: Model/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,Name")] Model model)
+        public IActionResult Create([Bind("Id,Name")] Model model)
         {
             if (ModelState.IsValid)
             {
-                _context.Add(model);
-                await _context.SaveChangesAsync();
+                _modelRepository.Create(model);
                 return RedirectToAction(nameof(Index));
             }
             return View(model);
@@ -66,12 +63,12 @@ namespace NotebookStoreMVC.Controllers
         [HttpGet]
         public async Task<IActionResult> Edit(int? id)
         {
-            if (id == null || _context.Models == null)
+            if (id == null || _modelRepository.Read() == null)
             {
                 return NotFound();
             }
 
-            var model = await _context.Models.FindAsync(id);
+            var model = await _modelRepository.Find(id);
             if (model == null)
             {
                 return NotFound();
@@ -82,7 +79,7 @@ namespace NotebookStoreMVC.Controllers
         // POST: Model/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,Name")] Model model)
+        public IActionResult Edit(int id, [Bind("Id,Name")] Model model)
         {
             if (id != model.Id)
             {
@@ -93,8 +90,7 @@ namespace NotebookStoreMVC.Controllers
             {
                 try
                 {
-                    _context.Update(model);
-                    await _context.SaveChangesAsync();
+                    _modelRepository.Update(model);
                 }
                 catch (DbUpdateConcurrencyException)
                 {
@@ -116,13 +112,12 @@ namespace NotebookStoreMVC.Controllers
         [HttpGet]
         public async Task<IActionResult> Delete(int? id)
         {
-            if (id == null || _context.Models == null)
+            if (id == null || _modelRepository.Read() == null)
             {
                 return NotFound();
             }
 
-            var model = await _context.Models
-                .FirstOrDefaultAsync(m => m.Id == id);
+            var model = await _modelRepository.Find(id);
             if (model == null)
             {
                 return NotFound();
@@ -136,23 +131,22 @@ namespace NotebookStoreMVC.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            if (_context.Models == null)
+            if (_modelRepository.Read() == null)
             {
                 return Problem("Entity set 'NotebookStoreContext.Models'  is null.");
             }
-            var model = await _context.Models.FindAsync(id);
+            var model = await _modelRepository.Find(id);
             if (model != null)
             {
-                _context.Models.Remove(model);
+                _modelRepository.Delete(model);
             }
 
-            await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
 
         private bool ModelExists(int id)
         {
-            return (_context.Models?.Any(e => e.Id == id)).GetValueOrDefault();
+            return _modelRepository.Find(id) != null;
         }
     }
 }
