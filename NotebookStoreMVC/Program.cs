@@ -18,6 +18,7 @@ builder.Services.AddScoped<IRepository<Storage>, StorageRepository>();
 builder.Services.AddScoped<INotebookRepository, NotebookRepository>();
 
 builder.Services.AddScoped<ISerializer<Cpu>, Serializer<Cpu>>();
+builder.Services.AddScoped<ISerializer<Display>, Serializer<Display>>();
 
 builder.Services.AddDbContext<NotebookStoreContext.NotebookStoreContext>(options =>
     options.UseSqlite(builder.Configuration.GetConnectionString("SqlLite")));
