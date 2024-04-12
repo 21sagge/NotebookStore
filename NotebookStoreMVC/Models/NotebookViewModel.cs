@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using NotebookStore.Entities;
 
 namespace NotebookStoreMVC.Models;
@@ -7,7 +8,7 @@ public class NotebookViewModel
 {
   public int Id { get; set; }
   [MaxLength(50)]
-  public required string Color { get; set; }
+  public string? Color { get; set; }
   [Range(0, 10000)]
   public int Price { get; set; }
   public int BrandId { get; set; }
@@ -23,10 +24,10 @@ public class NotebookViewModel
   public int StorageId { get; set; }
   public virtual Storage? Storage { get; set; }
 
-  public SelectList Brands { get; set; }
-  public SelectList Cpus { get; set; }
-  public SelectList Displays { get; set; }
-  public SelectList Memories { get; set; }
-  public SelectList Models { get; set; }
-  public SelectList Storages { get; set; }
+  public SelectList? Brands { get; set; }
+  public SelectList? Cpus { get; set; }
+  public SelectList? Displays { get; set; }
+  public SelectList? Memories { get; set; }
+  public SelectList? Models { get; set; }
+  public SelectList? Storages { get; set; }
 }
