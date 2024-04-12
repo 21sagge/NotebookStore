@@ -17,6 +17,4 @@ public class Storage
   /// </summary>
   [Range(128, 4096)]
   public required int Capacity { get; set; }
-
-  public string TypeAndCapacity => $"{Type} {Capacity}GB";
 }

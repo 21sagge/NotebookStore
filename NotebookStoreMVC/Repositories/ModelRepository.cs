@@ -1,40 +1,46 @@
 ﻿namespace NotebookStoreMVC.Repositories;
 
+using AutoMapper;
 using Microsoft.EntityFrameworkCore;
 using NotebookStore.Entities;
 using NotebookStoreContext;
+using NotebookStoreMVC.Models;
 
-public class ModelRepository : IRepository<Model>
+public class ModelRepository : IRepository<ModelViewModel>
 {
   private readonly NotebookStoreContext _context;
+  private readonly IMapper mapper;
 
-  public ModelRepository(NotebookStoreContext context)
+  public ModelRepository(NotebookStoreContext context, IMapper mapper)
   {
     _context = context;
+    this.mapper = mapper;
   }
 
-  public async void Create(Model entity)
+  public async Task Create(ModelViewModel entity)
   {
-    await _context.Models.AddAsync(entity);
+    await _context.Models.AddAsync(mapper.Map<Model>(entity));
     await _context.SaveChangesAsync();
   }
-  public async Task<IEnumerable<Model>> Read()
+  public async Task<IEnumerable<ModelViewModel>> Read()
   {
-    return await _context.Models.ToListAsync();
+    return mapper.Map<IEnumerable<ModelViewModel>>(await _context.Models.ToListAsync());
   }
-  public async Task<Model?> Find(int? id)
+  public async Task<ModelViewModel?> Find(int? id)
   {
-    return await _context.Models.FindAsync(id);
+    return mapper.Map<ModelViewModel>(await _context.Models.FirstOrDefaultAsync(m => m.Id == id));
   }
-  public async void Update(Model entity)
+  public async Task Update(ModelViewModel entity)
   {
-    _context.Models.Update(entity);
+    _context.Models.Update(mapper.Map<Model>(entity));
     await _context.SaveChangesAsync();
   }
 
-  public async void Delete(Model entity)
+  public async Task Delete(int id)
   {
-    _context.Models.Remove(entity);
+    var model = await _context.Models.FindAsync(id);
+    if (model == null) return;
+    _context.Models.Remove(model);
     await _context.SaveChangesAsync();
   }
   public void Dispose()

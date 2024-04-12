@@ -2,18 +2,18 @@
 
 using System.Text;
 using Microsoft.AspNetCore.Mvc;
-using NotebookStore.Entities;
+using NotebookStoreMVC.Models;
 using NotebookStoreMVC.Repositories;
 using NotebookStoreMVC.Services;
 
 public class ExportController : Controller
 {
-  private readonly ISerializer<Cpu> _cpuSerializer;
-  private readonly ISerializer<Display> _displaySerializer;
-  private readonly IRepository<Cpu> _cpuRepository;
-  private readonly IRepository<Display> _displayRepository;
+  private readonly ISerializer<CpuViewModel> _cpuSerializer;
+  private readonly ISerializer<DisplayViewModel> _displaySerializer;
+  private readonly IRepository<CpuViewModel> _cpuRepository;
+  private readonly IRepository<DisplayViewModel> _displayRepository;
 
-  public ExportController(ISerializer<Cpu> cpuSerializer, ISerializer<Display> displaySerializer, IRepository<Cpu> cpuRepository, IRepository<Display> displayRepository)
+  public ExportController(ISerializer<CpuViewModel> cpuSerializer, ISerializer<DisplayViewModel> displaySerializer, IRepository<CpuViewModel> cpuRepository, IRepository<DisplayViewModel> displayRepository)
   {
     _cpuSerializer = cpuSerializer;
     _displaySerializer = displaySerializer;
@@ -32,7 +32,7 @@ public class ExportController : Controller
   [HttpPost]
   public async Task<IActionResult> Export(string dataType, string format)
   {
-    if (dataType == "Cpu")
+    if (dataType == "CpuViewModel")
     {
       // Ottieni i dati da esportare
       var data = await _cpuRepository.Read();
@@ -56,7 +56,7 @@ public class ExportController : Controller
       var bytes = Encoding.UTF8.GetBytes(serializedData);
       return File(bytes, "application/octet-stream", $"{dataType.ToLower()}Export.{format}");
     }
-    else if (dataType == "Display")
+    else if (dataType == "DisplayViewModel")
     {
       // Ottieni i dati da esportare
       var data = await _displayRepository.Read();

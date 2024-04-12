@@ -29,22 +29,31 @@
 			</div>
 			<div class="form-group">
 				<label asp-for="Brand" class="control-label"></label>
-				@Html.DropDownListFor(model => model.BrandId, Model.Brands, "Select Brand", new { @class = "form-control" })
+				@Html.DropDownListFor(model => model.BrandId, new SelectList(Model.Brands, "Id", "Name"), "Select Brand", new
+					{
+						@class = "form-control"
+					})
 				<span asp-validation-for="BrandId" class="text-danger"></span>
 			</div>
 			<div class="form-group">
 				<label asp-for="Model" class="control-label"></label>
-				@Html.DropDownListFor(model => model.ModelId, Model.Models, "Select Model", new { @class = "form-control" })
+				@Html.DropDownListFor(model => model.ModelId, new SelectList(Model.Models, "Id", "Name"), "Select Model", new
+					{
+						@class = "form-control"
+					})
 				<span asp-validation-for="ModelId" class="text-danger"></span>
 			</div>
 			<div class="form-group">
 				<label asp-for="Cpu" class="control-label"></label>
-				@Html.DropDownListFor(model => model.CpuId, Model.Cpus, "Select Cpu", new { @class = "form-control" })
+				@Html.DropDownListFor(model => model.CpuId, new SelectList(Model.Cpus, "Id", "Name"), "Select Cpu", new
+					{
+						@class = "form-control"
+					})
 				<span asp-validation-for="CpuId" class="text-danger"></span>
 			</div>
 			<div class="form-group">
 				<label asp-for="Display" class="control-label"></label>
-				@Html.DropDownListFor(model => model.DisplayId, Model.Displays, "Select Display", new
+				@Html.DropDownListFor(model => model.DisplayId, new SelectList(Model.Displays, "Id", "Name"), "Select Display", new
 					{
 						@class = "form-control"
 					})
@@ -52,12 +61,15 @@
 			</div>
 			<div class="form-group">
 				<label asp-for="Memory" class="control-label"></label>
-				@Html.DropDownListFor(model => model.MemoryId, Model.Memories, "Select Memory", new { @class = "form-control" })
+				@Html.DropDownListFor(model => model.MemoryId, new SelectList(Model.Memories, "Id", "CapacityAndSpeed"), "Select Memory", new
+					{
+						@class = "form-control"
+					})
 				<span asp-validation-for="MemoryId" class="text-danger"></span>
 			</div>
 			<div class="form-group">
 				<label asp-for="Storage" class="control-label"></label>
-				@Html.DropDownListFor(model => model.StorageId, Model.Storages, "Select Storage", new
+				@Html.DropDownListFor(model => model.StorageId, new SelectList(Model.Storages, "Id", "TypeAndCapacity"), "Select Storage", new
 					{
 						@class = "form-control"
 					})

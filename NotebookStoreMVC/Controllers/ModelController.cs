@@ -1,27 +1,33 @@
+using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using NotebookStore.Entities;
+using NotebookStoreMVC.Models;
 using NotebookStoreMVC.Repositories;
 
 namespace NotebookStoreMVC.Controllers
 {
     public class ModelController : Controller
     {
-        private readonly IRepository<Model> _modelRepository;
+        private readonly IRepository<ModelViewModel> _modelRepository;
+        private readonly IMapper mapper;
 
-        public ModelController(IRepository<Model> repository)
+        public ModelController(IRepository<ModelViewModel> repository, IMapper mapper)
         {
             _modelRepository = repository;
+            this.mapper = mapper;
         }
 
-        // GET: Model
+        // GET: ModelViewModel
         [HttpGet]
         public async Task<IActionResult> Index()
         {
-            return View(await _modelRepository.Read());
+            var modelViewModels = await _modelRepository.Read();
+            var models = modelViewModels.Select(bvm => mapper.Map<Model>(bvm));
+            return View(models);
         }
 
-        // GET: Model/Details/5
+        // GET: ModelViewModel/Details/5
         [HttpGet]
         public async Task<IActionResult> Details(int? id)
         {
@@ -30,36 +36,36 @@ namespace NotebookStoreMVC.Controllers
                 return NotFound();
             }
 
-            var model = await _modelRepository.Find(id);
-            if (model == null)
+            var ModelViewModel = await _modelRepository.Find(id);
+            if (ModelViewModel == null)
             {
                 return NotFound();
             }
 
-            return View(model);
+            return View(mapper.Map<Model>(ModelViewModel));
         }
 
-        // GET: Model/Create
+        // GET: ModelViewModel/Create
         [HttpGet]
         public IActionResult Create()
         {
             return View();
         }
 
-        // POST: Model/Create
+        // POST: ModelViewModel/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult Create([Bind("Id,Name")] Model model)
+        public IActionResult Create([Bind("Id,Name")] ModelViewModel ModelViewModel)
         {
             if (ModelState.IsValid)
             {
-                _modelRepository.Create(model);
+                _modelRepository.Create(ModelViewModel);
                 return RedirectToAction(nameof(Index));
             }
-            return View(model);
+            return View(ModelViewModel);
         }
 
-        // GET: Model/Edit/5
+        // GET: ModelViewModel/Edit/5
         [HttpGet]
         public async Task<IActionResult> Edit(int? id)
         {
@@ -68,20 +74,20 @@ namespace NotebookStoreMVC.Controllers
                 return NotFound();
             }
 
-            var model = await _modelRepository.Find(id);
-            if (model == null)
+            var ModelViewModel = await _modelRepository.Find(id);
+            if (ModelViewModel == null)
             {
                 return NotFound();
             }
-            return View(model);
+            return View(mapper.Map<Model>(ModelViewModel));
         }
 
-        // POST: Model/Edit/5
+        // POST: ModelViewModel/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult Edit(int id, [Bind("Id,Name")] Model model)
+        public IActionResult Edit(int id, [Bind("Id,Name")] ModelViewModel ModelViewModel)
         {
-            if (id != model.Id)
+            if (id != ModelViewModel.Id)
             {
                 return NotFound();
             }
@@ -90,11 +96,11 @@ namespace NotebookStoreMVC.Controllers
             {
                 try
                 {
-                    _modelRepository.Update(model);
+                    _modelRepository.Update(ModelViewModel);
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!ModelExists(model.Id))
+                    if (!ModelExists(ModelViewModel.Id))
                     {
                         return NotFound();
                     }
@@ -105,10 +111,10 @@ namespace NotebookStoreMVC.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
-            return View(model);
+            return View(ModelViewModel);
         }
 
-        // GET: Model/Delete/5
+        // GET: ModelViewModel/Delete/5
         [HttpGet]
         public async Task<IActionResult> Delete(int? id)
         {
@@ -117,30 +123,26 @@ namespace NotebookStoreMVC.Controllers
                 return NotFound();
             }
 
-            var model = await _modelRepository.Find(id);
-            if (model == null)
+            var ModelViewModel = await _modelRepository.Find(id);
+            if (ModelViewModel == null)
             {
                 return NotFound();
             }
 
-            return View(model);
+            return View(mapper.Map<Model>(ModelViewModel));
         }
 
-        // POST: Model/Delete/5
+        // POST: ModelViewModel/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
             if (_modelRepository.Read() == null)
             {
-                return Problem("Entity set 'NotebookStoreContext.Models'  is null.");
-            }
-            var model = await _modelRepository.Find(id);
-            if (model != null)
-            {
-                _modelRepository.Delete(model);
+                return Problem("Entity set 'NotebookStoreContext.Model'  is null.");
             }
 
+            await _modelRepository.Delete(id);
             return RedirectToAction(nameof(Index));
         }
 

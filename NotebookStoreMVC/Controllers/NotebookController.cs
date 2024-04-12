@@ -1,5 +1,5 @@
+using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using NotebookStore.Entities;
 using NotebookStoreMVC.Models;
@@ -10,17 +10,20 @@ namespace NotebookStoreMVC.Controllers
 	public class NotebookController : Controller
 	{
 		private readonly INotebookRepository _notebookRepository;
+		private readonly IMapper mapper;
 
-		public NotebookController(INotebookRepository repository)
+		public NotebookController(INotebookRepository repository, IMapper mapper)
 		{
 			_notebookRepository = repository;
+			this.mapper = mapper;
 		}
 
 		// GET: Notebook
 		[HttpGet]
 		public async Task<IActionResult> Index()
 		{
-			return View(await _notebookRepository.Read());
+			var notebookViewModels = await _notebookRepository.Read();
+			return View(notebookViewModels);
 		}
 
 		// GET: Notebook/Details/5
@@ -39,6 +42,7 @@ namespace NotebookStoreMVC.Controllers
 			}
 
 			return View(notebook);
+
 		}
 
 		// GET: Notebook/Create
@@ -47,12 +51,12 @@ namespace NotebookStoreMVC.Controllers
 		{
 			var model = new NotebookViewModel
 			{
-				Brands = new SelectList(_notebookRepository.Brands, "Id", "Name"),
-				Cpus = new SelectList(_notebookRepository.Cpus, "Id", "Name"),
-				Displays = new SelectList(_notebookRepository.Displays, "Id", "Name"),
-				Memories = new SelectList(_notebookRepository.Memories, "Id", "CapacityAndSpeed"),
-				Models = new SelectList(_notebookRepository.Models, "Id", "Name"),
-				Storages = new SelectList(_notebookRepository.Storages, "Id", "TypeAndCapacity")
+				Brands = mapper.Map<IEnumerable<BrandViewModel>>(_notebookRepository.Brands),
+				Cpus = mapper.Map<IEnumerable<CpuViewModel>>(_notebookRepository.Cpus),
+				Displays = mapper.Map<IEnumerable<DisplayViewModel>>(_notebookRepository.Displays),
+				Memories = mapper.Map<IEnumerable<MemoryViewModel>>(_notebookRepository.Memories),
+				Models = mapper.Map<IEnumerable<ModelViewModel>>(_notebookRepository.Models),
+				Storages = mapper.Map<IEnumerable<StorageViewModel>>(_notebookRepository.Storages)
 			};
 			return View(model);
 		}
@@ -60,7 +64,7 @@ namespace NotebookStoreMVC.Controllers
 		// POST: Notebook/Create
 		[HttpPost]
 		[ValidateAntiForgeryToken]
-		public IActionResult Create([Bind("Id,Color,Price,BrandId,ModelId,CpuId,DisplayId,MemoryId,StorageId")] Notebook notebook)
+		public IActionResult Create([Bind("Id,Color,Price,BrandId,ModelId,CpuId,DisplayId,MemoryId,StorageId")] NotebookViewModel notebook)
 		{
 			if (ModelState.IsValid)
 			{
@@ -69,12 +73,12 @@ namespace NotebookStoreMVC.Controllers
 			}
 			var model = new NotebookViewModel
 			{
-				Brands = new SelectList(_notebookRepository.Brands, "Id", "Name"),
-				Cpus = new SelectList(_notebookRepository.Cpus, "Id", "Name"),
-				Displays = new SelectList(_notebookRepository.Displays, "Id", "Name"),
-				Memories = new SelectList(_notebookRepository.Memories, "Id", "CapacityAndSpeed"),
-				Models = new SelectList(_notebookRepository.Models, "Id", "Name"),
-				Storages = new SelectList(_notebookRepository.Storages, "Id", "TypeAndCapacity")
+				Brands = mapper.Map<IEnumerable<BrandViewModel>>(_notebookRepository.Brands),
+				Cpus = mapper.Map<IEnumerable<CpuViewModel>>(_notebookRepository.Cpus),
+				Displays = mapper.Map<IEnumerable<DisplayViewModel>>(_notebookRepository.Displays),
+				Memories = mapper.Map<IEnumerable<MemoryViewModel>>(_notebookRepository.Memories),
+				Models = mapper.Map<IEnumerable<ModelViewModel>>(_notebookRepository.Models),
+				Storages = mapper.Map<IEnumerable<StorageViewModel>>(_notebookRepository.Storages)
 			};
 			return View(model);
 		}
@@ -93,22 +97,32 @@ namespace NotebookStoreMVC.Controllers
 			{
 				return NotFound();
 			}
+			
 			var model = new NotebookViewModel
 			{
-				Brands = new SelectList(_notebookRepository.Brands, "Id", "Name"),
-				Cpus = new SelectList(_notebookRepository.Cpus, "Id", "Name"),
-				Displays = new SelectList(_notebookRepository.Displays, "Id", "Name"),
-				Memories = new SelectList(_notebookRepository.Memories, "Id", "CapacityAndSpeed"),
-				Models = new SelectList(_notebookRepository.Models, "Id", "Name"),
-				Storages = new SelectList(_notebookRepository.Storages, "Id", "TypeAndCapacity")
+				Color = notebook.Color,
+				Price = notebook.Price,
+				BrandId = notebook.BrandId,
+				ModelId = notebook.ModelId,
+				CpuId = notebook.CpuId,
+				DisplayId = notebook.DisplayId,
+				MemoryId = notebook.MemoryId,
+				StorageId = notebook.StorageId,
+				Brands = _notebookRepository.Brands,
+				Cpus = _notebookRepository.Cpus,
+				Displays = _notebookRepository.Displays,
+				Memories = _notebookRepository.Memories,
+				Models = _notebookRepository.Models,
+				Storages = _notebookRepository.Storages
 			};
+
 			return View(model);
 		}
 
 		// POST: Notebook/Edit/5
 		[HttpPost]
 		[ValidateAntiForgeryToken]
-		public IActionResult Edit(int id, [Bind("Id,Color,Price,BrandId,ModelId,CpuId,DisplayId,MemoryId,StorageId")] Notebook notebook)
+		public async Task<IActionResult> Edit(int id, [Bind("Id,Color,Price,BrandId,ModelId,CpuId,DisplayId,MemoryId,StorageId")] NotebookViewModel notebook)
 		{
 			if (id != notebook.Id)
 			{
@@ -119,7 +133,7 @@ namespace NotebookStoreMVC.Controllers
 			{
 				try
 				{
-					_notebookRepository.Update(notebook);
+					await _notebookRepository.Update(notebook);
 				}
 				catch (DbUpdateConcurrencyException)
 				{
@@ -136,12 +150,12 @@ namespace NotebookStoreMVC.Controllers
 			}
 			var model = new NotebookViewModel
 			{
-				Brands = new SelectList(_notebookRepository.Brands, "Id", "Name"),
-				Cpus = new SelectList(_notebookRepository.Cpus, "Id", "Name"),
-				Displays = new SelectList(_notebookRepository.Displays, "Id", "Name"),
-				Memories = new SelectList(_notebookRepository.Memories, "Id", "CapacityAndSpeed"),
-				Models = new SelectList(_notebookRepository.Models, "Id", "Name"),
-				Storages = new SelectList(_notebookRepository.Storages, "Id", "TypeAndCapacity")
+				Brands = mapper.Map<IEnumerable<BrandViewModel>>(_notebookRepository.Brands),
+				Cpus = mapper.Map<IEnumerable<CpuViewModel>>(_notebookRepository.Cpus),
+				Displays = mapper.Map<IEnumerable<DisplayViewModel>>(_notebookRepository.Displays),
+				Memories = mapper.Map<IEnumerable<MemoryViewModel>>(_notebookRepository.Memories),
+				Models = mapper.Map<IEnumerable<ModelViewModel>>(_notebookRepository.Models),
+				Storages = mapper.Map<IEnumerable<StorageViewModel>>(_notebookRepository.Storages)
 			};
 			return View(model);
 		}
@@ -171,14 +185,10 @@ namespace NotebookStoreMVC.Controllers
 		{
 			if (_notebookRepository.Read() == null)
 			{
-				return Problem("Entity set 'NotebookStoreContext.Notebooks'  is null.");
-			}
-			var notebook = await _notebookRepository.Find(id);
-			if (notebook != null)
-			{
-				_notebookRepository.Delete(notebook);
+				return Problem("Entity set 'NotebookStoreContext.Notebook'  is null.");
 			}
 
+			await _notebookRepository.Delete(id);
 			return RedirectToAction(nameof(Index));
 		}
 

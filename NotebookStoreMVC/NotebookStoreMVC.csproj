@@ -32,5 +32,6 @@
        <PrivateAssets>all</PrivateAssets>
      </PackageReference>
      <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="7.0.12" />
+     <PackageReference Include="AutoMapper" Version="13.0.1" />
    </ItemGroup>
 </Project>

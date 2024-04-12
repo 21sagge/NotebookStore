@@ -1,40 +1,46 @@
 ﻿namespace NotebookStoreMVC.Repositories;
 
+using AutoMapper;
 using Microsoft.EntityFrameworkCore;
 using NotebookStore.Entities;
 using NotebookStoreContext;
+using NotebookStoreMVC.Models;
 
-public class StorageRepository : IRepository<Storage>
+public class StorageRepository : IRepository<StorageViewModel>
 {
   private readonly NotebookStoreContext _context;
+  private readonly IMapper mapper;
 
-  public StorageRepository(NotebookStoreContext context)
+  public StorageRepository(NotebookStoreContext context, IMapper mapper)
   {
     _context = context;
+    this.mapper = mapper;
   }
 
-  public async void Create(Storage entity)
+  public async Task Create(StorageViewModel entity)
   {
-    await _context.Storages.AddAsync(entity);
+    await _context.Storages.AddAsync(mapper.Map<Storage>(entity));
     await _context.SaveChangesAsync();
   }
-  public async Task<IEnumerable<Storage>> Read()
+  public async Task<IEnumerable<StorageViewModel>> Read()
   {
-    return await _context.Storages.ToListAsync();
+    return mapper.Map<IEnumerable<StorageViewModel>>(await _context.Storages.ToListAsync());
   }
-  public async Task<Storage?> Find(int? id)
+  public async Task<StorageViewModel?> Find(int? id)
   {
-    return await _context.Storages.FindAsync(id);
+    return mapper.Map<StorageViewModel>(await _context.Storages.FirstOrDefaultAsync(m => m.Id == id));
   }
-  public async void Update(Storage entity)
+  public async Task Update(StorageViewModel entity)
   {
-    _context.Storages.Update(entity);
+    _context.Storages.Update(mapper.Map<Storage>(entity));
     await _context.SaveChangesAsync();
   }
 
-  public async void Delete(Storage entity)
+  public async Task Delete(int id)
   {
-    _context.Storages.Remove(entity);
+    var storage = await _context.Storages.FindAsync(id);
+    if (storage == null) return;
+    _context.Storages.Remove(storage);
     await _context.SaveChangesAsync();
   }
   public void Dispose()

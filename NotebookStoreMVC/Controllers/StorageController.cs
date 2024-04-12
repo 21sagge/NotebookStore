@@ -1,27 +1,33 @@
+using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using NotebookStore.Entities;
+using NotebookStoreMVC.Models;
 using NotebookStoreMVC.Repositories;
 
 namespace NotebookStoreMVC.Controllers
 {
     public class StorageController : Controller
     {
-        private readonly IRepository<Storage> _storageRepository;
+        private readonly IRepository<StorageViewModel> _storageRepository;
+        private readonly IMapper mapper;
 
-        public StorageController(IRepository<Storage> repository)
+        public StorageController(IRepository<StorageViewModel> repository, IMapper mapper)
         {
             _storageRepository = repository;
+            this.mapper = mapper;
         }
 
-        // GET: Storage
+        // GET: StorageViewModel
         [HttpGet]
         public async Task<IActionResult> Index()
         {
-            return View(await _storageRepository.Read());
+            var storageViewModels = await _storageRepository.Read();
+            var storages = storageViewModels.Select(bvm => mapper.Map<Storage>(bvm));
+            return View(storages);
         }
 
-        // GET: Storage/Details/5
+        // GET: StorageViewModel/Details/5
         [HttpGet]
         public async Task<IActionResult> Details(int? id)
         {
@@ -30,36 +36,36 @@ namespace NotebookStoreMVC.Controllers
                 return NotFound();
             }
 
-            var storage = await _storageRepository.Find(id);
-            if (storage == null)
+            var StorageViewModel = await _storageRepository.Find(id);
+            if (StorageViewModel == null)
             {
                 return NotFound();
             }
 
-            return View(storage);
+            return View(mapper.Map<Storage>(StorageViewModel));
         }
 
-        // GET: Storage/Create
+        // GET: StorageViewModel/Create
         [HttpGet]
         public IActionResult Create()
         {
             return View();
         }
 
-        // POST: Storage/Create
+        // POST: StorageViewModel/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult Create([Bind("Id,Type,Capacity")] Storage storage)
+        public IActionResult Create([Bind("Id,Type,Capacity")] StorageViewModel StorageViewModel)
         {
             if (ModelState.IsValid)
             {
-                _storageRepository.Create(storage);
+                _storageRepository.Create(StorageViewModel);
                 return RedirectToAction(nameof(Index));
             }
-            return View(storage);
+            return View(StorageViewModel);
         }
 
-        // GET: Storage/Edit/5
+        // GET: StorageViewModel/Edit/5
         [HttpGet]
         public async Task<IActionResult> Edit(int? id)
         {
@@ -68,20 +74,20 @@ namespace NotebookStoreMVC.Controllers
                 return NotFound();
             }
 
-            var storage = await _storageRepository.Find(id);
-            if (storage == null)
+            var StorageViewModel = await _storageRepository.Find(id);
+            if (StorageViewModel == null)
             {
                 return NotFound();
             }
-            return View(storage);
+            return View(mapper.Map<Storage>(StorageViewModel));
         }
 
-        // POST: Storage/Edit/5
+        // POST: StorageViewModel/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult Edit(int id, [Bind("Id,Type,Capacity")] Storage storage)
+        public IActionResult Edit(int id, [Bind("Id,Type,Capacity")] StorageViewModel StorageViewModel)
         {
-            if (id != storage.Id)
+            if (id != StorageViewModel.Id)
             {
                 return NotFound();
             }
@@ -90,11 +96,11 @@ namespace NotebookStoreMVC.Controllers
             {
                 try
                 {
-                    _storageRepository.Update(storage);
+                    _storageRepository.Update(StorageViewModel);
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!StorageExists(storage.Id))
+                    if (!StorageExists(StorageViewModel.Id))
                     {
                         return NotFound();
                     }
@@ -105,10 +111,10 @@ namespace NotebookStoreMVC.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
-            return View(storage);
+            return View(StorageViewModel);
         }
 
-        // GET: Storage/Delete/5
+        // GET: StorageViewModel/Delete/5
         [HttpGet]
         public async Task<IActionResult> Delete(int? id)
         {
@@ -117,30 +123,26 @@ namespace NotebookStoreMVC.Controllers
                 return NotFound();
             }
 
-            var storage = await _storageRepository.Find(id);
-            if (storage == null)
+            var StorageViewModel = await _storageRepository.Find(id);
+            if (StorageViewModel == null)
             {
                 return NotFound();
             }
 
-            return View(storage);
+            return View(mapper.Map<Storage>(StorageViewModel));
         }
 
-        // POST: Storage/Delete/5
+        // POST: StorageViewModel/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
             if (_storageRepository.Read() == null)
             {
-                return Problem("Entity set 'NotebookStoreContext.Storages'  is null.");
-            }
-            var storage = await _storageRepository.Find(id);
-            if (storage != null)
-            {
-                _storageRepository.Delete(storage);
+                return Problem("Entity set 'NotebookStoreContext.Storage'  is null.");
             }
 
+            await _storageRepository.Delete(id);
             return RedirectToAction(nameof(Index));
         }
 

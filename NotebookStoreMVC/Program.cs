@@ -1,6 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using NotebookStore.Entities;
 using NotebookStoreMVC;
+using NotebookStoreMVC.Models;
 using NotebookStoreMVC.Repositories;
 using NotebookStoreMVC.Services;
 
@@ -9,16 +9,21 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllersWithViews();
 
 // Registra un servizio che viene creato una volta per ogni richiesta client.
-builder.Services.AddScoped<IRepository<Brand>, BrandRepository>();
-builder.Services.AddScoped<IRepository<Cpu>, CpuRepository>();
-builder.Services.AddScoped<IRepository<Display>, DisplayRepository>();
-builder.Services.AddScoped<IRepository<Memory>, MemoryRepository>();
-builder.Services.AddScoped<IRepository<Model>, ModelRepository>();
-builder.Services.AddScoped<IRepository<Storage>, StorageRepository>();
+builder.Services.AddScoped<IRepository<BrandViewModel>, BrandRepository>();
+builder.Services.AddScoped<IRepository<CpuViewModel>, CpuRepository>();
+builder.Services.AddScoped<IRepository<DisplayViewModel>, DisplayRepository>();
+builder.Services.AddScoped<IRepository<MemoryViewModel>, MemoryRepository>();
+builder.Services.AddScoped<IRepository<ModelViewModel>, ModelRepository>();
+builder.Services.AddScoped<IRepository<StorageViewModel>, StorageRepository>();
 builder.Services.AddScoped<INotebookRepository, NotebookRepository>();
 
-builder.Services.AddScoped<ISerializer<Cpu>, Serializer<Cpu>>();
-builder.Services.AddScoped<ISerializer<Display>, Serializer<Display>>();
+builder.Services.AddAutoMapper(configure =>
+{
+    configure.AddProfile(new MapperMvc());
+});
+
+builder.Services.AddScoped<ISerializer<CpuViewModel>, Serializer<CpuViewModel>>();
+builder.Services.AddScoped<ISerializer<DisplayViewModel>, Serializer<DisplayViewModel>>();
 
 builder.Services.AddDbContext<NotebookStoreContext.NotebookStoreContext>(options =>
     options.UseSqlite(builder.Configuration.GetConnectionString("SqlLite")));
@@ -30,8 +35,7 @@ if (!app.Environment.IsDevelopment())
     app.UseExceptionHandler("/Home/Error");
     app.UseHsts();
 }
-
-if (app.Environment.IsDevelopment())
+else
 {
     app.UseDeveloper("Rosario").UseDeveloper("Niccolo");
 }

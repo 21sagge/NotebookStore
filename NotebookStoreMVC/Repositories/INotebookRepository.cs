@@ -1,13 +1,13 @@
 ﻿namespace NotebookStoreMVC.Repositories;
 
-using NotebookStore.Entities;
+using NotebookStoreMVC.Models;
 
-public interface INotebookRepository : IRepository<Notebook>
+public interface INotebookRepository : IRepository<NotebookViewModel>
 {
-  IEnumerable<Brand> Brands { get; }
-  IEnumerable<Cpu> Cpus { get; }
-  IEnumerable<Display> Displays { get; }
-  IEnumerable<Memory> Memories { get; }
-  IEnumerable<Model> Models { get; }
-  IEnumerable<Storage> Storages { get; }
+  IEnumerable<BrandViewModel> Brands { get; }
+  IEnumerable<CpuViewModel> Cpus { get; }
+  IEnumerable<DisplayViewModel> Displays { get; }
+  IEnumerable<MemoryViewModel> Memories { get; }
+  IEnumerable<ModelViewModel> Models { get; }
+  IEnumerable<StorageViewModel> Storages { get; }
 }

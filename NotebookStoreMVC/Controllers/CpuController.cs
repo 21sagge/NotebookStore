@@ -1,27 +1,33 @@
+using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using NotebookStore.Entities;
+using NotebookStoreMVC.Models;
 using NotebookStoreMVC.Repositories;
 
 namespace NotebookStoreMVC.Controllers
 {
     public class CpuController : Controller
     {
-        private readonly IRepository<Cpu> _cpuRepository;
+        private readonly IRepository<CpuViewModel> _cpuRepository;
+        private readonly IMapper mapper;
 
-        public CpuController(IRepository<Cpu> repository)
+        public CpuController(IRepository<CpuViewModel> repository, IMapper mapper)
         {
             _cpuRepository = repository;
+            this.mapper = mapper;
         }
 
-        // GET: Cpu
+        // GET: CpuViewModel
         [HttpGet]
         public async Task<IActionResult> Index()
         {
-            return View(await _cpuRepository.Read());
+            var cpuViewModels = await _cpuRepository.Read();
+            var cpus = cpuViewModels.Select(bvm => mapper.Map<Cpu>(bvm));
+            return View(cpus);
         }
 
-        // GET: Cpu/Details/5
+        // GET: CpuViewModel/Details/5
         [HttpGet]
         public async Task<IActionResult> Details(int? id)
         {
@@ -30,36 +36,36 @@ namespace NotebookStoreMVC.Controllers
                 return NotFound();
             }
 
-            var cpu = await _cpuRepository.Find(id);
-            if (cpu == null)
+            var CpuViewModel = await _cpuRepository.Find(id);
+            if (CpuViewModel == null)
             {
                 return NotFound();
             }
 
-            return View(cpu);
+            return View(mapper.Map<Cpu>(CpuViewModel));
         }
 
-        // GET: Cpu/Create
+        // GET: CpuViewModel/Create
         [HttpGet]
         public IActionResult Create()
         {
             return View();
         }
 
-        // POST: Cpu/Create
+        // POST: CpuViewModel/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult Create([Bind("Id,Brand,Model")] Cpu cpu)
+        public IActionResult Create([Bind("Id,Brand,Model")] CpuViewModel CpuViewModel)
         {
             if (ModelState.IsValid)
             {
-                _cpuRepository.Create(cpu);
+                _cpuRepository.Create(CpuViewModel);
                 return RedirectToAction(nameof(Index));
             }
-            return View(cpu);
+            return View(CpuViewModel);
         }
 
-        // GET: Cpu/Edit/5
+        // GET: CpuViewModel/Edit/5
         [HttpGet]
         public async Task<IActionResult> Edit(int? id)
         {
@@ -68,20 +74,20 @@ namespace NotebookStoreMVC.Controllers
                 return NotFound();
             }
 
-            var cpu = await _cpuRepository.Find(id);
-            if (cpu == null)
+            var CpuViewModel = await _cpuRepository.Find(id);
+            if (CpuViewModel == null)
             {
                 return NotFound();
             }
-            return View(cpu);
+            return View(mapper.Map<Cpu>(CpuViewModel));
         }
 
-        // POST: Cpu/Edit/5
+        // POST: CpuViewModel/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult Edit(int id, [Bind("Id,Brand,Model")] Cpu cpu)
+        public IActionResult Edit(int id, [Bind("Id,Brand,Model")] CpuViewModel CpuViewModel)
         {
-            if (id != cpu.Id)
+            if (id != CpuViewModel.Id)
             {
                 return NotFound();
             }
@@ -90,11 +96,11 @@ namespace NotebookStoreMVC.Controllers
             {
                 try
                 {
-                    _cpuRepository.Update(cpu);
+                    _cpuRepository.Update(CpuViewModel);
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!CpuExists(cpu.Id))
+                    if (!CpuExists(CpuViewModel.Id))
                     {
                         return NotFound();
                     }
@@ -105,10 +111,10 @@ namespace NotebookStoreMVC.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
-            return View(cpu);
+            return View(CpuViewModel);
         }
 
-        // GET: Cpu/Delete/5
+        // GET: CpuViewModel/Delete/5
         [HttpGet]
         public async Task<IActionResult> Delete(int? id)
         {
@@ -117,30 +123,26 @@ namespace NotebookStoreMVC.Controllers
                 return NotFound();
             }
 
-            var cpu = await _cpuRepository.Find(id);
-            if (cpu == null)
+            var CpuViewModel = await _cpuRepository.Find(id);
+            if (CpuViewModel == null)
             {
                 return NotFound();
             }
 
-            return View(cpu);
+            return View(mapper.Map<Cpu>(CpuViewModel));
         }
 
-        // POST: Cpu/Delete/5
+        // POST: CpuViewModel/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
             if (_cpuRepository.Read() == null)
             {
-                return Problem("Entity set 'NotebookStoreContext.Cpus'  is null.");
-            }
-            var cpu = await _cpuRepository.Find(id);
-            if (cpu != null)
-            {
-                _cpuRepository.Delete(cpu);
+                return Problem("Entity set 'NotebookStoreContext.Cpu'  is null.");
             }
 
+            await _cpuRepository.Delete(id);
             return RedirectToAction(nameof(Index));
         }
 

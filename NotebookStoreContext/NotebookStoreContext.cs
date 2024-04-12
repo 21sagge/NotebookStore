@@ -30,7 +30,7 @@ public class NotebookStoreContext : DbContext
 
         optionsBuilder.UseLazyLoadingProxies();
         optionsBuilder.UseSqlite(config.GetSection("ConnectionStrings").GetSection("SqlLite").Value);
-        optionsBuilder.LogTo(Console.WriteLine, LogLevel.Information).EnableDetailedErrors();
+        optionsBuilder.LogTo(Console.WriteLine, LogLevel.Warning).EnableDetailedErrors();
     }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
