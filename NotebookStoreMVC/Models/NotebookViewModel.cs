@@ -22,4 +22,11 @@ public class NotebookViewModel
   public virtual Memory? Memory { get; set; }
   public int StorageId { get; set; }
   public virtual Storage? Storage { get; set; }
+
+  public SelectList Brands { get; set; }
+  public SelectList Cpus { get; set; }
+  public SelectList Displays { get; set; }
+  public SelectList Memories { get; set; }
+  public SelectList Models { get; set; }
+  public SelectList Storages { get; set; }
 }

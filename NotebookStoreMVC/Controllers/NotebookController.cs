@@ -44,13 +44,16 @@ namespace NotebookStoreMVC.Controllers
 		[HttpGet]
 		public IActionResult Create()
 		{
-			ViewData["BrandId"] = new SelectList(_notebookRepository.Brands, "Id", "Name");
-			ViewData["CpuId"] = new SelectList(_notebookRepository.Cpus, "Id", "Name");
-			ViewData["DisplayId"] = new SelectList(_notebookRepository.Displays, "Id", "Name");
-			ViewData["MemoryId"] = new SelectList(_notebookRepository.Memories, "Id", "CapacityAndSpeed");
-			ViewData["ModelId"] = new SelectList(_notebookRepository.Models, "Id", "Name");
-			ViewData["StorageId"] = new SelectList(_notebookRepository.Storages, "Id", "TypeAndCapacity");
-			return View();
+			var model = new NotebookViewModel
+			{
+				Brands = new SelectList(_notebookRepository.Brands, "Id", "Name"),
+				Cpus = new SelectList(_notebookRepository.Cpus, "Id", "Name"),
+				Displays = new SelectList(_notebookRepository.Displays, "Id", "Name"),
+				Memories = new SelectList(_notebookRepository.Memories, "Id", "CapacityAndSpeed"),
+				Models = new SelectList(_notebookRepository.Models, "Id", "Name"),
+				Storages = new SelectList(_notebookRepository.Storages, "Id", "TypeAndCapacity")
+			};
+			return View(model);
 		}
 
 		// POST: Notebook/Create
@@ -63,13 +66,16 @@ namespace NotebookStoreMVC.Controllers
 				_notebookRepository.Create(notebook);
 				return RedirectToAction(nameof(Index));
 			}
-			ViewData["BrandId"] = new SelectList(_notebookRepository.Brands, "Id", "Name", notebook.BrandId);
-			ViewData["CpuId"] = new SelectList(_notebookRepository.Cpus, "Id", "Brand", notebook.CpuId);
-			ViewData["DisplayId"] = new SelectList(_notebookRepository.Displays, "Id", "PanelType", notebook.DisplayId);
-			ViewData["MemoryId"] = new SelectList(_notebookRepository.Memories, "Id", "Id", notebook.MemoryId);
-			ViewData["ModelId"] = new SelectList(_notebookRepository.Models, "Id", "Name", notebook.ModelId);
-			ViewData["StorageId"] = new SelectList(_notebookRepository.Storages, "Id", "Type", notebook.StorageId);
-			return View(notebook);
+			var model = new NotebookViewModel
+			{
+				Brands = new SelectList(_notebookRepository.Brands, "Id", "Name"),
+				Cpus = new SelectList(_notebookRepository.Cpus, "Id", "Name"),
+				Displays = new SelectList(_notebookRepository.Displays, "Id", "Name"),
+				Memories = new SelectList(_notebookRepository.Memories, "Id", "CapacityAndSpeed"),
+				Models = new SelectList(_notebookRepository.Models, "Id", "Name"),
+				Storages = new SelectList(_notebookRepository.Storages, "Id", "TypeAndCapacity")
+			};
+			return View(model);
 		}
 
 		// GET: Notebook/Edit/5
@@ -86,13 +92,16 @@ namespace NotebookStoreMVC.Controllers
 			{
 				return NotFound();
 			}
-			ViewData["BrandId"] = new SelectList(_notebookRepository.Brands, "Id", "Name", notebook.BrandId);
-			ViewData["CpuId"] = new SelectList(_notebookRepository.Cpus, "Id", "Name", notebook.CpuId);
-			ViewData["DisplayId"] = new SelectList(_notebookRepository.Displays, "Id", "Name", notebook.DisplayId);
-			ViewData["MemoryId"] = new SelectList(_notebookRepository.Memories, "Id", "CapacityAndSpeed", notebook.MemoryId);
-			ViewData["ModelId"] = new SelectList(_notebookRepository.Models, "Id", "Name", notebook.ModelId);
-			ViewData["StorageId"] = new SelectList(_notebookRepository.Storages, "Id", "TypeAndCapacity", notebook.StorageId);
-			return View(notebook);
+			var model = new NotebookViewModel
+			{
+				Brands = new SelectList(_notebookRepository.Brands, "Id", "Name"),
+				Cpus = new SelectList(_notebookRepository.Cpus, "Id", "Name"),
+				Displays = new SelectList(_notebookRepository.Displays, "Id", "Name"),
+				Memories = new SelectList(_notebookRepository.Memories, "Id", "CapacityAndSpeed"),
+				Models = new SelectList(_notebookRepository.Models, "Id", "Name"),
+				Storages = new SelectList(_notebookRepository.Storages, "Id", "TypeAndCapacity")
+			};
+			return View(model);
 		}
 
 		// POST: Notebook/Edit/5
@@ -124,13 +133,16 @@ namespace NotebookStoreMVC.Controllers
 				}
 				return RedirectToAction(nameof(Index));
 			}
-			ViewData["BrandId"] = new SelectList(_notebookRepository.Brands, "Id", "Name", notebook.BrandId);
-			ViewData["CpuId"] = new SelectList(_notebookRepository.Cpus, "Id", "Brand", notebook.CpuId);
-			ViewData["DisplayId"] = new SelectList(_notebookRepository.Displays, "Id", "PanelType", notebook.DisplayId);
-			ViewData["MemoryId"] = new SelectList(_notebookRepository.Memories, "Id", "Id", notebook.MemoryId);
-			ViewData["ModelId"] = new SelectList(_notebookRepository.Models, "Id", "Name", notebook.ModelId);
-			ViewData["StorageId"] = new SelectList(_notebookRepository.Storages, "Id", "Type", notebook.StorageId);
-			return View(notebook);
+			var model = new NotebookViewModel
+			{
+				Brands = new SelectList(_notebookRepository.Brands, "Id", "Name"),
+				Cpus = new SelectList(_notebookRepository.Cpus, "Id", "Name"),
+				Displays = new SelectList(_notebookRepository.Displays, "Id", "Name"),
+				Memories = new SelectList(_notebookRepository.Memories, "Id", "CapacityAndSpeed"),
+				Models = new SelectList(_notebookRepository.Models, "Id", "Name"),
+				Storages = new SelectList(_notebookRepository.Storages, "Id", "TypeAndCapacity")
+			};
+			return View(model);
 		}
 
 		// GET: Notebook/Delete/5

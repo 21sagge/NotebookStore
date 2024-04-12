@@ -7,13 +7,9 @@ namespace NotebookStoreContext;
 
 public class NotebookStoreContext : DbContext
 {
-    public NotebookStoreContext()
-    {
-    }
+    public NotebookStoreContext() { }
 
-    public NotebookStoreContext(DbContextOptions<NotebookStoreContext> options) : base(options)
-    {
-    }
+    public NotebookStoreContext(DbContextOptions<NotebookStoreContext> options) : base(options) { }
 
     public DbSet<Brand> Brands { get; set; }
     public DbSet<Model> Models { get; set; }
