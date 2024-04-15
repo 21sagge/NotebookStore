@@ -1,10 +1,10 @@
-﻿namespace NotebookStoreMVC.Controllers;
-
-using System.Text;
+﻿using System.Text;
 using Microsoft.AspNetCore.Mvc;
 using NotebookStoreMVC.Models;
 using NotebookStoreMVC.Repositories;
 using NotebookStoreMVC.Services;
+
+namespace NotebookStoreMVC.Controllers;
 
 public class ExportController : Controller
 {
