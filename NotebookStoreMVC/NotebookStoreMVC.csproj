@@ -33,5 +33,6 @@
      </PackageReference>
      <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="7.0.12" />
      <PackageReference Include="AutoMapper" Version="13.0.1" />
+     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="8.0.0" />
    </ItemGroup>
 </Project>
