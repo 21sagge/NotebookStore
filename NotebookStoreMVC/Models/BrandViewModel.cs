@@ -1,5 +1,4 @@
 ﻿using System.ComponentModel.DataAnnotations;
-using NotebookStore.Entities;
 
 namespace NotebookStoreMVC.Models;
 
