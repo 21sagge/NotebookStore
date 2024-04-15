@@ -25,7 +25,7 @@ public class ExportController : Controller
 		IRepository<MemoryViewModel> memoryRepository,
 		IRepository<ModelViewModel> modelRepository,
 		IRepository<StorageViewModel> storageRepository,
-		IRepository<NotebookViewModel> notebookRepository,
+		INotebookRepository notebookRepository,
 		[FromKeyedServices("json")] ISerializer jsonSerializer,
 		[FromKeyedServices("xml")] ISerializer xmlSerializer)
 	{
@@ -51,14 +51,14 @@ public class ExportController : Controller
 	[HttpPost]
 	public async Task<IActionResult> Export(string dataType, string format)
 	{
+		if (format != "json" && format != "xml")
+		{
+			return BadRequest("Format not supported");
+		}
+		
 		switch (dataType)
 		{
 			case "Brand":
-				if (format != "json" && format != "xml")
-				{
-					return BadRequest("Format not supported");
-				}
-
 				var serializedData = (format == "json") ?
 				_jsonSerializer.Serialize(await _brandRepository.Read()) :
 				_xmlSerializer.Serialize(await _brandRepository.Read());
@@ -68,11 +68,6 @@ public class ExportController : Controller
 				return File(bytes, "application/octet-stream", $"{dataType.ToLower()}Export.{format}");
 
 			case "Cpu":
-				if (format != "json" && format != "xml")
-				{
-					return BadRequest("Format not supported");
-				}
-
 				serializedData = (format == "json") ?
 				_jsonSerializer.Serialize(await _cpuRepository.Read()) :
 				_xmlSerializer.Serialize(await _cpuRepository.Read());
@@ -82,11 +77,6 @@ public class ExportController : Controller
 				return File(bytes, "application/octet-stream", $"{dataType.ToLower()}Export.{format}");
 
 			case "Display":
-				if (format != "json" && format != "xml")
-				{
-					return BadRequest("Format not supported");
-				}
-
 				serializedData = (format == "json") ?
 				_jsonSerializer.Serialize(await _displayRepository.Read()) :
 				_xmlSerializer.Serialize(await _displayRepository.Read());
@@ -96,11 +86,6 @@ public class ExportController : Controller
 				return File(bytes, "application/octet-stream", $"{dataType.ToLower()}Export.{format}");
 
 			case "Memory":
-				if (format != "json" && format != "xml")
-				{
-					return BadRequest("Format not supported");
-				}
-
 				serializedData = (format == "json") ?
 				_jsonSerializer.Serialize(await _memoryRepository.Read()) :
 				_xmlSerializer.Serialize(await _memoryRepository.Read());
@@ -110,11 +95,6 @@ public class ExportController : Controller
 				return File(bytes, "application/octet-stream", $"{dataType.ToLower()}Export.{format}");
 
 			case "Model":
-				if (format != "json" && format != "xml")
-				{
-					return BadRequest("Format not supported");
-				}
-
 				serializedData = (format == "json") ?
 				_jsonSerializer.Serialize(await _modelRepository.Read()) :
 				_xmlSerializer.Serialize(await _modelRepository.Read());
@@ -124,11 +104,6 @@ public class ExportController : Controller
 				return File(bytes, "application/octet-stream", $"{dataType.ToLower()}Export.{format}");
 
 			case "Storage":
-				if (format != "json" && format != "xml")
-				{
-					return BadRequest("Format not supported");
-				}
-
 				serializedData = (format == "json") ?
 				_jsonSerializer.Serialize(await _storageRepository.Read()) :
 				_xmlSerializer.Serialize(await _storageRepository.Read());
@@ -138,11 +113,6 @@ public class ExportController : Controller
 				return File(bytes, "application/octet-stream", $"{dataType.ToLower()}Export.{format}");
 
 			case "Notebook":
-				if (format != "json" && format != "xml")
-				{
-					return BadRequest("Format not supported");
-				}
-
 				serializedData = (format == "json") ?
 				_jsonSerializer.Serialize(await _notebookRepository.Read()) :
 				_xmlSerializer.Serialize(await _notebookRepository.Read());
