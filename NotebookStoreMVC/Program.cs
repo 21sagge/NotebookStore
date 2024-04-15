@@ -24,6 +24,11 @@ builder.Services.AddAutoMapper(configure =>
 
 builder.Services.AddScoped<ISerializer<CpuViewModel>, Serializer<CpuViewModel>>();
 builder.Services.AddScoped<ISerializer<DisplayViewModel>, Serializer<DisplayViewModel>>();
+builder.Services.AddScoped<ISerializer<MemoryViewModel>, Serializer<MemoryViewModel>>();
+builder.Services.AddScoped<ISerializer<BrandViewModel>, Serializer<BrandViewModel>>();
+builder.Services.AddScoped<ISerializer<ModelViewModel>, Serializer<ModelViewModel>>();
+builder.Services.AddScoped<ISerializer<StorageViewModel>, Serializer<StorageViewModel>>();
+builder.Services.AddScoped<ISerializer<NotebookViewModel>, Serializer<NotebookViewModel>>();
 
 builder.Services.AddDbContext<NotebookStoreContext.NotebookStoreContext>(options =>
     options.UseSqlite(builder.Configuration.GetConnectionString("SqlLite")));
