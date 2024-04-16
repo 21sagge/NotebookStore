@@ -2,16 +2,17 @@ using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using NotebookStoreMVC.Models;
-using NotebookStoreMVC.Repositories;
+using NotebookStore.Repositories;
+using NotebookStore.Entities;
 
 namespace NotebookStoreMVC.Controllers;
 
 public class StorageController : Controller
 {
-    private readonly IRepository<StorageViewModel> _storageRepository;
+    private readonly IRepository<Storage> _storageRepository;
     private readonly IMapper mapper;
 
-    public StorageController(IRepository<StorageViewModel> repository, IMapper mapper)
+    public StorageController(IRepository<Storage> repository, IMapper mapper)
     {
         _storageRepository = repository;
         this.mapper = mapper;
@@ -23,7 +24,7 @@ public class StorageController : Controller
     {
         var storageViewModels = await _storageRepository.Read();
 
-        return View(storageViewModels);
+        return View(mapper.Map<IEnumerable<StorageViewModel>>(storageViewModels));
     }
 
     // GET: StorageViewModel/Details/5
@@ -41,7 +42,7 @@ public class StorageController : Controller
             return NotFound();
         }
 
-        return View(storageViewModel);
+        return View(mapper.Map<StorageViewModel>(storageViewModel));
     }
 
     // GET: StorageViewModel/Create
@@ -58,10 +59,10 @@ public class StorageController : Controller
     {
         if (ModelState.IsValid)
         {
-            _storageRepository.Create(StorageViewModel);
+            _storageRepository.Create(mapper.Map<Storage>(StorageViewModel));
             return RedirectToAction(nameof(Index));
         }
-        return View(StorageViewModel);
+        return View(mapper.Map<StorageViewModel>(StorageViewModel));
     }
 
     // GET: StorageViewModel/Edit/5
@@ -78,7 +79,7 @@ public class StorageController : Controller
         {
             return NotFound();
         }
-        return View(storageViewModel);
+        return View(mapper.Map<StorageViewModel>(storageViewModel));
     }
 
     // POST: StorageViewModel/Edit/5
@@ -95,7 +96,7 @@ public class StorageController : Controller
         {
             try
             {
-                _storageRepository.Update(storageViewModel);
+                _storageRepository.Update(mapper.Map<Storage>(storageViewModel));
             }
             catch (DbUpdateConcurrencyException)
             {
@@ -110,7 +111,7 @@ public class StorageController : Controller
             }
             return RedirectToAction(nameof(Index));
         }
-        return View(storageViewModel);
+        return View(mapper.Map<StorageViewModel>(storageViewModel));
     }
 
     // GET: StorageViewModel/Delete/5
@@ -128,7 +129,7 @@ public class StorageController : Controller
             return NotFound();
         }
 
-        return View(storageViewModel);
+        return View(mapper.Map<StorageViewModel>(storageViewModel));
     }
 
     // POST: StorageViewModel/Delete/5

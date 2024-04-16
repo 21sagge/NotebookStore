@@ -2,16 +2,17 @@ using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using NotebookStoreMVC.Models;
-using NotebookStoreMVC.Repositories;
+using NotebookStore.Repositories;
+using NotebookStore.Entities;
 
 namespace NotebookStoreMVC.Controllers;
 
 public class ModelController : Controller
 {
-    private readonly IRepository<ModelViewModel> _modelRepository;
+    private readonly IRepository<Model> _modelRepository;
     private readonly IMapper mapper;
 
-    public ModelController(IRepository<ModelViewModel> repository, IMapper mapper)
+    public ModelController(IRepository<Model> repository, IMapper mapper)
     {
         _modelRepository = repository;
         this.mapper = mapper;
@@ -22,7 +23,7 @@ public class ModelController : Controller
     public async Task<IActionResult> Index()
     {
         var modelViewModels = await _modelRepository.Read();
-        return View(modelViewModels);
+        return View(mapper.Map<IEnumerable<ModelViewModel>>(modelViewModels));
     }
 
     // GET: ModelViewModel/Details/5
@@ -40,7 +41,7 @@ public class ModelController : Controller
             return NotFound();
         }
 
-        return View(ModelViewModel);
+        return View(mapper.Map<ModelViewModel>(ModelViewModel));
     }
 
     // GET: ModelViewModel/Create
@@ -57,10 +58,10 @@ public class ModelController : Controller
     {
         if (ModelState.IsValid)
         {
-            _modelRepository.Create(ModelViewModel);
+            _modelRepository.Create(mapper.Map<Model>(ModelViewModel));
             return RedirectToAction(nameof(Index));
         }
-        return View(ModelViewModel);
+        return View(mapper.Map<ModelViewModel>(ModelViewModel));
     }
 
     // GET: ModelViewModel/Edit/5
@@ -77,7 +78,7 @@ public class ModelController : Controller
         {
             return NotFound();
         }
-        return View(ModelViewModel);
+        return View(mapper.Map<ModelViewModel>(ModelViewModel));
     }
 
     // POST: ModelViewModel/Edit/5
@@ -94,7 +95,7 @@ public class ModelController : Controller
         {
             try
             {
-                _modelRepository.Update(ModelViewModel);
+                _modelRepository.Update(mapper.Map<Model>(ModelViewModel));
             }
             catch (DbUpdateConcurrencyException)
             {
@@ -109,7 +110,7 @@ public class ModelController : Controller
             }
             return RedirectToAction(nameof(Index));
         }
-        return View(ModelViewModel);
+        return View(mapper.Map<ModelViewModel>(ModelViewModel));
     }
 
     // GET: ModelViewModel/Delete/5
@@ -127,7 +128,7 @@ public class ModelController : Controller
             return NotFound();
         }
 
-        return View(ModelViewModel);
+        return View(mapper.Map<ModelViewModel>(ModelViewModel));
     }
 
     // POST: ModelViewModel/Delete/5

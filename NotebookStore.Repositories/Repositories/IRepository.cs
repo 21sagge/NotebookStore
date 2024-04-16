@@ -1,4 +1,4 @@
-﻿namespace NotebookStoreMVC.Repositories;
+﻿namespace NotebookStore.Repositories;
 
 public interface IRepository<T> : IDisposable
 {

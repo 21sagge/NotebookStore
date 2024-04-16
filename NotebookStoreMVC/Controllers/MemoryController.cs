@@ -2,16 +2,17 @@ using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using NotebookStoreMVC.Models;
-using NotebookStoreMVC.Repositories;
+using NotebookStore.Repositories;
+using NotebookStore.Entities;
 
 namespace NotebookStoreMVC.Controllers;
 
 public class MemoryController : Controller
 {
-    private readonly IRepository<MemoryViewModel> _memoryRepository;
+    private readonly IRepository<Memory> _memoryRepository;
     private readonly IMapper mapper;
 
-    public MemoryController(IRepository<MemoryViewModel> repository, IMapper mapper)
+    public MemoryController(IRepository<Memory> repository, IMapper mapper)
     {
         _memoryRepository = repository;
         this.mapper = mapper;
@@ -22,7 +23,7 @@ public class MemoryController : Controller
     public async Task<IActionResult> Index()
     {
         var memoryViewModels = await _memoryRepository.Read();
-        return View(memoryViewModels);
+        return View(mapper.Map<IEnumerable<MemoryViewModel>>(memoryViewModels));
     }
 
     // GET: MemoryViewModel/Details/5
@@ -40,7 +41,7 @@ public class MemoryController : Controller
             return NotFound();
         }
 
-        return View(MemoryViewModel);
+        return View(mapper.Map<MemoryViewModel>(MemoryViewModel));
     }
 
     // GET: MemoryViewModel/Create
@@ -57,10 +58,10 @@ public class MemoryController : Controller
     {
         if (ModelState.IsValid)
         {
-            _memoryRepository.Create(MemoryViewModel);
+            _memoryRepository.Create(mapper.Map<Memory>(MemoryViewModel));
             return RedirectToAction(nameof(Index));
         }
-        return View(MemoryViewModel);
+        return View(mapper.Map<MemoryViewModel>(MemoryViewModel));
     }
 
     // GET: MemoryViewModel/Edit/5
@@ -77,7 +78,7 @@ public class MemoryController : Controller
         {
             return NotFound();
         }
-        return View(MemoryViewModel);
+        return View(mapper.Map<MemoryViewModel>(MemoryViewModel));
     }
 
     // POST: MemoryViewModel/Edit/5
@@ -94,7 +95,7 @@ public class MemoryController : Controller
         {
             try
             {
-                _memoryRepository.Update(MemoryViewModel);
+                _memoryRepository.Update(mapper.Map<Memory>(MemoryViewModel));
             }
             catch (DbUpdateConcurrencyException)
             {
@@ -109,7 +110,7 @@ public class MemoryController : Controller
             }
             return RedirectToAction(nameof(Index));
         }
-        return View(MemoryViewModel);
+        return View(mapper.Map<MemoryViewModel>(MemoryViewModel));
     }
 
     // GET: MemoryViewModel/Delete/5
@@ -127,7 +128,7 @@ public class MemoryController : Controller
             return NotFound();
         }
 
-        return View(MemoryViewModel);
+        return View(mapper.Map<MemoryViewModel>(MemoryViewModel));
     }
 
     // POST: MemoryViewModel/Delete/5

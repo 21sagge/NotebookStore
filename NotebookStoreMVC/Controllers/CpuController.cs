@@ -2,16 +2,17 @@ using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using NotebookStoreMVC.Models;
-using NotebookStoreMVC.Repositories;
+using NotebookStore.Repositories;
+using NotebookStore.Entities;
 
 namespace NotebookStoreMVC.Controllers;
 
 public class CpuController : Controller
 {
-    private readonly IRepository<CpuViewModel> _cpuRepository;
+    private readonly IRepository<Cpu> _cpuRepository;
     private readonly IMapper mapper;
 
-    public CpuController(IRepository<CpuViewModel> repository, IMapper mapper)
+    public CpuController(IRepository<Cpu> repository, IMapper mapper)
     {
         _cpuRepository = repository;
         this.mapper = mapper;
@@ -22,7 +23,7 @@ public class CpuController : Controller
     public async Task<IActionResult> Index()
     {
         var cpuViewModels = await _cpuRepository.Read();
-        return View(cpuViewModels);
+        return View(mapper.Map<IEnumerable<CpuViewModel>>(cpuViewModels));
     }
 
     // GET: CpuViewModel/Details/5
@@ -40,7 +41,7 @@ public class CpuController : Controller
             return NotFound();
         }
 
-        return View(CpuViewModel);
+        return View(mapper.Map<CpuViewModel>(CpuViewModel));
     }
 
     // GET: CpuViewModel/Create
@@ -57,10 +58,10 @@ public class CpuController : Controller
     {
         if (ModelState.IsValid)
         {
-            _cpuRepository.Create(CpuViewModel);
+            _cpuRepository.Create(mapper.Map<Cpu>(CpuViewModel));
             return RedirectToAction(nameof(Index));
         }
-        return View(CpuViewModel);
+        return View(mapper.Map<CpuViewModel>(CpuViewModel));
     }
 
     // GET: CpuViewModel/Edit/5
@@ -77,7 +78,7 @@ public class CpuController : Controller
         {
             return NotFound();
         }
-        return View(CpuViewModel);
+        return View(mapper.Map<CpuViewModel>(CpuViewModel));
     }
 
     // POST: CpuViewModel/Edit/5
@@ -94,7 +95,7 @@ public class CpuController : Controller
         {
             try
             {
-                _cpuRepository.Update(CpuViewModel);
+                _cpuRepository.Update(mapper.Map<Cpu>(CpuViewModel));
             }
             catch (DbUpdateConcurrencyException)
             {
@@ -109,7 +110,7 @@ public class CpuController : Controller
             }
             return RedirectToAction(nameof(Index));
         }
-        return View(CpuViewModel);
+        return View(mapper.Map<CpuViewModel>(CpuViewModel));
     }
 
     // GET: CpuViewModel/Delete/5
@@ -127,7 +128,7 @@ public class CpuController : Controller
             return NotFound();
         }
 
-        return View(CpuViewModel);
+        return View(mapper.Map<CpuViewModel>(CpuViewModel));
     }
 
     // POST: CpuViewModel/Delete/5

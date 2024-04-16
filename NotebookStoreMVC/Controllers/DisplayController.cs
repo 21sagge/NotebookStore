@@ -2,16 +2,17 @@ using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using NotebookStoreMVC.Models;
-using NotebookStoreMVC.Repositories;
+using NotebookStore.Repositories;
+using NotebookStore.Entities;
 
 namespace NotebookStoreMVC.Controllers;
 
 public class DisplayController : Controller
 {
-    private readonly IRepository<DisplayViewModel> _displayRepository;
+    private readonly IRepository<Display> _displayRepository;
     private readonly IMapper mapper;
 
-    public DisplayController(IRepository<DisplayViewModel> repository, IMapper mapper)
+    public DisplayController(IRepository<Display> repository, IMapper mapper)
     {
         _displayRepository = repository;
         this.mapper = mapper;
@@ -22,7 +23,7 @@ public class DisplayController : Controller
     public async Task<IActionResult> Index()
     {
         var displayViewModels = await _displayRepository.Read();
-        return View(displayViewModels);
+        return View(mapper.Map<IEnumerable<DisplayViewModel>>(displayViewModels));
     }
 
     // GET: DisplayViewModel/Details/5
@@ -40,7 +41,7 @@ public class DisplayController : Controller
             return NotFound();
         }
 
-        return View(DisplayViewModel);
+        return View(mapper.Map<DisplayViewModel>(DisplayViewModel));
     }
 
     // GET: DisplayViewModel/Create
@@ -57,10 +58,10 @@ public class DisplayController : Controller
     {
         if (ModelState.IsValid)
         {
-            _displayRepository.Create(DisplayViewModel);
+            _displayRepository.Create(mapper.Map<Display>(DisplayViewModel));
             return RedirectToAction(nameof(Index));
         }
-        return View(DisplayViewModel);
+        return View(mapper.Map<DisplayViewModel>(DisplayViewModel));
     }
 
     // GET: DisplayViewModel/Edit/5
@@ -77,7 +78,7 @@ public class DisplayController : Controller
         {
             return NotFound();
         }
-        return View(DisplayViewModel);
+        return View(mapper.Map<DisplayViewModel>(DisplayViewModel));
     }
 
     // POST: DisplayViewModel/Edit/5
@@ -94,7 +95,7 @@ public class DisplayController : Controller
         {
             try
             {
-                _displayRepository.Update(DisplayViewModel);
+                _displayRepository.Update(mapper.Map<Display>(DisplayViewModel));
             }
             catch (DbUpdateConcurrencyException)
             {
@@ -109,7 +110,7 @@ public class DisplayController : Controller
             }
             return RedirectToAction(nameof(Index));
         }
-        return View(DisplayViewModel);
+        return View(mapper.Map<DisplayViewModel>(DisplayViewModel));
     }
 
     // GET: DisplayViewModel/Delete/5
@@ -127,7 +128,7 @@ public class DisplayController : Controller
             return NotFound();
         }
 
-        return View(DisplayViewModel);
+        return View(mapper.Map<DisplayViewModel>(DisplayViewModel));
     }
 
     // POST: DisplayViewModel/Delete/5

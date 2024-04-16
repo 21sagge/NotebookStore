@@ -1,8 +1,9 @@
 ﻿using System.Text;
 using Microsoft.AspNetCore.Mvc;
 using NotebookStoreMVC.Models;
-using NotebookStoreMVC.Repositories;
+using NotebookStore.Repositories;
 using NotebookStoreMVC.Services;
+using NotebookStore.Entities;
 
 namespace NotebookStoreMVC.Controllers;
 
@@ -10,21 +11,21 @@ public class ExportController : Controller
 {
 	private readonly ISerializer _jsonSerializer;
 	private readonly ISerializer _xmlSerializer;
-	private readonly IRepository<BrandViewModel> _brandRepository;
-	private readonly IRepository<CpuViewModel> _cpuRepository;
-	private readonly IRepository<DisplayViewModel> _displayRepository;
-	private readonly IRepository<MemoryViewModel> _memoryRepository;
-	private readonly IRepository<ModelViewModel> _modelRepository;
-	private readonly IRepository<StorageViewModel> _storageRepository;
-	private readonly IRepository<NotebookViewModel> _notebookRepository;
+	private readonly IRepository<Brand> _brandRepository;
+	private readonly IRepository<Cpu> _cpuRepository;
+	private readonly IRepository<Display> _displayRepository;
+	private readonly IRepository<Memory> _memoryRepository;
+	private readonly IRepository<Model> _modelRepository;
+	private readonly IRepository<Storage> _storageRepository;
+	private readonly IRepository<Notebook> _notebookRepository;
 
 	public ExportController(
-		IRepository<BrandViewModel> brandRepository,
-		IRepository<CpuViewModel> cpuRepository,
-		IRepository<DisplayViewModel> displayRepository,
-		IRepository<MemoryViewModel> memoryRepository,
-		IRepository<ModelViewModel> modelRepository,
-		IRepository<StorageViewModel> storageRepository,
+		IRepository<Brand> brandRepository,
+		IRepository<Cpu> cpuRepository,
+		IRepository<Display> displayRepository,
+		IRepository<Memory> memoryRepository,
+		IRepository<Model> modelRepository,
+		IRepository<Storage> storageRepository,
 		INotebookRepository notebookRepository,
 		[FromKeyedServices("json")] ISerializer jsonSerializer,
 		[FromKeyedServices("xml")] ISerializer xmlSerializer)
@@ -55,7 +56,7 @@ public class ExportController : Controller
 		{
 			return BadRequest("Format not supported");
 		}
-		
+
 		switch (dataType)
 		{
 			case "Brand":

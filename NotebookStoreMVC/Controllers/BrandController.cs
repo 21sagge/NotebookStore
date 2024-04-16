@@ -2,16 +2,17 @@ using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using NotebookStoreMVC.Models;
-using NotebookStoreMVC.Repositories;
+using NotebookStore.Repositories;
+using NotebookStore.Entities;
 
 namespace NotebookStoreMVC.Controllers;
 
 public class BrandController : Controller
 {
-    private readonly IRepository<BrandViewModel> _brandRepository;
+    private readonly IRepository<Brand> _brandRepository;
     private readonly IMapper mapper;
 
-    public BrandController(IRepository<BrandViewModel> brandRepository, IMapper mapper)
+    public BrandController(IRepository<Brand> brandRepository, IMapper mapper)
     {
         _brandRepository = brandRepository;
         this.mapper = mapper;
@@ -21,8 +22,8 @@ public class BrandController : Controller
     [HttpGet]
     public async Task<IActionResult> Index()
     {
-        var brandViewModels = await _brandRepository.Read();
-        return View(brandViewModels);
+        var brands = await _brandRepository.Read();
+        return View(mapper.Map<IEnumerable<BrandViewModel>>(brands));
     }
 
     // GET: BrandViewModel/Details/5
@@ -40,7 +41,7 @@ public class BrandController : Controller
             return NotFound();
         }
 
-        return View(BrandViewModel);
+        return View(mapper.Map<BrandViewModel>(BrandViewModel));
     }
 
     // GET: BrandViewModel/Create
@@ -57,10 +58,10 @@ public class BrandController : Controller
     {
         if (ModelState.IsValid)
         {
-            _brandRepository.Create(BrandViewModel);
+            _brandRepository.Create(mapper.Map<Brand>(BrandViewModel));
             return RedirectToAction(nameof(Index));
         }
-        return View(BrandViewModel);
+        return View(mapper.Map<BrandViewModel>(BrandViewModel));
     }
 
     // GET: BrandViewModel/Edit/5
@@ -76,7 +77,7 @@ public class BrandController : Controller
         {
             return NotFound();
         }
-        return View(BrandViewModel);
+        return View(mapper.Map<BrandViewModel>(BrandViewModel));
     }
 
     // POST: BrandViewModel/Edit/5
@@ -93,7 +94,7 @@ public class BrandController : Controller
         {
             try
             {
-                _brandRepository.Update(BrandViewModel);
+                _brandRepository.Update(mapper.Map<Brand>(BrandViewModel));
             }
             catch (DbUpdateConcurrencyException)
             {
@@ -108,7 +109,7 @@ public class BrandController : Controller
             }
             return RedirectToAction(nameof(Index));
         }
-        return View(BrandViewModel);
+        return View(mapper.Map<BrandViewModel>(BrandViewModel));
     }
 
     // GET: BrandViewModel/Delete/5
@@ -126,7 +127,7 @@ public class BrandController : Controller
             return NotFound();
         }
 
-        return View(BrandViewModel);
+        return View(mapper.Map<BrandViewModel>(BrandViewModel));
     }
 
     // POST: BrandViewModel/Delete/5

@@ -2,7 +2,8 @@ using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using NotebookStoreMVC.Models;
-using NotebookStoreMVC.Repositories;
+using NotebookStore.Repositories;
+using NotebookStore.Entities;
 
 namespace NotebookStoreMVC.Controllers;
 
@@ -22,7 +23,7 @@ public class NotebookController : Controller
 	public async Task<IActionResult> Index()
 	{
 		var notebookViewModels = await _notebookRepository.Read();
-		return View(notebookViewModels);
+		return View(mapper.Map<IEnumerable<NotebookViewModel>>(notebookViewModels));
 	}
 
 	// GET: Notebook/Details/5
@@ -40,7 +41,7 @@ public class NotebookController : Controller
 			return NotFound();
 		}
 
-		return View(notebook);
+		return View(mapper.Map<NotebookViewModel>(notebook));
 
 	}
 
@@ -67,7 +68,7 @@ public class NotebookController : Controller
 	{
 		if (ModelState.IsValid)
 		{
-			_notebookRepository.Create(notebook);
+			_notebookRepository.Create(mapper.Map<Notebook>(notebook));
 			return RedirectToAction(nameof(Index));
 		}
 		var model = new NotebookViewModel
@@ -107,12 +108,12 @@ public class NotebookController : Controller
 			DisplayId = notebook.DisplayId,
 			MemoryId = notebook.MemoryId,
 			StorageId = notebook.StorageId,
-			Brands = _notebookRepository.Brands,
-			Cpus = _notebookRepository.Cpus,
-			Displays = _notebookRepository.Displays,
-			Memories = _notebookRepository.Memories,
-			Models = _notebookRepository.Models,
-			Storages = _notebookRepository.Storages
+			Brands = mapper.Map<IEnumerable<BrandViewModel>>(_notebookRepository.Brands),
+			Cpus = mapper.Map<IEnumerable<CpuViewModel>>(_notebookRepository.Cpus),
+			Displays = mapper.Map<IEnumerable<DisplayViewModel>>(_notebookRepository.Displays),
+			Memories = mapper.Map<IEnumerable<MemoryViewModel>>(_notebookRepository.Memories),
+			Models = mapper.Map<IEnumerable<ModelViewModel>>(_notebookRepository.Models),
+			Storages = mapper.Map<IEnumerable<StorageViewModel>>(_notebookRepository.Storages)
 		};
 
 		return View(model);
@@ -132,7 +133,7 @@ public class NotebookController : Controller
 		{
 			try
 			{
-				await _notebookRepository.Update(notebook);
+				await _notebookRepository.Update(mapper.Map<Notebook>(notebook));
 			}
 			catch (DbUpdateConcurrencyException)
 			{
@@ -174,7 +175,7 @@ public class NotebookController : Controller
 			return NotFound();
 		}
 
-		return View(notebook);
+		return View(mapper.Map<NotebookViewModel>(notebook));
 	}
 
 	// POST: Notebook/Delete/5
