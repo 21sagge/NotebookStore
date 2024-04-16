@@ -2,7 +2,6 @@
 
 using Microsoft.EntityFrameworkCore;
 using NotebookStoreContext;
-using AutoMapper;
 using NotebookStore.Entities;
 
 public class NotebookRepository : INotebookRepository

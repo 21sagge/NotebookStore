@@ -2,7 +2,6 @@
 using NotebookStoreMVC;
 using NotebookStore.Repositories;
 using NotebookStoreMVC.Services;
-using NotebookStoreMVC.Models;
 using NotebookStore.Entities;
 
 var builder = WebApplication.CreateBuilder(args);

@@ -1,6 +1,5 @@
 ﻿namespace NotebookStore.Repositories;
 
-using AutoMapper;
 using Microsoft.EntityFrameworkCore;
 using NotebookStore.Entities;
 using NotebookStoreContext;
