@@ -4,126 +4,143 @@ using NotebookStoreMVC.Models;
 using NotebookStore.Repositories;
 using NotebookStoreMVC.Services;
 using NotebookStore.Entities;
+using AutoMapper;
 
 namespace NotebookStoreMVC.Controllers;
 
 public class ExportController : Controller
 {
-	private readonly ISerializer _jsonSerializer;
-	private readonly ISerializer _xmlSerializer;
-	private readonly IRepository<Brand> _brandRepository;
-	private readonly IRepository<Cpu> _cpuRepository;
-	private readonly IRepository<Display> _displayRepository;
-	private readonly IRepository<Memory> _memoryRepository;
-	private readonly IRepository<Model> _modelRepository;
-	private readonly IRepository<Storage> _storageRepository;
-	private readonly IRepository<Notebook> _notebookRepository;
+    private readonly IRepository<Brand> _brandRepository;
+    private readonly IRepository<Cpu> _cpuRepository;
+    private readonly IRepository<Display> _displayRepository;
+    private readonly IRepository<Memory> _memoryRepository;
+    private readonly IRepository<Model> _modelRepository;
+    private readonly IRepository<Storage> _storageRepository;
+    private readonly IRepository<Notebook> _notebookRepository;
+    private readonly IEnumerable<ISerializer> serializers;
+    private readonly IMapper mapper;
 
-	public ExportController(
-		IRepository<Brand> brandRepository,
-		IRepository<Cpu> cpuRepository,
-		IRepository<Display> displayRepository,
-		IRepository<Memory> memoryRepository,
-		IRepository<Model> modelRepository,
-		IRepository<Storage> storageRepository,
-		INotebookRepository notebookRepository,
-		[FromKeyedServices("json")] ISerializer jsonSerializer,
-		[FromKeyedServices("xml")] ISerializer xmlSerializer)
-	{
-		_brandRepository = brandRepository;
-		_cpuRepository = cpuRepository;
-		_displayRepository = displayRepository;
-		_memoryRepository = memoryRepository;
-		_modelRepository = modelRepository;
-		_storageRepository = storageRepository;
-		_notebookRepository = notebookRepository;
-		_jsonSerializer = jsonSerializer;
-		_xmlSerializer = xmlSerializer;
-	}
+    public ExportController(
+        IRepository<Brand> brandRepository,
+        IRepository<Cpu> cpuRepository,
+        IRepository<Display> displayRepository,
+        IRepository<Memory> memoryRepository,
+        IRepository<Model> modelRepository,
+        IRepository<Storage> storageRepository,
+        INotebookRepository notebookRepository,
+        IEnumerable<ISerializer> serializer,
+        IMapper mapper)
+    {
+        _brandRepository = brandRepository;
+        _cpuRepository = cpuRepository;
+        _displayRepository = displayRepository;
+        _memoryRepository = memoryRepository;
+        _modelRepository = modelRepository;
+        _storageRepository = storageRepository;
+        _notebookRepository = notebookRepository;
+        serializers = serializer;
+        this.mapper = mapper;
+    }
 
-	// GET: Export
-	[HttpGet]
-	public IActionResult Index()
-	{
-		return View();
-	}
+    // GET: Export
+    [HttpGet]
+    public IActionResult Index()
+    {
+        return View();
+    }
 
-	// POST: Export
-	[HttpPost]
-	public async Task<IActionResult> Export(string dataType, string format)
-	{
-		if (format != "json" && format != "xml")
-		{
-			return BadRequest("Format not supported");
-		}
+    // POST: Export
+    [HttpPost]
+    public async Task<IActionResult> Export(string dataType, string format)
+    {
+        var serializer = serializers.FirstOrDefault(x => x.Format == format);
 
-		switch (dataType)
-		{
-			case "Brand":
-				var serializedData = (format == "json") ?
-				_jsonSerializer.Serialize(await _brandRepository.Read()) :
-				_xmlSerializer.Serialize(await _brandRepository.Read());
+        if (serializer == null)
+        {
+            return BadRequest("Format not supported");
+        }
 
-				var bytes = Encoding.UTF8.GetBytes(serializedData);
+        switch (dataType)
+        {
+            case "Brand":
+                var brands = (await _brandRepository.Read()).ToList();
 
-				return File(bytes, "application/octet-stream", $"{dataType.ToLower()}Export.{format}");
+                var brandsMapped = mapper.Map<IEnumerable<BrandDto>>(brands).ToList();
 
-			case "Cpu":
-				serializedData = (format == "json") ?
-				_jsonSerializer.Serialize(await _cpuRepository.Read()) :
-				_xmlSerializer.Serialize(await _cpuRepository.Read());
+                var serializedData = serializer.Serialize(brandsMapped);
 
-				bytes = Encoding.UTF8.GetBytes(serializedData);
+                var bytes = Encoding.UTF8.GetBytes(serializedData);
 
-				return File(bytes, "application/octet-stream", $"{dataType.ToLower()}Export.{format}");
+                return File(bytes, "application/octet-stream", $"{dataType.ToLower()}Export.{format}");
 
-			case "Display":
-				serializedData = (format == "json") ?
-				_jsonSerializer.Serialize(await _displayRepository.Read()) :
-				_xmlSerializer.Serialize(await _displayRepository.Read());
+            case "Cpu":
+                var cpus = (await _cpuRepository.Read()).ToList();
 
-				bytes = Encoding.UTF8.GetBytes(serializedData);
+                var cpusMapped = mapper.Map<IEnumerable<CpuDto>>(cpus).ToList();
 
-				return File(bytes, "application/octet-stream", $"{dataType.ToLower()}Export.{format}");
+                serializedData = serializer.Serialize(cpusMapped);
 
-			case "Memory":
-				serializedData = (format == "json") ?
-				_jsonSerializer.Serialize(await _memoryRepository.Read()) :
-				_xmlSerializer.Serialize(await _memoryRepository.Read());
+                bytes = Encoding.UTF8.GetBytes(serializedData);
 
-				bytes = Encoding.UTF8.GetBytes(serializedData);
+                return File(bytes, "application/octet-stream", $"{dataType.ToLower()}Export.{format}");
 
-				return File(bytes, "application/octet-stream", $"{dataType.ToLower()}Export.{format}");
+            case "Display":
+                var displays = (await _displayRepository.Read()).ToList();
 
-			case "Model":
-				serializedData = (format == "json") ?
-				_jsonSerializer.Serialize(await _modelRepository.Read()) :
-				_xmlSerializer.Serialize(await _modelRepository.Read());
+                var displaysMapped = mapper.Map<IEnumerable<DisplayDto>>(displays).ToList();
 
-				bytes = Encoding.UTF8.GetBytes(serializedData);
+                serializedData = serializer.Serialize(displaysMapped);
 
-				return File(bytes, "application/octet-stream", $"{dataType.ToLower()}Export.{format}");
+                bytes = Encoding.UTF8.GetBytes(serializedData);
 
-			case "Storage":
-				serializedData = (format == "json") ?
-				_jsonSerializer.Serialize(await _storageRepository.Read()) :
-				_xmlSerializer.Serialize(await _storageRepository.Read());
+                return File(bytes, "application/octet-stream", $"{dataType.ToLower()}Export.{format}");
 
-				bytes = Encoding.UTF8.GetBytes(serializedData);
+            case "Memory":
+                var memories = (await _memoryRepository.Read()).ToList();
 
-				return File(bytes, "application/octet-stream", $"{dataType.ToLower()}Export.{format}");
+                var memoriesMapped = mapper.Map<IEnumerable<MemoryDto>>(memories).ToList();
 
-			case "Notebook":
-				serializedData = (format == "json") ?
-				_jsonSerializer.Serialize(await _notebookRepository.Read()) :
-				_xmlSerializer.Serialize(await _notebookRepository.Read());
+                serializedData = serializer.Serialize(memoriesMapped);
 
-				bytes = Encoding.UTF8.GetBytes(serializedData);
+                bytes = Encoding.UTF8.GetBytes(serializedData);
 
-				return File(bytes, "application/octet-stream", $"{dataType.ToLower()}Export.{format}");
+                return File(bytes, "application/octet-stream", $"{dataType.ToLower()}Export.{format}");
 
-			default:
-				return BadRequest("Data type not supported");
-		}
-	}
+            case "Model":
+                var models = (await _modelRepository.Read()).ToList();
+
+                var modelsMapped = mapper.Map<IEnumerable<ModelDto>>(models).ToList();
+
+                serializedData = serializer.Serialize(modelsMapped);
+
+                bytes = Encoding.UTF8.GetBytes(serializedData);
+
+                return File(bytes, "application/octet-stream", $"{dataType.ToLower()}Export.{format}");
+
+            case "Storage":
+                var storages = (await _storageRepository.Read()).ToList();
+
+                var storagesMapped = mapper.Map<IEnumerable<StorageDto>>(storages).ToList();
+
+                serializedData = serializer.Serialize(storagesMapped);
+
+                bytes = Encoding.UTF8.GetBytes(serializedData);
+
+                return File(bytes, "application/octet-stream", $"{dataType.ToLower()}Export.{format}");
+
+            case "Notebook":
+                var notebooks = (await _notebookRepository.Read()).ToList();
+
+                var notebooksMapped = mapper.Map<IEnumerable<NotebookDto>>(notebooks).ToList();
+
+                serializedData = serializer.Serialize(notebooksMapped);
+
+                bytes = Encoding.UTF8.GetBytes(serializedData);
+
+                return File(bytes, "application/octet-stream", $"{dataType.ToLower()}Export.{format}");
+
+            default:
+                return BadRequest("Data type not supported");
+        }
+    }
 }

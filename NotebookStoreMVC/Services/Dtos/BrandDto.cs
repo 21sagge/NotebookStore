@@ -2,5 +2,5 @@
 
 public class BrandDto : BaseDto
 {
-  public required string Name { get; set; }
+    public required string Name { get; set; }
 }

@@ -7,14 +7,12 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\NotebookStoreContext\NotebookStoreContext.csproj" />
-    <ProjectReference Include="..\NotebookStore.Entities\NotebookStore.Entities.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
   </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="AutoMapper" Version="13.0.1" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\NotebookStoreContext\NotebookStoreContext.csproj" />
   </ItemGroup>
 </Project>

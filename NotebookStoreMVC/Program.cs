@@ -21,8 +21,10 @@ builder.Services.AddAutoMapper(configure =>
     configure.AddProfile(new MapperMvc());
 });
 
-builder.Services.AddKeyedScoped<ISerializer, JsonHandler>("json");
-builder.Services.AddKeyedScoped<ISerializer, XmlHandler>("xml");
+//builder.Services.AddKeyedScoped<ISerializer, JsonHandler>("json");
+//builder.Services.AddKeyedScoped<ISerializer, XmlHandler>("xml");
+builder.Services.AddScoped<ISerializer, JsonHandler>();
+builder.Services.AddScoped<ISerializer, XmlHandler>();
 
 builder.Services.AddDbContext<NotebookStoreContext.NotebookStoreContext>(options =>
     options.UseSqlite(builder.Configuration.GetConnectionString("SqlLite")));

@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using NotebookStore.Entities;
 using NotebookStoreMVC.Models;
+using NotebookStoreMVC.Services;
 
 internal class MapperMvc : Profile
 {
@@ -44,5 +45,12 @@ internal class MapperMvc : Profile
             .ForMember(dest => dest.Memory, act => act.MapFrom(src => src.Memory))
             .ForMember(dest => dest.Storage, act => act.MapFrom(src => src.Storage))
             .ReverseMap();
+        CreateMap<Brand, BrandDto>();
+        CreateMap<Cpu, CpuDto>();
+        CreateMap<Display, DisplayDto>();
+        CreateMap<Memory, MemoryDto>();
+        CreateMap<Model, ModelDto>();
+        CreateMap<Storage, StorageDto>();
+        CreateMap<Notebook, NotebookDto>();
     }
 }
