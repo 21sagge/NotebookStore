@@ -25,7 +25,7 @@ public class NotebookController : Controller
 		var notebookViewModels = await _notebookRepository.Read();
 		var mapped = mapper.Map<IEnumerable<NotebookViewModel>>(notebookViewModels);
 
-        return View(mapped);
+		return View(mapped);
 	}
 
 	// GET: Notebook/Details/5
@@ -49,16 +49,18 @@ public class NotebookController : Controller
 
 	// GET: Notebook/Create
 	[HttpGet]
-	public IActionResult Create()
+	public async Task<IActionResult> Create()
 	{
+		var notebooks = await _notebookRepository.Read();
+
 		var model = new NotebookViewModel
 		{
-			Brands = mapper.Map<IEnumerable<BrandViewModel>>(_notebookRepository.Brands),
-			Cpus = mapper.Map<IEnumerable<CpuViewModel>>(_notebookRepository.Cpus),
-			Displays = mapper.Map<IEnumerable<DisplayViewModel>>(_notebookRepository.Displays),
-			Memories = mapper.Map<IEnumerable<MemoryViewModel>>(_notebookRepository.Memories),
-			Models = mapper.Map<IEnumerable<ModelViewModel>>(_notebookRepository.Models),
-			Storages = mapper.Map<IEnumerable<StorageViewModel>>(_notebookRepository.Storages)
+			Brands = mapper.Map<IEnumerable<BrandViewModel>>(notebooks.Select(n => n.Brand)),
+			Cpus = mapper.Map<IEnumerable<CpuViewModel>>(notebooks.Select(n => n.Cpu)),
+			Displays = mapper.Map<IEnumerable<DisplayViewModel>>(notebooks.Select(n => n.Display)),
+			Memories = mapper.Map<IEnumerable<MemoryViewModel>>(notebooks.Select(n => n.Memory)),
+			Models = mapper.Map<IEnumerable<ModelViewModel>>(notebooks.Select(n => n.Model)),
+			Storages = mapper.Map<IEnumerable<StorageViewModel>>(notebooks.Select(n => n.Storage))
 		};
 		return View(model);
 	}
@@ -66,21 +68,23 @@ public class NotebookController : Controller
 	// POST: Notebook/Create
 	[HttpPost]
 	[ValidateAntiForgeryToken]
-	public IActionResult Create([Bind("Id,Color,Price,BrandId,ModelId,CpuId,DisplayId,MemoryId,StorageId")] NotebookViewModel notebook)
+	public async Task<IActionResult> Create([Bind("Id,Color,Price,BrandId,ModelId,CpuId,DisplayId,MemoryId,StorageId")] NotebookViewModel notebook)
 	{
 		if (ModelState.IsValid)
 		{
-			_notebookRepository.Create(mapper.Map<Notebook>(notebook));
+			await _notebookRepository.Create(mapper.Map<Notebook>(notebook));
 			return RedirectToAction(nameof(Index));
 		}
+
+		var notebooks = await _notebookRepository.Read();
 		var model = new NotebookViewModel
 		{
-			Brands = mapper.Map<IEnumerable<BrandViewModel>>(_notebookRepository.Brands),
-			Cpus = mapper.Map<IEnumerable<CpuViewModel>>(_notebookRepository.Cpus),
-			Displays = mapper.Map<IEnumerable<DisplayViewModel>>(_notebookRepository.Displays),
-			Memories = mapper.Map<IEnumerable<MemoryViewModel>>(_notebookRepository.Memories),
-			Models = mapper.Map<IEnumerable<ModelViewModel>>(_notebookRepository.Models),
-			Storages = mapper.Map<IEnumerable<StorageViewModel>>(_notebookRepository.Storages)
+			Brands = mapper.Map<IEnumerable<BrandViewModel>>(notebooks.Select(n => n.Brand)),
+			Cpus = mapper.Map<IEnumerable<CpuViewModel>>(notebooks.Select(n => n.Cpu)),
+			Displays = mapper.Map<IEnumerable<DisplayViewModel>>(notebooks.Select(n => n.Display)),
+			Memories = mapper.Map<IEnumerable<MemoryViewModel>>(notebooks.Select(n => n.Memory)),
+			Models = mapper.Map<IEnumerable<ModelViewModel>>(notebooks.Select(n => n.Model)),
+			Storages = mapper.Map<IEnumerable<StorageViewModel>>(notebooks.Select(n => n.Storage))
 		};
 		return View(model);
 	}
@@ -100,6 +104,8 @@ public class NotebookController : Controller
 			return NotFound();
 		}
 
+		var notebooks = await _notebookRepository.Read();
+
 		var model = new NotebookViewModel
 		{
 			Color = notebook.Color,
@@ -110,12 +116,12 @@ public class NotebookController : Controller
 			DisplayId = notebook.DisplayId,
 			MemoryId = notebook.MemoryId,
 			StorageId = notebook.StorageId,
-			Brands = mapper.Map<IEnumerable<BrandViewModel>>(_notebookRepository.Brands),
-			Cpus = mapper.Map<IEnumerable<CpuViewModel>>(_notebookRepository.Cpus),
-			Displays = mapper.Map<IEnumerable<DisplayViewModel>>(_notebookRepository.Displays),
-			Memories = mapper.Map<IEnumerable<MemoryViewModel>>(_notebookRepository.Memories),
-			Models = mapper.Map<IEnumerable<ModelViewModel>>(_notebookRepository.Models),
-			Storages = mapper.Map<IEnumerable<StorageViewModel>>(_notebookRepository.Storages)
+			Brands = mapper.Map<IEnumerable<BrandViewModel>>(notebooks.Select(n => n.Brand)),
+			Cpus = mapper.Map<IEnumerable<CpuViewModel>>(notebooks.Select(n => n.Cpu)),
+			Displays = mapper.Map<IEnumerable<DisplayViewModel>>(notebooks.Select(n => n.Display)),
+			Memories = mapper.Map<IEnumerable<MemoryViewModel>>(notebooks.Select(n => n.Memory)),
+			Models = mapper.Map<IEnumerable<ModelViewModel>>(notebooks.Select(n => n.Model)),
+			Storages = mapper.Map<IEnumerable<StorageViewModel>>(notebooks.Select(n => n.Storage))
 		};
 
 		return View(model);
@@ -150,14 +156,16 @@ public class NotebookController : Controller
 			}
 			return RedirectToAction(nameof(Index));
 		}
+
+		var notebooks = await _notebookRepository.Read();
 		var model = new NotebookViewModel
 		{
-			Brands = mapper.Map<IEnumerable<BrandViewModel>>(_notebookRepository.Brands),
-			Cpus = mapper.Map<IEnumerable<CpuViewModel>>(_notebookRepository.Cpus),
-			Displays = mapper.Map<IEnumerable<DisplayViewModel>>(_notebookRepository.Displays),
-			Memories = mapper.Map<IEnumerable<MemoryViewModel>>(_notebookRepository.Memories),
-			Models = mapper.Map<IEnumerable<ModelViewModel>>(_notebookRepository.Models),
-			Storages = mapper.Map<IEnumerable<StorageViewModel>>(_notebookRepository.Storages)
+			Brands = mapper.Map<IEnumerable<BrandViewModel>>(notebooks.Select(n => n.Brand)),
+			Cpus = mapper.Map<IEnumerable<CpuViewModel>>(notebooks.Select(n => n.Cpu)),
+			Displays = mapper.Map<IEnumerable<DisplayViewModel>>(notebooks.Select(n => n.Display)),
+			Memories = mapper.Map<IEnumerable<MemoryViewModel>>(notebooks.Select(n => n.Memory)),
+			Models = mapper.Map<IEnumerable<ModelViewModel>>(notebooks.Select(n => n.Model)),
+			Storages = mapper.Map<IEnumerable<StorageViewModel>>(notebooks.Select(n => n.Storage))
 		};
 		return View(model);
 	}
