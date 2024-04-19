@@ -1,4 +1,4 @@
-﻿namespace NotebookStore.Repositories;
+﻿namespace NotebookStore.DAL;
 
 public interface IRepository<T> : IDisposable
 {

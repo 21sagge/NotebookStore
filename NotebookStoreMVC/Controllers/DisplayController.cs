@@ -2,7 +2,7 @@ using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using NotebookStoreMVC.Models;
-using NotebookStore.Repositories;
+using NotebookStore.DAL;
 using NotebookStore.Entities;
 
 namespace NotebookStoreMVC.Controllers;

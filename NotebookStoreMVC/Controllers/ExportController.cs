@@ -1,7 +1,6 @@
 ﻿using System.Text;
 using Microsoft.AspNetCore.Mvc;
-using NotebookStoreMVC.Models;
-using NotebookStore.Repositories;
+using NotebookStore.DAL;
 using NotebookStoreMVC.Services;
 using NotebookStore.Entities;
 using AutoMapper;
@@ -27,7 +26,7 @@ public class ExportController : Controller
         IRepository<Memory> memoryRepository,
         IRepository<Model> modelRepository,
         IRepository<Storage> storageRepository,
-        INotebookRepository notebookRepository,
+        IRepository<Notebook> notebookRepository,
         IEnumerable<ISerializer> serializer,
         IMapper mapper)
     {

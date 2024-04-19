@@ -1,10 +1,10 @@
-﻿namespace NotebookStore.Repositories;
+﻿namespace NotebookStore.DAL;
 
 using Microsoft.EntityFrameworkCore;
 using NotebookStoreContext;
 using NotebookStore.Entities;
 
-public class NotebookRepository : INotebookRepository
+public class NotebookRepository : IRepository<Notebook>
 {
   private readonly NotebookStoreContext _context;
 

@@ -2,17 +2,17 @@ using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using NotebookStoreMVC.Models;
-using NotebookStore.Repositories;
+using NotebookStore.DAL;
 using NotebookStore.Entities;
 
 namespace NotebookStoreMVC.Controllers;
 
 public class NotebookController : Controller
 {
-	private readonly INotebookRepository _notebookRepository;
+	private readonly IRepository<Notebook> _notebookRepository;
 	private readonly IMapper mapper;
 
-	public NotebookController(INotebookRepository repository, IMapper mapper)
+	public NotebookController(IRepository<Notebook> repository, IMapper mapper)
 	{
 		_notebookRepository = repository;
 		this.mapper = mapper;
@@ -23,7 +23,9 @@ public class NotebookController : Controller
 	public async Task<IActionResult> Index()
 	{
 		var notebookViewModels = await _notebookRepository.Read();
-		return View(mapper.Map<IEnumerable<NotebookViewModel>>(notebookViewModels));
+		var mapped = mapper.Map<IEnumerable<NotebookViewModel>>(notebookViewModels);
+
+        return View(mapped);
 	}
 
 	// GET: Notebook/Details/5
