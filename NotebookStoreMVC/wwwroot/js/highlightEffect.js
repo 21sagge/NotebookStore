@@ -1,9 +1,4 @@
-﻿// Please see documentation at https://docs.microsoft.com/aspnet/core/client-side/bundling-and-minification
-// for details on configuring this project to bundle and minify static web assets.
-
-console.log('Script loaded');
-class HighlightEffect {
-  
+export class HighlightEffect {
   constructor(el) {
     // Validates the input element to ensure it's an HTML element.
     if (!el || !(el instanceof HTMLElement)) {
@@ -23,8 +18,6 @@ class HighlightEffect {
     // Scroll effect.
     this.scroll();
   }
-
-  
 
   // Defines the scroll effect logic for the element.
   scroll() {
@@ -62,31 +55,3 @@ class HighlightEffect {
     }, 0);
   }
 }
-// Write your JavaScript code.
-// import HighlightEffect from './highlightEffect';
-// Registers the ScrollTrigger and Flip plugins with GSAP
-gsap.registerPlugin(ScrollTrigger, Flip);
-
-const highlightedElements = document.querySelectorAll('.hx');
-highlightedElements.forEach(el => {
-  // Exclude the 11th example (Flip example) by checking if the element has the class 'hx-11'
-  if ( !el.classList.contains('hx-11') ) {
-    el.dataset.splitting = '';
-  }
-});
-Splitting();
-
-const init = () => {
-  const effects = [
-    { selector: '.hx-11', effect: HighlightEffect },
-  ];
-
-  // Iterate over each effect configuration and apply the effect to all matching elements
-  effects.forEach(({ selector, effect }) => {
-    document.querySelectorAll(selector).forEach(el => {
-      new effect(el);
-    });
-  });
-};
-
-init();
