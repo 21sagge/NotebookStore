@@ -7,7 +7,11 @@ internal class MapperMvc : Profile
 {
     public MapperMvc()
     {
-        CreateMap<Brand, BrandViewModel>()
+        CreateMap<NotebookStore.Business.BrandDto, BrandViewModel>()
+            .ForMember(dest => dest.Id, act => act.MapFrom(src => src.Id))
+            .ForMember(dest => dest.Name, act => act.MapFrom(src => src.Name))
+            .ReverseMap();
+        CreateMap<Brand, NotebookStore.Business.BrandDto>()
             .ForMember(dest => dest.Id, act => act.MapFrom(src => src.Id))
             .ForMember(dest => dest.Name, act => act.MapFrom(src => src.Name))
             .ReverseMap();
@@ -45,7 +49,7 @@ internal class MapperMvc : Profile
             .ForMember(dest => dest.Memory, act => act.MapFrom(src => src.Memory))
             .ForMember(dest => dest.Storage, act => act.MapFrom(src => src.Storage))
             .ReverseMap();
-        CreateMap<Brand, BrandDto>();
+        CreateMap<Brand, NotebookStore.Business.BrandDto>();
         CreateMap<Cpu, CpuDto>();
         CreateMap<Display, DisplayDto>();
         CreateMap<Memory, MemoryDto>();

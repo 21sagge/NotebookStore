@@ -34,5 +34,8 @@
     <ProjectReference Include="..\NotebookStore.DAL\NotebookStore.DAL.csproj">
       <GlobalPropertiesToRemove></GlobalPropertiesToRemove>
     </ProjectReference>
+    <ProjectReference Include="..\NotebookStore.Business\NotebookStore.Business.csproj">
+      <GlobalPropertiesToRemove></GlobalPropertiesToRemove>
+    </ProjectReference>
   </ItemGroup>
 </Project>

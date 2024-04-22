@@ -2,19 +2,13 @@
 using NotebookStoreMVC;
 using NotebookStore.DAL;
 using NotebookStoreMVC.Services;
-using NotebookStore.Entities;
+using NotebookStore.Business;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllersWithViews();
 
-builder.Services.AddScoped<IRepository<Brand>, BrandRepository>();
-builder.Services.AddScoped<IRepository<Cpu>, CpuRepository>();
-builder.Services.AddScoped<IRepository<Display>, DisplayRepository>();
-builder.Services.AddScoped<IRepository<Memory>, MemoryRepository>();
-builder.Services.AddScoped<IRepository<Model>, ModelRepository>();
-builder.Services.AddScoped<IRepository<Storage>, StorageRepository>();
-builder.Services.AddScoped<IRepository<Notebook>, NotebookRepository>();
+builder.Services.AddScoped<BrandService>();
 
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 
