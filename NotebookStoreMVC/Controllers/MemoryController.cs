@@ -1,6 +1,5 @@
 using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using NotebookStoreMVC.Models;
 using NotebookStore.DAL;
 using NotebookStore.Entities;
@@ -22,19 +21,9 @@ public class MemoryController : Controller
     [HttpGet]
     public async Task<IActionResult> Index()
     {
-        unitOfWork.BeginTransaction();
+        var memories = await unitOfWork.Memories.Read();
 
-        try
-        {
-            var memories = await unitOfWork.Memories.Read();
-            unitOfWork.CommitTransaction();
-            return View(mapper.Map<IEnumerable<MemoryViewModel>>(memories));
-        }
-        catch (Exception ex)
-        {
-            unitOfWork.RollbackTransaction();
-            return Problem(ex.Message);
-        }
+        return View(mapper.Map<IEnumerable<MemoryViewModel>>(memories));
     }
 
     // GET: MemoryViewModel/Details/5
@@ -46,25 +35,14 @@ public class MemoryController : Controller
             return NotFound();
         }
 
-        unitOfWork.BeginTransaction();
+        var memory = await unitOfWork.Memories.Find(id);
 
-        try
+        if (memory == null)
         {
-            var MemoryViewModel = await unitOfWork.Memories.Find(id);
-            unitOfWork.CommitTransaction();
-
-            if (MemoryViewModel == null)
-            {
-                return NotFound();
-            }
-
-            return View(mapper.Map<MemoryViewModel>(MemoryViewModel));
+            return NotFound();
         }
-        catch (Exception ex)
-        {
-            unitOfWork.RollbackTransaction();
-            return Problem(ex.Message);
-        }
+
+        return View(mapper.Map<MemoryViewModel>(memory));
     }
 
     // GET: MemoryViewModel/Create
@@ -77,25 +55,23 @@ public class MemoryController : Controller
     // POST: MemoryViewModel/Create
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public IActionResult Create([Bind("Id,Capacity,Speed")] MemoryViewModel MemoryViewModel)
+    public IActionResult Create([Bind("Id,Brand,Model")] MemoryViewModel MemoryViewModel)
     {
-        if (ModelState.IsValid)
-        {
-            unitOfWork.BeginTransaction();
+        unitOfWork.BeginTransaction();
 
-            try
-            {
-                unitOfWork.Memories.Create(mapper.Map<Memory>(MemoryViewModel));
-                unitOfWork.CommitTransaction();
-                return RedirectToAction(nameof(Index));
-            }
-            catch (Exception ex)
-            {
-                unitOfWork.RollbackTransaction();
-                return Problem(ex.Message);
-            }
+        try
+        {
+            unitOfWork.Memories.Create(mapper.Map<Memory>(MemoryViewModel));
+            unitOfWork.SaveAsync();
+            unitOfWork.CommitTransaction();
+
+            return RedirectToAction(nameof(Index));
         }
-        return View(MemoryViewModel);
+        catch (Exception ex)
+        {
+            unitOfWork.RollbackTransaction();
+            return Problem(ex.Message);
+        }
     }
 
     // GET: MemoryViewModel/Edit/5
@@ -107,19 +83,35 @@ public class MemoryController : Controller
             return NotFound();
         }
 
+        var memory = await unitOfWork.Memories.Find(id);
+
+        if (memory == null)
+        {
+            return NotFound();
+        }
+
+        return View(mapper.Map<MemoryViewModel>(memory));
+    }
+
+    // POST: MemoryViewModel/Edit/5
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public IActionResult Edit(int id, [Bind("Id,Brand,Model")] MemoryViewModel MemoryViewModel)
+    {
+        if (id != MemoryViewModel.Id)
+        {
+            return NotFound();
+        }
+
         unitOfWork.BeginTransaction();
 
         try
         {
-            var MemoryViewModel = await unitOfWork.Memories.Find(id);
+            unitOfWork.Memories.Update(mapper.Map<Memory>(MemoryViewModel));
+            unitOfWork.SaveAsync();
             unitOfWork.CommitTransaction();
 
-            if (MemoryViewModel == null)
-            {
-                return NotFound();
-            }
-
-            return View(mapper.Map<MemoryViewModel>(MemoryViewModel));
+            return RedirectToAction(nameof(Index));
         }
         catch (Exception ex)
         {
@@ -128,48 +120,6 @@ public class MemoryController : Controller
         }
     }
 
-    // POST: MemoryViewModel/Edit/5
-    [HttpPost]
-    [ValidateAntiForgeryToken]
-    public IActionResult Edit(int id, [Bind("Id,Capacity,Speed")] MemoryViewModel MemoryViewModel)
-    {
-        if (id != MemoryViewModel.Id)
-        {
-            return NotFound();
-        }
-
-        if (ModelState.IsValid)
-        {
-            unitOfWork.BeginTransaction();
-
-            try
-            {
-                try
-                {
-                    unitOfWork.Memories.Update(mapper.Map<Memory>(MemoryViewModel));
-                    unitOfWork.CommitTransaction();
-                }
-                catch (DbUpdateConcurrencyException)
-                {
-                    if (!MemoryExists(MemoryViewModel.Id))
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
-                }
-                return RedirectToAction(nameof(Index));
-            }
-            catch (Exception ex)
-            {
-                unitOfWork.RollbackTransaction();
-                return Problem(ex.Message);
-            }
-        }
-        return View(MemoryViewModel);
-    }
 
     // GET: MemoryViewModel/Delete/5
     [HttpGet]
@@ -180,25 +130,14 @@ public class MemoryController : Controller
             return NotFound();
         }
 
-        unitOfWork.BeginTransaction();
+        var memory = await unitOfWork.Memories.Find(id);
 
-        try
+        if (memory == null)
         {
-            var MemoryViewModel = await unitOfWork.Memories.Find(id);
-            unitOfWork.CommitTransaction();
-
-            if (MemoryViewModel == null)
-            {
-                return NotFound();
-            }
-
-            return View(mapper.Map<MemoryViewModel>(MemoryViewModel));
+            return NotFound();
         }
-        catch (Exception ex)
-        {
-            unitOfWork.RollbackTransaction();
-            return Problem(ex.Message);
-        }
+
+        return View(mapper.Map<MemoryViewModel>(memory));
     }
 
     // POST: MemoryViewModel/Delete/5
@@ -208,15 +147,22 @@ public class MemoryController : Controller
     {
         if (unitOfWork.Memories.Read() == null)
         {
-            return NotFound();
+            return Problem("Entity set 'NotebookStoreContext.Memories'  is null.");
         }
 
         unitOfWork.BeginTransaction();
 
         try
         {
+            if (await unitOfWork.Memories.Find(id) == null)
+            {
+                return NotFound();
+            }
+
             await unitOfWork.Memories.Delete(id);
+
             unitOfWork.CommitTransaction();
+
             return RedirectToAction(nameof(Index));
         }
         catch (Exception ex)

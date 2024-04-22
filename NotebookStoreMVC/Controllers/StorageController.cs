@@ -1,6 +1,5 @@
 using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using NotebookStoreMVC.Models;
 using NotebookStore.DAL;
 using NotebookStore.Entities;
@@ -22,19 +21,9 @@ public class StorageController : Controller
     [HttpGet]
     public async Task<IActionResult> Index()
     {
-        unitOfWork.BeginTransaction();
+        var storages = await unitOfWork.Storages.Read();
 
-        try
-        {
-            var storages = await unitOfWork.Storages.Read();
-            unitOfWork.CommitTransaction();
-            return View(mapper.Map<IEnumerable<StorageViewModel>>(storages));
-        }
-        catch (Exception ex)
-        {
-            unitOfWork.RollbackTransaction();
-            return Problem(ex.Message);
-        }
+        return View(mapper.Map<IEnumerable<StorageViewModel>>(storages));
     }
 
     // GET: StorageViewModel/Details/5
@@ -46,25 +35,14 @@ public class StorageController : Controller
             return NotFound();
         }
 
-        unitOfWork.BeginTransaction();
+        var storage = await unitOfWork.Storages.Find(id);
 
-        try
+        if (storage == null)
         {
-            var StorageViewModel = await unitOfWork.Storages.Find(id);
-            unitOfWork.CommitTransaction();
-
-            if (StorageViewModel == null)
-            {
-                return NotFound();
-            }
-
-            return View(mapper.Map<StorageViewModel>(StorageViewModel));
+            return NotFound();
         }
-        catch (Exception ex)
-        {
-            unitOfWork.RollbackTransaction();
-            return Problem(ex.Message);
-        }
+
+        return View(mapper.Map<StorageViewModel>(storage));
     }
 
     // GET: StorageViewModel/Create
@@ -77,25 +55,23 @@ public class StorageController : Controller
     // POST: StorageViewModel/Create
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public IActionResult Create([Bind("Id,Type,Capacity")] StorageViewModel StorageViewModel)
+    public IActionResult Create([Bind("Id,Brand,Model")] StorageViewModel StorageViewModel)
     {
-        if (ModelState.IsValid)
-        {
-            unitOfWork.BeginTransaction();
+        unitOfWork.BeginTransaction();
 
-            try
-            {
-                unitOfWork.Storages.Create(mapper.Map<Storage>(StorageViewModel));
-                unitOfWork.CommitTransaction();
-                return RedirectToAction(nameof(Index));
-            }
-            catch (Exception ex)
-            {
-                unitOfWork.RollbackTransaction();
-                return Problem(ex.Message);
-            }
+        try
+        {
+            unitOfWork.Storages.Create(mapper.Map<Storage>(StorageViewModel));
+            unitOfWork.SaveAsync();
+            unitOfWork.CommitTransaction();
+
+            return RedirectToAction(nameof(Index));
         }
-        return View(StorageViewModel);
+        catch (Exception ex)
+        {
+            unitOfWork.RollbackTransaction();
+            return Problem(ex.Message);
+        }
     }
 
     // GET: StorageViewModel/Edit/5
@@ -107,19 +83,35 @@ public class StorageController : Controller
             return NotFound();
         }
 
+        var storage = await unitOfWork.Storages.Find(id);
+
+        if (storage == null)
+        {
+            return NotFound();
+        }
+
+        return View(mapper.Map<StorageViewModel>(storage));
+    }
+
+    // POST: StorageViewModel/Edit/5
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public IActionResult Edit(int id, [Bind("Id,Brand,Model")] StorageViewModel StorageViewModel)
+    {
+        if (id != StorageViewModel.Id)
+        {
+            return NotFound();
+        }
+
         unitOfWork.BeginTransaction();
 
         try
         {
-            var StorageViewModel = await unitOfWork.Storages.Find(id);
+            unitOfWork.Storages.Update(mapper.Map<Storage>(StorageViewModel));
+            unitOfWork.SaveAsync();
             unitOfWork.CommitTransaction();
 
-            if (StorageViewModel == null)
-            {
-                return NotFound();
-            }
-
-            return View(mapper.Map<StorageViewModel>(StorageViewModel));
+            return RedirectToAction(nameof(Index));
         }
         catch (Exception ex)
         {
@@ -128,48 +120,6 @@ public class StorageController : Controller
         }
     }
 
-    // POST: StorageViewModel/Edit/5
-    [HttpPost]
-    [ValidateAntiForgeryToken]
-    public IActionResult Edit(int id, [Bind("Id,Type,Capacity")] StorageViewModel storageViewModel)
-    {
-        if (id != storageViewModel.Id)
-        {
-            return NotFound();
-        }
-
-        if (ModelState.IsValid)
-        {
-            unitOfWork.BeginTransaction();
-
-            try
-            {
-                try
-                {
-                    unitOfWork.Storages.Update(mapper.Map<Storage>(storageViewModel));
-                    unitOfWork.CommitTransaction();
-                }
-                catch (DbUpdateConcurrencyException)
-                {
-                    if (!StorageExists(storageViewModel.Id))
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
-                }
-                return RedirectToAction(nameof(Index));
-            }
-            catch (Exception ex)
-            {
-                unitOfWork.RollbackTransaction();
-                return Problem(ex.Message);
-            }
-        }
-        return View(storageViewModel);
-    }
 
     // GET: StorageViewModel/Delete/5
     [HttpGet]
@@ -180,25 +130,14 @@ public class StorageController : Controller
             return NotFound();
         }
 
-        unitOfWork.BeginTransaction();
+        var storage = await unitOfWork.Storages.Find(id);
 
-        try
+        if (storage == null)
         {
-            var StorageViewModel = await unitOfWork.Storages.Find(id);
-            unitOfWork.CommitTransaction();
-
-            if (StorageViewModel == null)
-            {
-                return NotFound();
-            }
-
-            return View(mapper.Map<StorageViewModel>(StorageViewModel));
+            return NotFound();
         }
-        catch (Exception ex)
-        {
-            unitOfWork.RollbackTransaction();
-            return Problem(ex.Message);
-        }
+
+        return View(mapper.Map<StorageViewModel>(storage));
     }
 
     // POST: StorageViewModel/Delete/5
@@ -208,15 +147,22 @@ public class StorageController : Controller
     {
         if (unitOfWork.Storages.Read() == null)
         {
-            return NotFound();
+            return Problem("Entity set 'NotebookStoreContext.Storages'  is null.");
         }
 
         unitOfWork.BeginTransaction();
 
         try
         {
+            if (await unitOfWork.Storages.Find(id) == null)
+            {
+                return NotFound();
+            }
+
             await unitOfWork.Storages.Delete(id);
+
             unitOfWork.CommitTransaction();
+
             return RedirectToAction(nameof(Index));
         }
         catch (Exception ex)

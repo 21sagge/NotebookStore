@@ -1,6 +1,5 @@
 using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using NotebookStoreMVC.Models;
 using NotebookStore.DAL;
 using NotebookStore.Entities;
@@ -22,19 +21,9 @@ public class DisplayController : Controller
     [HttpGet]
     public async Task<IActionResult> Index()
     {
-        unitOfWork.BeginTransaction();
+        var displays = await unitOfWork.Displays.Read();
 
-        try
-        {
-            var displays = await unitOfWork.Displays.Read();
-            unitOfWork.CommitTransaction();
-            return View(mapper.Map<IEnumerable<DisplayViewModel>>(displays));
-        }
-        catch (Exception ex)
-        {
-            unitOfWork.RollbackTransaction();
-            return Problem(ex.Message);
-        }
+        return View(mapper.Map<IEnumerable<DisplayViewModel>>(displays));
     }
 
     // GET: DisplayViewModel/Details/5
@@ -46,25 +35,14 @@ public class DisplayController : Controller
             return NotFound();
         }
 
-        unitOfWork.BeginTransaction();
+        var display = await unitOfWork.Displays.Find(id);
 
-        try
+        if (display == null)
         {
-            var DisplayViewModel = await unitOfWork.Displays.Find(id);
-            unitOfWork.CommitTransaction();
-
-            if (DisplayViewModel == null)
-            {
-                return NotFound();
-            }
-
-            return View(mapper.Map<DisplayViewModel>(DisplayViewModel));
+            return NotFound();
         }
-        catch (Exception ex)
-        {
-            unitOfWork.RollbackTransaction();
-            return Problem(ex.Message);
-        }
+
+        return View(mapper.Map<DisplayViewModel>(display));
     }
 
     // GET: DisplayViewModel/Create
@@ -77,25 +55,23 @@ public class DisplayController : Controller
     // POST: DisplayViewModel/Create
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public IActionResult Create([Bind("Id,Size,ResolutionWidth,ResolutionHeight,PanelType")] DisplayViewModel DisplayViewModel)
+    public IActionResult Create([Bind("Id,Brand,Model")] DisplayViewModel DisplayViewModel)
     {
-        if (ModelState.IsValid)
-        {
-            unitOfWork.BeginTransaction();
+        unitOfWork.BeginTransaction();
 
-            try
-            {
-                unitOfWork.Displays.Create(mapper.Map<Display>(DisplayViewModel));
-                unitOfWork.CommitTransaction();
-                return RedirectToAction(nameof(Index));
-            }
-            catch (Exception ex)
-            {
-                unitOfWork.RollbackTransaction();
-                return Problem(ex.Message);
-            }
+        try
+        {
+            unitOfWork.Displays.Create(mapper.Map<Display>(DisplayViewModel));
+            unitOfWork.SaveAsync();
+            unitOfWork.CommitTransaction();
+
+            return RedirectToAction(nameof(Index));
         }
-        return View(DisplayViewModel);
+        catch (Exception ex)
+        {
+            unitOfWork.RollbackTransaction();
+            return Problem(ex.Message);
+        }
     }
 
     // GET: DisplayViewModel/Edit/5
@@ -107,19 +83,35 @@ public class DisplayController : Controller
             return NotFound();
         }
 
+        var display = await unitOfWork.Displays.Find(id);
+
+        if (display == null)
+        {
+            return NotFound();
+        }
+
+        return View(mapper.Map<BrandViewModel>(display));
+    }
+
+    // POST: DisplayViewModel/Edit/5
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public IActionResult Edit(int id, [Bind("Id,Brand,Model")] DisplayViewModel DisplayViewModel)
+    {
+        if (id != DisplayViewModel.Id)
+        {
+            return NotFound();
+        }
+
         unitOfWork.BeginTransaction();
 
         try
         {
-            var DisplayViewModel = await unitOfWork.Displays.Find(id);
+            unitOfWork.Displays.Update(mapper.Map<Display>(DisplayViewModel));
+            unitOfWork.SaveAsync();
             unitOfWork.CommitTransaction();
 
-            if (DisplayViewModel == null)
-            {
-                return NotFound();
-            }
-
-            return View(mapper.Map<DisplayViewModel>(DisplayViewModel));
+            return RedirectToAction(nameof(Index));
         }
         catch (Exception ex)
         {
@@ -128,48 +120,6 @@ public class DisplayController : Controller
         }
     }
 
-    // POST: DisplayViewModel/Edit/5
-    [HttpPost]
-    [ValidateAntiForgeryToken]
-    public IActionResult Edit(int id, [Bind("Id,Size,ResolutionWidth,ResolutionHeight,PanelType")] DisplayViewModel DisplayViewModel)
-    {
-        if (id != DisplayViewModel.Id)
-        {
-            return NotFound();
-        }
-
-        if (ModelState.IsValid)
-        {
-            unitOfWork.BeginTransaction();
-
-            try
-            {
-                try
-                {
-                    unitOfWork.Displays.Update(mapper.Map<Display>(DisplayViewModel));
-                    unitOfWork.CommitTransaction();
-                }
-                catch (DbUpdateConcurrencyException)
-                {
-                    if (!DisplayExists(DisplayViewModel.Id))
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
-                }
-                return RedirectToAction(nameof(Index));
-            }
-            catch (Exception ex)
-            {
-                unitOfWork.RollbackTransaction();
-                return Problem(ex.Message);
-            }
-        }
-        return View(DisplayViewModel);
-    }
 
     // GET: DisplayViewModel/Delete/5
     [HttpGet]
@@ -180,25 +130,14 @@ public class DisplayController : Controller
             return NotFound();
         }
 
-        unitOfWork.BeginTransaction();
+        var display = await unitOfWork.Displays.Find(id);
 
-        try
+        if (display == null)
         {
-            var DisplayViewModel = await unitOfWork.Displays.Find(id);
-            unitOfWork.CommitTransaction();
-
-            if (DisplayViewModel == null)
-            {
-                return NotFound();
-            }
-
-            return View(mapper.Map<DisplayViewModel>(DisplayViewModel));
+            return NotFound();
         }
-        catch (Exception ex)
-        {
-            unitOfWork.RollbackTransaction();
-            return Problem(ex.Message);
-        }
+
+        return View(mapper.Map<DisplayViewModel>(display));
     }
 
     // POST: DisplayViewModel/Delete/5
@@ -208,15 +147,22 @@ public class DisplayController : Controller
     {
         if (unitOfWork.Displays.Read() == null)
         {
-            return NotFound();
+            return Problem("Entity set 'NotebookStoreContext.Displays'  is null.");
         }
 
         unitOfWork.BeginTransaction();
 
         try
         {
+            if (await unitOfWork.Displays.Find(id) == null)
+            {
+                return NotFound();
+            }
+
             await unitOfWork.Displays.Delete(id);
+
             unitOfWork.CommitTransaction();
+
             return RedirectToAction(nameof(Index));
         }
         catch (Exception ex)
