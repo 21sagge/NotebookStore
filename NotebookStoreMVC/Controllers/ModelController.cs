@@ -9,12 +9,12 @@ namespace NotebookStoreMVC.Controllers;
 
 public class ModelController : Controller
 {
-    private readonly IRepository<Model> _modelRepository;
+    private readonly IUnitOfWork unitOfWork;
     private readonly IMapper mapper;
 
-    public ModelController(IRepository<Model> repository, IMapper mapper)
+    public ModelController(IUnitOfWork unitOfWork, IMapper mapper)
     {
-        _modelRepository = repository;
+        this.unitOfWork = unitOfWork;
         this.mapper = mapper;
     }
 
@@ -22,26 +22,49 @@ public class ModelController : Controller
     [HttpGet]
     public async Task<IActionResult> Index()
     {
-        var modelViewModels = await _modelRepository.Read();
-        return View(mapper.Map<IEnumerable<ModelViewModel>>(modelViewModels));
+        unitOfWork.BeginTransaction();
+
+        try
+        {
+            var models = await unitOfWork.Models.Read();
+            unitOfWork.CommitTransaction();
+            return View(mapper.Map<IEnumerable<ModelViewModel>>(models));
+        }
+        catch (Exception ex)
+        {
+            unitOfWork.RollbackTransaction();
+            return Problem(ex.Message);
+        }
     }
 
     // GET: ModelViewModel/Details/5
     [HttpGet]
     public async Task<IActionResult> Details(int? id)
     {
-        if (id == null || _modelRepository.Read() == null)
+        if (id == null || unitOfWork.Models.Read() == null)
         {
             return NotFound();
         }
 
-        var ModelViewModel = await _modelRepository.Find(id);
-        if (ModelViewModel == null)
-        {
-            return NotFound();
-        }
+        unitOfWork.BeginTransaction();
 
-        return View(mapper.Map<ModelViewModel>(ModelViewModel));
+        try
+        {
+            var ModelViewModel = await unitOfWork.Models.Find(id);
+            unitOfWork.CommitTransaction();
+
+            if (ModelViewModel == null)
+            {
+                return NotFound();
+            }
+
+            return View(mapper.Map<ModelViewModel>(ModelViewModel));
+        }
+        catch (Exception ex)
+        {
+            unitOfWork.RollbackTransaction();
+            return Problem(ex.Message);
+        }
     }
 
     // GET: ModelViewModel/Create
@@ -58,27 +81,51 @@ public class ModelController : Controller
     {
         if (ModelState.IsValid)
         {
-            _modelRepository.Create(mapper.Map<Model>(ModelViewModel));
-            return RedirectToAction(nameof(Index));
+            unitOfWork.BeginTransaction();
+
+            try
+            {
+                unitOfWork.Models.Create(mapper.Map<Model>(ModelViewModel));
+                unitOfWork.CommitTransaction();
+                return RedirectToAction(nameof(Index));
+            }
+            catch (Exception ex)
+            {
+                unitOfWork.RollbackTransaction();
+                return Problem(ex.Message);
+            }
         }
-        return View(mapper.Map<ModelViewModel>(ModelViewModel));
+        return View(ModelViewModel);
     }
 
     // GET: ModelViewModel/Edit/5
     [HttpGet]
     public async Task<IActionResult> Edit(int? id)
     {
-        if (id == null || _modelRepository.Read() == null)
+        if (id == null || unitOfWork.Models.Read() == null)
         {
             return NotFound();
         }
 
-        var ModelViewModel = await _modelRepository.Find(id);
-        if (ModelViewModel == null)
+        unitOfWork.BeginTransaction();
+
+        try
         {
-            return NotFound();
+            var ModelViewModel = await unitOfWork.Models.Find(id);
+            unitOfWork.CommitTransaction();
+
+            if (ModelViewModel == null)
+            {
+                return NotFound();
+            }
+
+            return View(mapper.Map<ModelViewModel>(ModelViewModel));
         }
-        return View(mapper.Map<ModelViewModel>(ModelViewModel));
+        catch (Exception ex)
+        {
+            unitOfWork.RollbackTransaction();
+            return Problem(ex.Message);
+        }
     }
 
     // POST: ModelViewModel/Edit/5
@@ -93,42 +140,65 @@ public class ModelController : Controller
 
         if (ModelState.IsValid)
         {
+            unitOfWork.BeginTransaction();
+
             try
             {
-                _modelRepository.Update(mapper.Map<Model>(ModelViewModel));
+                try
+                {
+                    unitOfWork.Models.Update(mapper.Map<Model>(ModelViewModel));
+                    unitOfWork.CommitTransaction();
+                }
+                catch (DbUpdateConcurrencyException)
+                {
+                    if (!ModelExists(ModelViewModel.Id))
+                    {
+                        return NotFound();
+                    }
+                    else
+                    {
+                        throw;
+                    }
+                }
+                return RedirectToAction(nameof(Index));
             }
-            catch (DbUpdateConcurrencyException)
+            catch (Exception ex)
             {
-                if (!ModelExists(ModelViewModel.Id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
+                unitOfWork.RollbackTransaction();
+                return Problem(ex.Message);
             }
-            return RedirectToAction(nameof(Index));
         }
-        return View(mapper.Map<ModelViewModel>(ModelViewModel));
+        return View(ModelViewModel);
     }
 
     // GET: ModelViewModel/Delete/5
     [HttpGet]
     public async Task<IActionResult> Delete(int? id)
     {
-        if (id == null || _modelRepository.Read() == null)
+        if (id == null || unitOfWork.Models.Read() == null)
         {
             return NotFound();
         }
 
-        var ModelViewModel = await _modelRepository.Find(id);
-        if (ModelViewModel == null)
-        {
-            return NotFound();
-        }
+        unitOfWork.BeginTransaction();
 
-        return View(mapper.Map<ModelViewModel>(ModelViewModel));
+        try
+        {
+            var ModelViewModel = await unitOfWork.Models.Find(id);
+            unitOfWork.CommitTransaction();
+
+            if (ModelViewModel == null)
+            {
+                return NotFound();
+            }
+
+            return View(mapper.Map<ModelViewModel>(ModelViewModel));
+        }
+        catch (Exception ex)
+        {
+            unitOfWork.RollbackTransaction();
+            return Problem(ex.Message);
+        }
     }
 
     // POST: ModelViewModel/Delete/5
@@ -136,17 +206,28 @@ public class ModelController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> DeleteConfirmed(int id)
     {
-        if (_modelRepository.Read() == null)
+        if (unitOfWork.Models.Read() == null)
         {
-            return Problem("Entity set 'NotebookStoreContext.Model'  is null.");
+            return NotFound();
         }
 
-        await _modelRepository.Delete(id);
-        return RedirectToAction(nameof(Index));
+        unitOfWork.BeginTransaction();
+
+        try
+        {
+            await unitOfWork.Models.Delete(id);
+            unitOfWork.CommitTransaction();
+            return RedirectToAction(nameof(Index));
+        }
+        catch (Exception ex)
+        {
+            unitOfWork.RollbackTransaction();
+            return Problem(ex.Message);
+        }
     }
 
     private bool ModelExists(int id)
     {
-        return _modelRepository.Find(id) != null;
+        return unitOfWork.Models.Find(id) != null;
     }
 }

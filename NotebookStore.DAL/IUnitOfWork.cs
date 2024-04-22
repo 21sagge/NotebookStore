@@ -10,7 +10,7 @@ public interface IUnitOfWork
     IRepository<Memory> Memories { get; }
     IRepository<Model> Models { get; }
     IRepository<Storage> Storages { get; }
-    IRepository<Notebook> Notebook { get; }
+    IRepository<Notebook> Notebooks { get; }
     Task SaveAsync();
     void BeginTransaction();
     void CommitTransaction();

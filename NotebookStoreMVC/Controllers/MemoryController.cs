@@ -9,12 +9,12 @@ namespace NotebookStoreMVC.Controllers;
 
 public class MemoryController : Controller
 {
-    private readonly IRepository<Memory> _memoryRepository;
+    private readonly IUnitOfWork unitOfWork;
     private readonly IMapper mapper;
 
-    public MemoryController(IRepository<Memory> repository, IMapper mapper)
+    public MemoryController(IUnitOfWork unitOfWork, IMapper mapper)
     {
-        _memoryRepository = repository;
+        this.unitOfWork = unitOfWork;
         this.mapper = mapper;
     }
 
@@ -22,26 +22,49 @@ public class MemoryController : Controller
     [HttpGet]
     public async Task<IActionResult> Index()
     {
-        var memoryViewModels = await _memoryRepository.Read();
-        return View(mapper.Map<IEnumerable<MemoryViewModel>>(memoryViewModels));
+        unitOfWork.BeginTransaction();
+
+        try
+        {
+            var memories = await unitOfWork.Memories.Read();
+            unitOfWork.CommitTransaction();
+            return View(mapper.Map<IEnumerable<MemoryViewModel>>(memories));
+        }
+        catch (Exception ex)
+        {
+            unitOfWork.RollbackTransaction();
+            return Problem(ex.Message);
+        }
     }
 
     // GET: MemoryViewModel/Details/5
     [HttpGet]
     public async Task<IActionResult> Details(int? id)
     {
-        if (id == null || _memoryRepository.Read() == null)
+        if (id == null || unitOfWork.Memories.Read() == null)
         {
             return NotFound();
         }
 
-        var MemoryViewModel = await _memoryRepository.Find(id);
-        if (MemoryViewModel == null)
-        {
-            return NotFound();
-        }
+        unitOfWork.BeginTransaction();
 
-        return View(mapper.Map<MemoryViewModel>(MemoryViewModel));
+        try
+        {
+            var MemoryViewModel = await unitOfWork.Memories.Find(id);
+            unitOfWork.CommitTransaction();
+
+            if (MemoryViewModel == null)
+            {
+                return NotFound();
+            }
+
+            return View(mapper.Map<MemoryViewModel>(MemoryViewModel));
+        }
+        catch (Exception ex)
+        {
+            unitOfWork.RollbackTransaction();
+            return Problem(ex.Message);
+        }
     }
 
     // GET: MemoryViewModel/Create
@@ -58,27 +81,51 @@ public class MemoryController : Controller
     {
         if (ModelState.IsValid)
         {
-            _memoryRepository.Create(mapper.Map<Memory>(MemoryViewModel));
-            return RedirectToAction(nameof(Index));
+            unitOfWork.BeginTransaction();
+
+            try
+            {
+                unitOfWork.Memories.Create(mapper.Map<Memory>(MemoryViewModel));
+                unitOfWork.CommitTransaction();
+                return RedirectToAction(nameof(Index));
+            }
+            catch (Exception ex)
+            {
+                unitOfWork.RollbackTransaction();
+                return Problem(ex.Message);
+            }
         }
-        return View(mapper.Map<MemoryViewModel>(MemoryViewModel));
+        return View(MemoryViewModel);
     }
 
     // GET: MemoryViewModel/Edit/5
     [HttpGet]
     public async Task<IActionResult> Edit(int? id)
     {
-        if (id == null || _memoryRepository.Read() == null)
+        if (id == null || unitOfWork.Memories.Read() == null)
         {
             return NotFound();
         }
 
-        var MemoryViewModel = await _memoryRepository.Find(id);
-        if (MemoryViewModel == null)
+        unitOfWork.BeginTransaction();
+
+        try
         {
-            return NotFound();
+            var MemoryViewModel = await unitOfWork.Memories.Find(id);
+            unitOfWork.CommitTransaction();
+
+            if (MemoryViewModel == null)
+            {
+                return NotFound();
+            }
+
+            return View(mapper.Map<MemoryViewModel>(MemoryViewModel));
         }
-        return View(mapper.Map<MemoryViewModel>(MemoryViewModel));
+        catch (Exception ex)
+        {
+            unitOfWork.RollbackTransaction();
+            return Problem(ex.Message);
+        }
     }
 
     // POST: MemoryViewModel/Edit/5
@@ -93,42 +140,65 @@ public class MemoryController : Controller
 
         if (ModelState.IsValid)
         {
+            unitOfWork.BeginTransaction();
+
             try
             {
-                _memoryRepository.Update(mapper.Map<Memory>(MemoryViewModel));
+                try
+                {
+                    unitOfWork.Memories.Update(mapper.Map<Memory>(MemoryViewModel));
+                    unitOfWork.CommitTransaction();
+                }
+                catch (DbUpdateConcurrencyException)
+                {
+                    if (!MemoryExists(MemoryViewModel.Id))
+                    {
+                        return NotFound();
+                    }
+                    else
+                    {
+                        throw;
+                    }
+                }
+                return RedirectToAction(nameof(Index));
             }
-            catch (DbUpdateConcurrencyException)
+            catch (Exception ex)
             {
-                if (!MemoryExists(MemoryViewModel.Id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
+                unitOfWork.RollbackTransaction();
+                return Problem(ex.Message);
             }
-            return RedirectToAction(nameof(Index));
         }
-        return View(mapper.Map<MemoryViewModel>(MemoryViewModel));
+        return View(MemoryViewModel);
     }
 
     // GET: MemoryViewModel/Delete/5
     [HttpGet]
     public async Task<IActionResult> Delete(int? id)
     {
-        if (id == null || _memoryRepository.Read() == null)
+        if (id == null || unitOfWork.Memories.Read() == null)
         {
             return NotFound();
         }
 
-        var MemoryViewModel = await _memoryRepository.Find(id);
-        if (MemoryViewModel == null)
-        {
-            return NotFound();
-        }
+        unitOfWork.BeginTransaction();
 
-        return View(mapper.Map<MemoryViewModel>(MemoryViewModel));
+        try
+        {
+            var MemoryViewModel = await unitOfWork.Memories.Find(id);
+            unitOfWork.CommitTransaction();
+
+            if (MemoryViewModel == null)
+            {
+                return NotFound();
+            }
+
+            return View(mapper.Map<MemoryViewModel>(MemoryViewModel));
+        }
+        catch (Exception ex)
+        {
+            unitOfWork.RollbackTransaction();
+            return Problem(ex.Message);
+        }
     }
 
     // POST: MemoryViewModel/Delete/5
@@ -136,17 +206,28 @@ public class MemoryController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> DeleteConfirmed(int id)
     {
-        if (_memoryRepository.Read() == null)
+        if (unitOfWork.Memories.Read() == null)
         {
-            return Problem("Entity set 'NotebookStoreContext.Memory'  is null.");
+            return NotFound();
         }
 
-        await _memoryRepository.Delete(id);
-        return RedirectToAction(nameof(Index));
+        unitOfWork.BeginTransaction();
+
+        try
+        {
+            await unitOfWork.Memories.Delete(id);
+            unitOfWork.CommitTransaction();
+            return RedirectToAction(nameof(Index));
+        }
+        catch (Exception ex)
+        {
+            unitOfWork.RollbackTransaction();
+            return Problem(ex.Message);
+        }
     }
 
     private bool MemoryExists(int id)
     {
-        return _memoryRepository.Find(id) != null;
+        return unitOfWork.Memories.Find(id) != null;
     }
 }

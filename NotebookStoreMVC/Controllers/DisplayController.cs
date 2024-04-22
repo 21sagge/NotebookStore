@@ -9,12 +9,12 @@ namespace NotebookStoreMVC.Controllers;
 
 public class DisplayController : Controller
 {
-    private readonly IRepository<Display> _displayRepository;
+    private readonly IUnitOfWork unitOfWork;
     private readonly IMapper mapper;
 
-    public DisplayController(IRepository<Display> repository, IMapper mapper)
+    public DisplayController(IUnitOfWork unitOfWork, IMapper mapper)
     {
-        _displayRepository = repository;
+        this.unitOfWork = unitOfWork;
         this.mapper = mapper;
     }
 
@@ -22,26 +22,49 @@ public class DisplayController : Controller
     [HttpGet]
     public async Task<IActionResult> Index()
     {
-        var displayViewModels = await _displayRepository.Read();
-        return View(mapper.Map<IEnumerable<DisplayViewModel>>(displayViewModels));
+        unitOfWork.BeginTransaction();
+
+        try
+        {
+            var displays = await unitOfWork.Displays.Read();
+            unitOfWork.CommitTransaction();
+            return View(mapper.Map<IEnumerable<DisplayViewModel>>(displays));
+        }
+        catch (Exception ex)
+        {
+            unitOfWork.RollbackTransaction();
+            return Problem(ex.Message);
+        }
     }
 
     // GET: DisplayViewModel/Details/5
     [HttpGet]
     public async Task<IActionResult> Details(int? id)
     {
-        if (id == null || _displayRepository.Read() == null)
+        if (id == null || unitOfWork.Displays.Read() == null)
         {
             return NotFound();
         }
 
-        var DisplayViewModel = await _displayRepository.Find(id);
-        if (DisplayViewModel == null)
-        {
-            return NotFound();
-        }
+        unitOfWork.BeginTransaction();
 
-        return View(mapper.Map<DisplayViewModel>(DisplayViewModel));
+        try
+        {
+            var DisplayViewModel = await unitOfWork.Displays.Find(id);
+            unitOfWork.CommitTransaction();
+
+            if (DisplayViewModel == null)
+            {
+                return NotFound();
+            }
+
+            return View(mapper.Map<DisplayViewModel>(DisplayViewModel));
+        }
+        catch (Exception ex)
+        {
+            unitOfWork.RollbackTransaction();
+            return Problem(ex.Message);
+        }
     }
 
     // GET: DisplayViewModel/Create
@@ -58,27 +81,51 @@ public class DisplayController : Controller
     {
         if (ModelState.IsValid)
         {
-            _displayRepository.Create(mapper.Map<Display>(DisplayViewModel));
-            return RedirectToAction(nameof(Index));
+            unitOfWork.BeginTransaction();
+
+            try
+            {
+                unitOfWork.Displays.Create(mapper.Map<Display>(DisplayViewModel));
+                unitOfWork.CommitTransaction();
+                return RedirectToAction(nameof(Index));
+            }
+            catch (Exception ex)
+            {
+                unitOfWork.RollbackTransaction();
+                return Problem(ex.Message);
+            }
         }
-        return View(mapper.Map<DisplayViewModel>(DisplayViewModel));
+        return View(DisplayViewModel);
     }
 
     // GET: DisplayViewModel/Edit/5
     [HttpGet]
     public async Task<IActionResult> Edit(int? id)
     {
-        if (id == null || _displayRepository.Read() == null)
+        if (id == null || unitOfWork.Displays.Read() == null)
         {
             return NotFound();
         }
 
-        var DisplayViewModel = await _displayRepository.Find(id);
-        if (DisplayViewModel == null)
+        unitOfWork.BeginTransaction();
+
+        try
         {
-            return NotFound();
+            var DisplayViewModel = await unitOfWork.Displays.Find(id);
+            unitOfWork.CommitTransaction();
+
+            if (DisplayViewModel == null)
+            {
+                return NotFound();
+            }
+
+            return View(mapper.Map<DisplayViewModel>(DisplayViewModel));
         }
-        return View(mapper.Map<DisplayViewModel>(DisplayViewModel));
+        catch (Exception ex)
+        {
+            unitOfWork.RollbackTransaction();
+            return Problem(ex.Message);
+        }
     }
 
     // POST: DisplayViewModel/Edit/5
@@ -93,42 +140,65 @@ public class DisplayController : Controller
 
         if (ModelState.IsValid)
         {
+            unitOfWork.BeginTransaction();
+
             try
             {
-                _displayRepository.Update(mapper.Map<Display>(DisplayViewModel));
+                try
+                {
+                    unitOfWork.Displays.Update(mapper.Map<Display>(DisplayViewModel));
+                    unitOfWork.CommitTransaction();
+                }
+                catch (DbUpdateConcurrencyException)
+                {
+                    if (!DisplayExists(DisplayViewModel.Id))
+                    {
+                        return NotFound();
+                    }
+                    else
+                    {
+                        throw;
+                    }
+                }
+                return RedirectToAction(nameof(Index));
             }
-            catch (DbUpdateConcurrencyException)
+            catch (Exception ex)
             {
-                if (!DisplayExists(DisplayViewModel.Id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
+                unitOfWork.RollbackTransaction();
+                return Problem(ex.Message);
             }
-            return RedirectToAction(nameof(Index));
         }
-        return View(mapper.Map<DisplayViewModel>(DisplayViewModel));
+        return View(DisplayViewModel);
     }
 
     // GET: DisplayViewModel/Delete/5
     [HttpGet]
     public async Task<IActionResult> Delete(int? id)
     {
-        if (id == null || _displayRepository.Read() == null)
+        if (id == null || unitOfWork.Displays.Read() == null)
         {
             return NotFound();
         }
 
-        var DisplayViewModel = await _displayRepository.Find(id);
-        if (DisplayViewModel == null)
-        {
-            return NotFound();
-        }
+        unitOfWork.BeginTransaction();
 
-        return View(mapper.Map<DisplayViewModel>(DisplayViewModel));
+        try
+        {
+            var DisplayViewModel = await unitOfWork.Displays.Find(id);
+            unitOfWork.CommitTransaction();
+
+            if (DisplayViewModel == null)
+            {
+                return NotFound();
+            }
+
+            return View(mapper.Map<DisplayViewModel>(DisplayViewModel));
+        }
+        catch (Exception ex)
+        {
+            unitOfWork.RollbackTransaction();
+            return Problem(ex.Message);
+        }
     }
 
     // POST: DisplayViewModel/Delete/5
@@ -136,17 +206,28 @@ public class DisplayController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> DeleteConfirmed(int id)
     {
-        if (_displayRepository.Read() == null)
+        if (unitOfWork.Displays.Read() == null)
         {
-            return Problem("Entity set 'NotebookStoreContext.Display'  is null.");
+            return NotFound();
         }
 
-        await _displayRepository.Delete(id);
-        return RedirectToAction(nameof(Index));
+        unitOfWork.BeginTransaction();
+
+        try
+        {
+            await unitOfWork.Displays.Delete(id);
+            unitOfWork.CommitTransaction();
+            return RedirectToAction(nameof(Index));
+        }
+        catch (Exception ex)
+        {
+            unitOfWork.RollbackTransaction();
+            return Problem(ex.Message);
+        }
     }
 
     private bool DisplayExists(int id)
     {
-        return _displayRepository.Find(id) != null;
+        return unitOfWork.Displays.Find(id) != null;
     }
 }
