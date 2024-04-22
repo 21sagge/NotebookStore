@@ -1,6 +1,6 @@
 ﻿namespace NotebookStoreMVC.Services;
 
-public class DisplayDto : BaseDto
+public class DisplayDto
 {
   public double Size { get; set; }
   public int ResolutionWidth { get; set; }

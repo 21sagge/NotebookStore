@@ -1,6 +1,6 @@
 ﻿namespace NotebookStoreMVC.Services;
 
-public class ModelDto : BaseDto
+public class ModelDto
 {
   public required string Name { get; set; }
 }
