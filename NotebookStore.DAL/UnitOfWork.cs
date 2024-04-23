@@ -24,6 +24,8 @@ public class UnitOfWork : IUnitOfWork
     public IRepository<Storage> Storages => new StorageRepository(context);
 
     public IRepository<Notebook> Notebooks => new NotebookRepository(context);
+    
+    public IRepository<User> Users => new UserRepository(context);
 
     public async Task SaveAsync() => await context.SaveChangesAsync();
 

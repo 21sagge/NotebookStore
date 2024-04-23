@@ -11,6 +11,7 @@ public class NotebookStoreContext : DbContext
 
     public NotebookStoreContext(DbContextOptions<NotebookStoreContext> options) : base(options) { }
 
+    public DbSet<User> Users { get; set; }
     public DbSet<Brand> Brands { get; set; }
     public DbSet<Model> Models { get; set; }
     public DbSet<Cpu> Cpus { get; set; }
