@@ -1,20 +1,18 @@
 using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using NotebookStoreMVC.Models;
-using NotebookStore.DAL;
-using NotebookStore.Entities;
+using NotebookStore.Business;
 
 namespace NotebookStoreMVC.Controllers;
 
 public class ModelController : Controller
 {
-    private readonly IUnitOfWork unitOfWork;
+    private readonly ModelService service;
     private readonly IMapper mapper;
 
-    public ModelController(IUnitOfWork unitOfWork, IMapper mapper)
+    public ModelController(ModelService service, IMapper mapper)
     {
-        this.unitOfWork = unitOfWork;
+        this.service = service;
         this.mapper = mapper;
     }
 
@@ -22,49 +20,24 @@ public class ModelController : Controller
     [HttpGet]
     public async Task<IActionResult> Index()
     {
-        unitOfWork.BeginTransaction();
+        var models = await service.GetModels();
+        var mappedModels = mapper.Map<IEnumerable<ModelViewModel>>(models);
 
-        try
-        {
-            var models = await unitOfWork.Models.Read();
-            unitOfWork.CommitTransaction();
-            return View(mapper.Map<IEnumerable<ModelViewModel>>(models));
-        }
-        catch (Exception ex)
-        {
-            unitOfWork.RollbackTransaction();
-            return Problem(ex.Message);
-        }
+        return View(mappedModels);
     }
 
     // GET: ModelViewModel/Details/5
     [HttpGet]
-    public async Task<IActionResult> Details(int? id)
+    public async Task<IActionResult> Details(int id)
     {
-        if (id == null || unitOfWork.Models.Read() == null)
+        var model = await service.GetModel(id);
+
+        if (model == null)
         {
             return NotFound();
         }
 
-        unitOfWork.BeginTransaction();
-
-        try
-        {
-            var ModelViewModel = await unitOfWork.Models.Find(id);
-            unitOfWork.CommitTransaction();
-
-            if (ModelViewModel == null)
-            {
-                return NotFound();
-            }
-
-            return View(mapper.Map<ModelViewModel>(ModelViewModel));
-        }
-        catch (Exception ex)
-        {
-            unitOfWork.RollbackTransaction();
-            return Problem(ex.Message);
-        }
+        return View(mapper.Map<ModelViewModel>(model));
     }
 
     // GET: ModelViewModel/Create
@@ -77,61 +50,36 @@ public class ModelController : Controller
     // POST: ModelViewModel/Create
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public IActionResult Create([Bind("Id,Name")] ModelViewModel ModelViewModel)
+    public async Task<IActionResult> Create([Bind("Id,Name")] ModelViewModel ModelViewModel)
     {
         if (ModelState.IsValid)
         {
-            unitOfWork.BeginTransaction();
+            await service.CreateModel(mapper.Map<ModelDto>(ModelViewModel));
 
-            try
-            {
-                unitOfWork.Models.Create(mapper.Map<Model>(ModelViewModel));
-                unitOfWork.CommitTransaction();
-                return RedirectToAction(nameof(Index));
-            }
-            catch (Exception ex)
-            {
-                unitOfWork.RollbackTransaction();
-                return Problem(ex.Message);
-            }
+            return RedirectToAction(nameof(Index));
         }
+
         return View(ModelViewModel);
     }
 
     // GET: ModelViewModel/Edit/5
     [HttpGet]
-    public async Task<IActionResult> Edit(int? id)
+    public async Task<IActionResult> Edit(int id)
     {
-        if (id == null || unitOfWork.Models.Read() == null)
+        var model = await service.GetModel(id);
+
+        if (model == null)
         {
             return NotFound();
         }
 
-        unitOfWork.BeginTransaction();
-
-        try
-        {
-            var ModelViewModel = await unitOfWork.Models.Find(id);
-            unitOfWork.CommitTransaction();
-
-            if (ModelViewModel == null)
-            {
-                return NotFound();
-            }
-
-            return View(mapper.Map<ModelViewModel>(ModelViewModel));
-        }
-        catch (Exception ex)
-        {
-            unitOfWork.RollbackTransaction();
-            return Problem(ex.Message);
-        }
+        return View(mapper.Map<ModelViewModel>(model));
     }
 
     // POST: ModelViewModel/Edit/5
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public IActionResult Edit(int id, [Bind("Id,Name")] ModelViewModel ModelViewModel)
+    public async Task<IActionResult> Edit(int id, [Bind("Id,Name")] ModelViewModel ModelViewModel)
     {
         if (id != ModelViewModel.Id)
         {
@@ -140,65 +88,26 @@ public class ModelController : Controller
 
         if (ModelState.IsValid)
         {
-            unitOfWork.BeginTransaction();
+            await service.UpdateModel(mapper.Map<ModelDto>(ModelViewModel));
 
-            try
-            {
-                try
-                {
-                    unitOfWork.Models.Update(mapper.Map<Model>(ModelViewModel));
-                    unitOfWork.CommitTransaction();
-                }
-                catch (DbUpdateConcurrencyException)
-                {
-                    if (!ModelExists(ModelViewModel.Id))
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
-                }
-                return RedirectToAction(nameof(Index));
-            }
-            catch (Exception ex)
-            {
-                unitOfWork.RollbackTransaction();
-                return Problem(ex.Message);
-            }
+            return RedirectToAction(nameof(Index));
         }
+
         return View(ModelViewModel);
     }
 
     // GET: ModelViewModel/Delete/5
     [HttpGet]
-    public async Task<IActionResult> Delete(int? id)
+    public async Task<IActionResult> Delete(int id)
     {
-        if (id == null || unitOfWork.Models.Read() == null)
+        var model = await service.GetModel(id);
+
+        if (model == null)
         {
             return NotFound();
         }
 
-        unitOfWork.BeginTransaction();
-
-        try
-        {
-            var ModelViewModel = await unitOfWork.Models.Find(id);
-            unitOfWork.CommitTransaction();
-
-            if (ModelViewModel == null)
-            {
-                return NotFound();
-            }
-
-            return View(mapper.Map<ModelViewModel>(ModelViewModel));
-        }
-        catch (Exception ex)
-        {
-            unitOfWork.RollbackTransaction();
-            return Problem(ex.Message);
-        }
+        return View(mapper.Map<ModelViewModel>(model));
     }
 
     // POST: ModelViewModel/Delete/5
@@ -206,28 +115,13 @@ public class ModelController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> DeleteConfirmed(int id)
     {
-        if (unitOfWork.Models.Read() == null)
-        {
-            return NotFound();
-        }
+        await service.DeleteModel(id);
 
-        unitOfWork.BeginTransaction();
-
-        try
-        {
-            await unitOfWork.Models.Delete(id);
-            unitOfWork.CommitTransaction();
-            return RedirectToAction(nameof(Index));
-        }
-        catch (Exception ex)
-        {
-            unitOfWork.RollbackTransaction();
-            return Problem(ex.Message);
-        }
+        return RedirectToAction(nameof(Index));
     }
 
-    private bool ModelExists(int id)
+    private async Task<bool> ModelExists(int id)
     {
-        return unitOfWork.Models.Find(id) != null;
+        return await service.ModelExists(id);
     }
 }

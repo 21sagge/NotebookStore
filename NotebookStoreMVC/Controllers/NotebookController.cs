@@ -1,19 +1,18 @@
 using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 using NotebookStoreMVC.Models;
-using NotebookStore.DAL;
-using NotebookStore.Entities;
+using NotebookStore.Business;
 
 namespace NotebookStoreMVC.Controllers;
 
 public class NotebookController : Controller
 {
-	private readonly IUnitOfWork unitOfWork;
+	private readonly NotebookService service;
 	private readonly IMapper mapper;
 
-	public NotebookController(IUnitOfWork unitOfWork, IMapper mapper)
+	public NotebookController(NotebookService service, IMapper mapper)
 	{
-		this.unitOfWork = unitOfWork;
+		this.service = service;
 		this.mapper = mapper;
 	}
 
@@ -21,21 +20,17 @@ public class NotebookController : Controller
 	[HttpGet]
 	public async Task<IActionResult> Index()
 	{
-		var notebooks = await unitOfWork.Notebooks.Read();
+		var notebooks = await service.GetNotebooks();
+		var mappedNotebooks = mapper.Map<IEnumerable<NotebookViewModel>>(notebooks);
 
-		return View(mapper.Map<IEnumerable<NotebookViewModel>>(notebooks));
+		return View(mappedNotebooks);
 	}
 
 	// GET: Notebook/Details/5
 	[HttpGet]
-	public async Task<IActionResult> Details(int? id)
+	public async Task<IActionResult> Details(int id)
 	{
-		if (id == null || unitOfWork.Notebooks.Read() == null)
-		{
-			return NotFound();
-		}
-
-		var notebook = await unitOfWork.Notebooks.Find(id);
+		var notebook = await service.GetNotebook(id);
 
 		if (notebook == null)
 		{
@@ -49,24 +44,14 @@ public class NotebookController : Controller
 	[HttpGet]
 	public async Task<IActionResult> Create()
 	{
-		var notebooks = await unitOfWork.Notebooks.Read();
+		ViewBag.Brands = mapper.Map<IEnumerable<BrandViewModel>>(await service.GetBrands());
+		ViewBag.Cpus = mapper.Map<IEnumerable<CpuViewModel>>(await service.GetCpus());
+		ViewBag.Displays = mapper.Map<IEnumerable<DisplayViewModel>>(await service.GetDisplays());
+		ViewBag.Memories = mapper.Map<IEnumerable<MemoryViewModel>>(await service.GetMemories());
+		ViewBag.Models = mapper.Map<IEnumerable<ModelViewModel>>(await service.GetModels());
+		ViewBag.Storages = mapper.Map<IEnumerable<StorageViewModel>>(await service.GetStorages());
 
-		if (notebooks == null)
-		{
-			return NotFound();
-		}
-
-		var model = new NotebookViewModel
-		{
-			Brands = mapper.Map<IEnumerable<BrandViewModel>>(notebooks.Select(n => n.Brand)),
-			Cpus = mapper.Map<IEnumerable<CpuViewModel>>(notebooks.Select(n => n.Cpu)),
-			Displays = mapper.Map<IEnumerable<DisplayViewModel>>(notebooks.Select(n => n.Display)),
-			Memories = mapper.Map<IEnumerable<MemoryViewModel>>(notebooks.Select(n => n.Memory)),
-			Models = mapper.Map<IEnumerable<ModelViewModel>>(notebooks.Select(n => n.Model)),
-			Storages = mapper.Map<IEnumerable<StorageViewModel>>(notebooks.Select(n => n.Storage))
-		};
-
-		return View(model);
+		return View();
 	}
 
 	// POST: Notebook/Create
@@ -74,57 +59,35 @@ public class NotebookController : Controller
 	[ValidateAntiForgeryToken]
 	public async Task<IActionResult> Create([Bind("Id,Color,Price,BrandId,ModelId,CpuId,DisplayId,MemoryId,StorageId")] NotebookViewModel notebook)
 	{
-		unitOfWork.BeginTransaction();
-
-		try
+		if (ModelState.IsValid)
 		{
-			await unitOfWork.Notebooks.Create(mapper.Map<Notebook>(notebook));
-			unitOfWork.CommitTransaction();
+			await service.CreateNotebook(mapper.Map<NotebookDto>(notebook));
+
 			return RedirectToAction(nameof(Index));
 		}
-		catch (Exception ex)
-		{
-			unitOfWork.RollbackTransaction();
-			return Problem(ex.Message);
-		}
+
+		return View(notebook);
 	}
 
 	// GET: Notebook/Edit/5
 	[HttpGet]
-	public async Task<IActionResult> Edit(int? id)
+	public async Task<IActionResult> Edit(int id)
 	{
-		if (id == null || unitOfWork.Notebooks.Read() == null)
-		{
-			return NotFound();
-		}
-
-		var notebook = await unitOfWork.Notebooks.Find(id);
+		var notebook = await service.GetNotebook(id);
 
 		if (notebook == null)
 		{
 			return NotFound();
 		}
 
-		var notebooks = await unitOfWork.Notebooks.Read();
-		var model = new NotebookViewModel
-		{
-			BrandId = notebook.BrandId,
-			Color = notebook.Color,
-			CpuId = notebook.CpuId,
-			DisplayId = notebook.DisplayId,
-			MemoryId = notebook.MemoryId,
-			ModelId = notebook.ModelId,
-			Price = notebook.Price,
-			StorageId = notebook.StorageId,
-			Brands = mapper.Map<IEnumerable<BrandViewModel>>(notebooks.Select(n => n.Brand)),
-			Cpus = mapper.Map<IEnumerable<CpuViewModel>>(notebooks.Select(n => n.Cpu)),
-			Displays = mapper.Map<IEnumerable<DisplayViewModel>>(notebooks.Select(n => n.Display)),
-			Memories = mapper.Map<IEnumerable<MemoryViewModel>>(notebooks.Select(n => n.Memory)),
-			Models = mapper.Map<IEnumerable<ModelViewModel>>(notebooks.Select(n => n.Model)),
-			Storages = mapper.Map<IEnumerable<StorageViewModel>>(notebooks.Select(n => n.Storage))
-		};
+		ViewBag.Brands = mapper.Map<IEnumerable<BrandViewModel>>(await service.GetBrands());
+		ViewBag.Cpus = mapper.Map<IEnumerable<CpuViewModel>>(await service.GetCpus());
+		ViewBag.Displays = mapper.Map<IEnumerable<DisplayViewModel>>(await service.GetDisplays());
+		ViewBag.Memories = mapper.Map<IEnumerable<MemoryViewModel>>(await service.GetMemories());
+		ViewBag.Models = mapper.Map<IEnumerable<ModelViewModel>>(await service.GetModels());
+		ViewBag.Storages = mapper.Map<IEnumerable<StorageViewModel>>(await service.GetStorages());
 
-		return View(model);
+		return View(mapper.Map<NotebookViewModel>(notebook));
 	}
 
 	// POST: Notebook/Edit/5
@@ -137,31 +100,21 @@ public class NotebookController : Controller
 			return NotFound();
 		}
 
-		unitOfWork.BeginTransaction();
-
-		try
+		if (ModelState.IsValid)
 		{
-			await unitOfWork.Notebooks.Update(mapper.Map<Notebook>(notebook));
-			unitOfWork.CommitTransaction();
+			await service.UpdateNotebook(mapper.Map<NotebookDto>(notebook));
+
 			return RedirectToAction(nameof(Index));
 		}
-		catch (Exception ex)
-		{
-			unitOfWork.RollbackTransaction();
-			return Problem(ex.Message);
-		}
+
+		return View(notebook);
 	}
 
 	// GET: Notebook/Delete/5
 	[HttpGet]
-	public async Task<IActionResult> Delete(int? id)
+	public async Task<IActionResult> Delete(int id)
 	{
-		if (id == null || unitOfWork.Notebooks.Read() == null)
-		{
-			return NotFound();
-		}
-
-		var notebook = await unitOfWork.Notebooks.Find(id);
+		var notebook = await service.GetNotebook(id);
 
 		if (notebook == null)
 		{
@@ -176,28 +129,13 @@ public class NotebookController : Controller
 	[ValidateAntiForgeryToken]
 	public async Task<IActionResult> DeleteConfirmed(int id)
 	{
-		if (unitOfWork.Notebooks.Read() == null)
-		{
-			return NotFound();
-		}
+		await service.DeleteNotebook(id);
 
-		unitOfWork.BeginTransaction();
-
-		try
-		{
-			await unitOfWork.Notebooks.Delete(id);
-			unitOfWork.CommitTransaction();
-			return RedirectToAction(nameof(Index));
-		}
-		catch (Exception ex)
-		{
-			unitOfWork.RollbackTransaction();
-			return Problem(ex.Message);
-		}
+		return RedirectToAction(nameof(Index));
 	}
 
-	private bool NotebookExists(int id)
+	private Task<bool> NotebookExists(int id)
 	{
-		return unitOfWork.Notebooks.Find(id) != null;
+		return service.NotebookExists(id);
 	}
 }

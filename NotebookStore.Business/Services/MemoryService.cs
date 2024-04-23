@@ -4,40 +4,40 @@ using AutoMapper;
 using NotebookStore.DAL;
 using NotebookStore.Entities;
 
-public class BrandService
+public class MemoryService
 {
 	private readonly IUnitOfWork unitOfWork;
 	private readonly IMapper mapper;
 
-	public BrandService(IUnitOfWork unitOfWork, IMapper mapper)
+	public MemoryService(IUnitOfWork unitOfWork, IMapper mapper)
 	{
 		this.unitOfWork = unitOfWork;
 		this.mapper = mapper;
 	}
 
-	public async Task<IEnumerable<BrandDto>> GetBrands()
+	public async Task<IEnumerable<MemoryDto>> GetMemories()
 	{
-		var brands = await unitOfWork.Brands.Read();
+		var memories = await unitOfWork.Memories.Read();
 
-		return mapper.Map<IEnumerable<BrandDto>>(brands);
+		return mapper.Map<IEnumerable<MemoryDto>>(memories);
 	}
 
-	public async Task<BrandDto> GetBrand(int id)
+	public async Task<MemoryDto> GetMemory(int id)
 	{
-		var brand = await unitOfWork.Brands.Find(id);
+		var memory = await unitOfWork.Memories.Find(id);
 
-		return mapper.Map<BrandDto>(brand);
+		return mapper.Map<MemoryDto>(memory);
 	}
 
-	public async Task CreateBrand(BrandDto brandDto)
+	public async Task CreateMemory(MemoryDto memoryDto)
 	{
-		var brand = mapper.Map<Brand>(brandDto);
+		var memory = mapper.Map<Memory>(memoryDto);
 
 		unitOfWork.BeginTransaction();
 
 		try
 		{
-			await unitOfWork.Brands.Create(brand);
+			await unitOfWork.Memories.Create(memory);
 			await unitOfWork.SaveAsync();
 			unitOfWork.CommitTransaction();
 		}
@@ -48,15 +48,15 @@ public class BrandService
 		}
 	}
 
-	public async Task UpdateBrand(BrandDto brandDto)
+	public async Task UpdateMemory(MemoryDto memoryDto)
 	{
-		var brand = mapper.Map<Brand>(brandDto);
+		var memory = mapper.Map<Memory>(memoryDto);
 
 		unitOfWork.BeginTransaction();
 
 		try
 		{
-			await unitOfWork.Brands.Update(brand);
+			await unitOfWork.Memories.Update(memory);
 			await unitOfWork.SaveAsync();
 			unitOfWork.CommitTransaction();
 		}
@@ -67,13 +67,13 @@ public class BrandService
 		}
 	}
 
-	public async Task DeleteBrand(int id)
+	public async Task DeleteMemory(int id)
 	{
 		unitOfWork.BeginTransaction();
 
 		try
 		{
-			await unitOfWork.Brands.Delete(id);
+			await unitOfWork.Memories.Delete(id);
 			await unitOfWork.SaveAsync();
 			unitOfWork.CommitTransaction();
 		}
@@ -84,8 +84,8 @@ public class BrandService
 		}
 	}
 
-	public async Task<bool> BrandExists(int id)
+	public async Task<bool> MemoryExists(int id)
 	{
-		return await unitOfWork.Brands.Find(id) != null;
+		return await unitOfWork.Memories.Find(id) != null;
 	}
 }

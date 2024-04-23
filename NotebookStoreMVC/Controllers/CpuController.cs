@@ -1,19 +1,18 @@
 using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 using NotebookStoreMVC.Models;
-using NotebookStore.DAL;
-using NotebookStore.Entities;
+using NotebookStore.Business;
 
 namespace NotebookStoreMVC.Controllers;
 
 public class CpuController : Controller
 {
-    private readonly IUnitOfWork unitOfWork;
+    private readonly CpuService service;
     private readonly IMapper mapper;
 
-    public CpuController(IUnitOfWork unitOfWork, IMapper mapper)
+    public CpuController(CpuService service, IMapper mapper)
     {
-        this.unitOfWork = unitOfWork;
+        this.service = service;
         this.mapper = mapper;
     }
 
@@ -21,21 +20,17 @@ public class CpuController : Controller
     [HttpGet]
     public async Task<IActionResult> Index()
     {
-        var cpus = await unitOfWork.Cpus.Read();
+        var cpus = await service.GetCpus();
+        var mappedCpus = mapper.Map<IEnumerable<CpuViewModel>>(cpus);
 
-        return View(mapper.Map<IEnumerable<CpuViewModel>>(cpus));
+        return View(mappedCpus);
     }
 
     // GET: CpuViewModel/Details/5
     [HttpGet]
-    public async Task<IActionResult> Details(int? id)
+    public async Task<IActionResult> Details(int id)
     {
-        if (id == null || unitOfWork.Cpus.Read() == null)
-        {
-            return NotFound();
-        }
-
-        var cpu = await unitOfWork.Cpus.Find(id);
+        var cpu = await service.GetCpu(id);
 
         if (cpu == null)
         {
@@ -55,35 +50,23 @@ public class CpuController : Controller
     // POST: CpuViewModel/Create
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public IActionResult Create([Bind("Id,Brand,Model")] CpuViewModel CpuViewModel)
+    public async Task<IActionResult> Create([Bind("Id,Brand,Model")] CpuViewModel CpuViewModel)
     {
-        unitOfWork.BeginTransaction();
-
-        try
+        if (ModelState.IsValid)
         {
-            unitOfWork.Cpus.Create(mapper.Map<Cpu>(CpuViewModel));
-            unitOfWork.SaveAsync();
-            unitOfWork.CommitTransaction();
+            await service.CreateCpu(mapper.Map<CpuDto>(CpuViewModel));
 
             return RedirectToAction(nameof(Index));
         }
-        catch (Exception ex)
-        {
-            unitOfWork.RollbackTransaction();
-            return Problem(ex.Message);
-        }
+
+        return View(CpuViewModel);
     }
 
     // GET: CpuViewModel/Edit/5
     [HttpGet]
-    public async Task<IActionResult> Edit(int? id)
+    public async Task<IActionResult> Edit(int id)
     {
-        if (id == null || unitOfWork.Cpus.Read() == null)
-        {
-            return NotFound();
-        }
-
-        var cpu = await unitOfWork.Cpus.Find(id);
+        var cpu = await service.GetCpu(id);
 
         if (cpu == null)
         {
@@ -96,41 +79,36 @@ public class CpuController : Controller
     // POST: CpuViewModel/Edit/5
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public IActionResult Edit(int id, [Bind("Id,Brand,Model")] CpuViewModel CpuViewModel)
+    public async Task<IActionResult> Edit(int id, [Bind("Id,Brand,Model")] CpuViewModel CpuViewModel)
     {
         if (id != CpuViewModel.Id)
         {
             return NotFound();
         }
 
-        unitOfWork.BeginTransaction();
-
-        try
+        if (ModelState.IsValid)
         {
-            unitOfWork.Cpus.Update(mapper.Map<Cpu>(CpuViewModel));
-            unitOfWork.SaveAsync();
-            unitOfWork.CommitTransaction();
+            try
+            {
+                await service.UpdateCpu(mapper.Map<CpuDto>(CpuViewModel));
+            }
+            catch (Exception ex)
+            {
+                return Problem(ex.Message);
+            }
 
             return RedirectToAction(nameof(Index));
         }
-        catch (Exception ex)
-        {
-            unitOfWork.RollbackTransaction();
-            return Problem(ex.Message);
-        }
+
+        return View(CpuViewModel);
     }
 
 
     // GET: CpuViewModel/Delete/5
     [HttpGet]
-    public async Task<IActionResult> Delete(int? id)
+    public async Task<IActionResult> Delete(int id)
     {
-        if (id == null || unitOfWork.Cpus.Read() == null)
-        {
-            return NotFound();
-        }
-
-        var cpu = await unitOfWork.Cpus.Find(id);
+        var cpu = await service.GetCpu(id);
 
         if (cpu == null)
         {
@@ -145,35 +123,13 @@ public class CpuController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> DeleteConfirmed(int id)
     {
-        if (unitOfWork.Cpus.Read() == null)
-        {
-            return Problem("Entity set 'NotebookStoreContext.Cpus'  is null.");
-        }
+        await service.DeleteCpu(id);
 
-        unitOfWork.BeginTransaction();
-
-        try
-        {
-            if (await unitOfWork.Cpus.Find(id) == null)
-            {
-                return NotFound();
-            }
-
-            await unitOfWork.Cpus.Delete(id);
-
-            unitOfWork.CommitTransaction();
-
-            return RedirectToAction(nameof(Index));
-        }
-        catch (Exception ex)
-        {
-            unitOfWork.RollbackTransaction();
-            return Problem(ex.Message);
-        }
+        return RedirectToAction(nameof(Index));
     }
 
-    private bool CpuExists(int id)
+    private async Task<bool> CpuExists(int id)
     {
-        return unitOfWork.Cpus.Find(id) != null;
+        return await service.CpuExists(id);
     }
 }

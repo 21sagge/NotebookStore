@@ -4,40 +4,40 @@ using AutoMapper;
 using NotebookStore.DAL;
 using NotebookStore.Entities;
 
-public class BrandService
+public class ModelService
 {
 	private readonly IUnitOfWork unitOfWork;
 	private readonly IMapper mapper;
 
-	public BrandService(IUnitOfWork unitOfWork, IMapper mapper)
+	public ModelService(IUnitOfWork unitOfWork, IMapper mapper)
 	{
 		this.unitOfWork = unitOfWork;
 		this.mapper = mapper;
 	}
 
-	public async Task<IEnumerable<BrandDto>> GetBrands()
+	public async Task<IEnumerable<ModelDto>> GetModels()
 	{
-		var brands = await unitOfWork.Brands.Read();
+		var models = await unitOfWork.Models.Read();
 
-		return mapper.Map<IEnumerable<BrandDto>>(brands);
+		return mapper.Map<IEnumerable<ModelDto>>(models);
 	}
 
-	public async Task<BrandDto> GetBrand(int id)
+	public async Task<ModelDto> GetModel(int id)
 	{
-		var brand = await unitOfWork.Brands.Find(id);
+		var model = await unitOfWork.Models.Find(id);
 
-		return mapper.Map<BrandDto>(brand);
+		return mapper.Map<ModelDto>(model);
 	}
 
-	public async Task CreateBrand(BrandDto brandDto)
+	public async Task CreateModel(ModelDto modelDto)
 	{
-		var brand = mapper.Map<Brand>(brandDto);
+		var model = mapper.Map<Model>(modelDto);
 
 		unitOfWork.BeginTransaction();
 
 		try
 		{
-			await unitOfWork.Brands.Create(brand);
+			await unitOfWork.Models.Create(model);
 			await unitOfWork.SaveAsync();
 			unitOfWork.CommitTransaction();
 		}
@@ -48,15 +48,15 @@ public class BrandService
 		}
 	}
 
-	public async Task UpdateBrand(BrandDto brandDto)
+	public async Task UpdateModel(ModelDto modelDto)
 	{
-		var brand = mapper.Map<Brand>(brandDto);
+		var model = mapper.Map<Model>(modelDto);
 
 		unitOfWork.BeginTransaction();
 
 		try
 		{
-			await unitOfWork.Brands.Update(brand);
+			await unitOfWork.Models.Update(model);
 			await unitOfWork.SaveAsync();
 			unitOfWork.CommitTransaction();
 		}
@@ -67,13 +67,13 @@ public class BrandService
 		}
 	}
 
-	public async Task DeleteBrand(int id)
+	public async Task DeleteModel(int id)
 	{
 		unitOfWork.BeginTransaction();
 
 		try
 		{
-			await unitOfWork.Brands.Delete(id);
+			await unitOfWork.Models.Delete(id);
 			await unitOfWork.SaveAsync();
 			unitOfWork.CommitTransaction();
 		}
@@ -84,8 +84,8 @@ public class BrandService
 		}
 	}
 
-	public async Task<bool> BrandExists(int id)
+	public async Task<bool> ModelExists(int id)
 	{
-		return await unitOfWork.Brands.Find(id) != null;
+		return await unitOfWork.Models.Find(id) != null;
 	}
 }

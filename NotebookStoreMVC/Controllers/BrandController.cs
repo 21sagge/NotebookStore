@@ -30,11 +30,6 @@ public class BrandController : Controller
     [HttpGet]
     public async Task<IActionResult> Details(int id)
     {
-        if (service.GetBrands() == null)
-        {
-            return NotFound();
-        }
-
         var brand = await service.GetBrand(id);
 
         if (brand == null)
@@ -70,11 +65,6 @@ public class BrandController : Controller
     // GET: BrandViewModel/Edit/5
     public async Task<IActionResult> Edit(int id)
     {
-        if (service.GetBrands() == null)
-        {
-            return NotFound();
-        }
-
         var brand = await service.GetBrand(id);
 
         if (brand == null)
@@ -97,14 +87,7 @@ public class BrandController : Controller
 
         if (ModelState.IsValid)
         {
-            try
-            {
-                await service.UpdateBrand(mapper.Map<BrandDto>(BrandViewModel));
-            }
-            catch (Exception)
-            {
-                return Problem("Update failed.");
-            }
+            await service.UpdateBrand(mapper.Map<BrandDto>(BrandViewModel));
 
             return RedirectToAction(nameof(Index));
         }
@@ -136,11 +119,6 @@ public class BrandController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> DeleteConfirmed(int id)
     {
-        if (service.GetBrands() == null)
-        {
-            return Problem("Entity set 'NotebookStoreContext.Brands'  is null.");
-        }
-
         await service.DeleteBrand(id);
 
         return RedirectToAction(nameof(Index));

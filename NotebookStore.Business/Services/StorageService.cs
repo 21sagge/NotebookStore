@@ -4,40 +4,40 @@ using AutoMapper;
 using NotebookStore.DAL;
 using NotebookStore.Entities;
 
-public class BrandService
+public class StorageService
 {
 	private readonly IUnitOfWork unitOfWork;
 	private readonly IMapper mapper;
 
-	public BrandService(IUnitOfWork unitOfWork, IMapper mapper)
+	public StorageService(IUnitOfWork unitOfWork, IMapper mapper)
 	{
 		this.unitOfWork = unitOfWork;
 		this.mapper = mapper;
 	}
 
-	public async Task<IEnumerable<BrandDto>> GetBrands()
+	public async Task<IEnumerable<StorageDto>> GetStorages()
 	{
-		var brands = await unitOfWork.Brands.Read();
+		var storages = await unitOfWork.Storages.Read();
 
-		return mapper.Map<IEnumerable<BrandDto>>(brands);
+		return mapper.Map<IEnumerable<StorageDto>>(storages);
 	}
 
-	public async Task<BrandDto> GetBrand(int id)
+	public async Task<StorageDto> GetStorage(int id)
 	{
-		var brand = await unitOfWork.Brands.Find(id);
+		var storage = await unitOfWork.Storages.Find(id);
 
-		return mapper.Map<BrandDto>(brand);
+		return mapper.Map<StorageDto>(storage);
 	}
 
-	public async Task CreateBrand(BrandDto brandDto)
+	public async Task CreateStorage(StorageDto storageDto)
 	{
-		var brand = mapper.Map<Brand>(brandDto);
+		var storage = mapper.Map<Storage>(storageDto);
 
 		unitOfWork.BeginTransaction();
 
 		try
 		{
-			await unitOfWork.Brands.Create(brand);
+			await unitOfWork.Storages.Create(storage);
 			await unitOfWork.SaveAsync();
 			unitOfWork.CommitTransaction();
 		}
@@ -48,15 +48,15 @@ public class BrandService
 		}
 	}
 
-	public async Task UpdateBrand(BrandDto brandDto)
+	public async Task UpdateStorage(StorageDto storageDto)
 	{
-		var brand = mapper.Map<Brand>(brandDto);
+		var storage = mapper.Map<Storage>(storageDto);
 
 		unitOfWork.BeginTransaction();
 
 		try
 		{
-			await unitOfWork.Brands.Update(brand);
+			await unitOfWork.Storages.Update(storage);
 			await unitOfWork.SaveAsync();
 			unitOfWork.CommitTransaction();
 		}
@@ -67,13 +67,13 @@ public class BrandService
 		}
 	}
 
-	public async Task DeleteBrand(int id)
+	public async Task DeleteStorage(int id)
 	{
 		unitOfWork.BeginTransaction();
 
 		try
 		{
-			await unitOfWork.Brands.Delete(id);
+			await unitOfWork.Storages.Delete(id);
 			await unitOfWork.SaveAsync();
 			unitOfWork.CommitTransaction();
 		}
@@ -84,8 +84,8 @@ public class BrandService
 		}
 	}
 
-	public async Task<bool> BrandExists(int id)
+	public async Task<bool> StorageExists(int id)
 	{
-		return await unitOfWork.Brands.Find(id) != null;
+		return await unitOfWork.Storages.Find(id) != null;
 	}
 }

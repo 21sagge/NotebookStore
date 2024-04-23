@@ -1,19 +1,18 @@
 using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 using NotebookStoreMVC.Models;
-using NotebookStore.DAL;
-using NotebookStore.Entities;
+using NotebookStore.Business;
 
 namespace NotebookStoreMVC.Controllers;
 
 public class MemoryController : Controller
 {
-    private readonly IUnitOfWork unitOfWork;
+    private readonly MemoryService service;
     private readonly IMapper mapper;
 
-    public MemoryController(IUnitOfWork unitOfWork, IMapper mapper)
+    public MemoryController(MemoryService service, IMapper mapper)
     {
-        this.unitOfWork = unitOfWork;
+        this.service = service;
         this.mapper = mapper;
     }
 
@@ -21,21 +20,17 @@ public class MemoryController : Controller
     [HttpGet]
     public async Task<IActionResult> Index()
     {
-        var memories = await unitOfWork.Memories.Read();
+        var memories = await service.GetMemories();
+        var mappedMemories = mapper.Map<IEnumerable<MemoryViewModel>>(memories);
 
-        return View(mapper.Map<IEnumerable<MemoryViewModel>>(memories));
+        return View(mappedMemories);
     }
 
     // GET: MemoryViewModel/Details/5
     [HttpGet]
-    public async Task<IActionResult> Details(int? id)
+    public async Task<IActionResult> Details(int id)
     {
-        if (id == null || unitOfWork.Memories.Read() == null)
-        {
-            return NotFound();
-        }
-
-        var memory = await unitOfWork.Memories.Find(id);
+        var memory = await service.GetMemory(id);
 
         if (memory == null)
         {
@@ -55,35 +50,23 @@ public class MemoryController : Controller
     // POST: MemoryViewModel/Create
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public IActionResult Create([Bind("Id,Brand,Model")] MemoryViewModel MemoryViewModel)
+    public async Task<IActionResult> Create([Bind("Id,Brand,Model")] MemoryViewModel MemoryViewModel)
     {
-        unitOfWork.BeginTransaction();
-
-        try
+        if (ModelState.IsValid)
         {
-            unitOfWork.Memories.Create(mapper.Map<Memory>(MemoryViewModel));
-            unitOfWork.SaveAsync();
-            unitOfWork.CommitTransaction();
+            await service.CreateMemory(mapper.Map<MemoryDto>(MemoryViewModel));
 
             return RedirectToAction(nameof(Index));
         }
-        catch (Exception ex)
-        {
-            unitOfWork.RollbackTransaction();
-            return Problem(ex.Message);
-        }
+
+        return View(MemoryViewModel);
     }
 
     // GET: MemoryViewModel/Edit/5
     [HttpGet]
-    public async Task<IActionResult> Edit(int? id)
+    public async Task<IActionResult> Edit(int id)
     {
-        if (id == null || unitOfWork.Memories.Read() == null)
-        {
-            return NotFound();
-        }
-
-        var memory = await unitOfWork.Memories.Find(id);
+        var memory = await service.GetMemory(id);
 
         if (memory == null)
         {
@@ -96,41 +79,29 @@ public class MemoryController : Controller
     // POST: MemoryViewModel/Edit/5
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public IActionResult Edit(int id, [Bind("Id,Brand,Model")] MemoryViewModel MemoryViewModel)
+    public async Task<IActionResult> Edit(int id, [Bind("Id,Brand,Model")] MemoryViewModel MemoryViewModel)
     {
         if (id != MemoryViewModel.Id)
         {
             return NotFound();
         }
 
-        unitOfWork.BeginTransaction();
-
-        try
+        if (ModelState.IsValid)
         {
-            unitOfWork.Memories.Update(mapper.Map<Memory>(MemoryViewModel));
-            unitOfWork.SaveAsync();
-            unitOfWork.CommitTransaction();
+            await service.UpdateMemory(mapper.Map<MemoryDto>(MemoryViewModel));
 
             return RedirectToAction(nameof(Index));
         }
-        catch (Exception ex)
-        {
-            unitOfWork.RollbackTransaction();
-            return Problem(ex.Message);
-        }
+
+        return View(MemoryViewModel);
     }
 
 
     // GET: MemoryViewModel/Delete/5
     [HttpGet]
-    public async Task<IActionResult> Delete(int? id)
+    public async Task<IActionResult> Delete(int id)
     {
-        if (id == null || unitOfWork.Memories.Read() == null)
-        {
-            return NotFound();
-        }
-
-        var memory = await unitOfWork.Memories.Find(id);
+        var memory = await service.GetMemory(id);
 
         if (memory == null)
         {
@@ -145,35 +116,13 @@ public class MemoryController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> DeleteConfirmed(int id)
     {
-        if (unitOfWork.Memories.Read() == null)
-        {
-            return Problem("Entity set 'NotebookStoreContext.Memories'  is null.");
-        }
+        await service.DeleteMemory(id);
 
-        unitOfWork.BeginTransaction();
-
-        try
-        {
-            if (await unitOfWork.Memories.Find(id) == null)
-            {
-                return NotFound();
-            }
-
-            await unitOfWork.Memories.Delete(id);
-
-            unitOfWork.CommitTransaction();
-
-            return RedirectToAction(nameof(Index));
-        }
-        catch (Exception ex)
-        {
-            unitOfWork.RollbackTransaction();
-            return Problem(ex.Message);
-        }
+        return RedirectToAction(nameof(Index));
     }
 
-    private bool MemoryExists(int id)
+    private async Task<bool> MemoryExists(int id)
     {
-        return unitOfWork.Memories.Find(id) != null;
+        return await service.MemoryExists(id);
     }
 }

@@ -4,40 +4,40 @@ using AutoMapper;
 using NotebookStore.DAL;
 using NotebookStore.Entities;
 
-public class BrandService
+public class DisplayService
 {
 	private readonly IUnitOfWork unitOfWork;
 	private readonly IMapper mapper;
 
-	public BrandService(IUnitOfWork unitOfWork, IMapper mapper)
+	public DisplayService(IUnitOfWork unitOfWork, IMapper mapper)
 	{
 		this.unitOfWork = unitOfWork;
 		this.mapper = mapper;
 	}
 
-	public async Task<IEnumerable<BrandDto>> GetBrands()
+	public async Task<IEnumerable<DisplayDto>> GetDisplays()
 	{
-		var brands = await unitOfWork.Brands.Read();
+		var displays = await unitOfWork.Displays.Read();
 
-		return mapper.Map<IEnumerable<BrandDto>>(brands);
+		return mapper.Map<IEnumerable<DisplayDto>>(displays);
 	}
 
-	public async Task<BrandDto> GetBrand(int id)
+	public async Task<DisplayDto> GetDisplay(int id)
 	{
-		var brand = await unitOfWork.Brands.Find(id);
+		var display = await unitOfWork.Displays.Find(id);
 
-		return mapper.Map<BrandDto>(brand);
+		return mapper.Map<DisplayDto>(display);
 	}
 
-	public async Task CreateBrand(BrandDto brandDto)
+	public async Task CreateDisplay(DisplayDto displayDto)
 	{
-		var brand = mapper.Map<Brand>(brandDto);
+		var display = mapper.Map<Display>(displayDto);
 
 		unitOfWork.BeginTransaction();
 
 		try
 		{
-			await unitOfWork.Brands.Create(brand);
+			await unitOfWork.Displays.Create(display);
 			await unitOfWork.SaveAsync();
 			unitOfWork.CommitTransaction();
 		}
@@ -48,15 +48,15 @@ public class BrandService
 		}
 	}
 
-	public async Task UpdateBrand(BrandDto brandDto)
+	public async Task UpdateDisplay(DisplayDto displayDto)
 	{
-		var brand = mapper.Map<Brand>(brandDto);
+		var display = mapper.Map<Display>(displayDto);
 
 		unitOfWork.BeginTransaction();
 
 		try
 		{
-			await unitOfWork.Brands.Update(brand);
+			await unitOfWork.Displays.Update(display);
 			await unitOfWork.SaveAsync();
 			unitOfWork.CommitTransaction();
 		}
@@ -67,13 +67,13 @@ public class BrandService
 		}
 	}
 
-	public async Task DeleteBrand(int id)
+	public async Task DeleteDisplay(int id)
 	{
 		unitOfWork.BeginTransaction();
 
 		try
 		{
-			await unitOfWork.Brands.Delete(id);
+			await unitOfWork.Displays.Delete(id);
 			await unitOfWork.SaveAsync();
 			unitOfWork.CommitTransaction();
 		}
@@ -84,8 +84,8 @@ public class BrandService
 		}
 	}
 
-	public async Task<bool> BrandExists(int id)
+	public async Task<bool> DisplayExists(int id)
 	{
-		return await unitOfWork.Brands.Find(id) != null;
+		return await unitOfWork.Displays.Find(id) != null;
 	}
 }

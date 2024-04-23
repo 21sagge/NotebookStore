@@ -4,40 +4,40 @@ using AutoMapper;
 using NotebookStore.DAL;
 using NotebookStore.Entities;
 
-public class BrandService
+public class CpuService
 {
 	private readonly IUnitOfWork unitOfWork;
 	private readonly IMapper mapper;
 
-	public BrandService(IUnitOfWork unitOfWork, IMapper mapper)
+	public CpuService(IUnitOfWork unitOfWork, IMapper mapper)
 	{
 		this.unitOfWork = unitOfWork;
 		this.mapper = mapper;
 	}
 
-	public async Task<IEnumerable<BrandDto>> GetBrands()
+	public async Task<IEnumerable<CpuDto>> GetCpus()
 	{
-		var brands = await unitOfWork.Brands.Read();
+		var cpus = await unitOfWork.Cpus.Read();
 
-		return mapper.Map<IEnumerable<BrandDto>>(brands);
+		return mapper.Map<IEnumerable<CpuDto>>(cpus);
 	}
 
-	public async Task<BrandDto> GetBrand(int id)
+	public async Task<CpuDto> GetCpu(int id)
 	{
-		var brand = await unitOfWork.Brands.Find(id);
+		var cpu = await unitOfWork.Cpus.Find(id);
 
-		return mapper.Map<BrandDto>(brand);
+		return mapper.Map<CpuDto>(cpu);
 	}
 
-	public async Task CreateBrand(BrandDto brandDto)
+	public async Task CreateCpu(CpuDto cpuDto)
 	{
-		var brand = mapper.Map<Brand>(brandDto);
+		var cpu = mapper.Map<Cpu>(cpuDto);
 
 		unitOfWork.BeginTransaction();
 
 		try
 		{
-			await unitOfWork.Brands.Create(brand);
+			await unitOfWork.Cpus.Create(cpu);
 			await unitOfWork.SaveAsync();
 			unitOfWork.CommitTransaction();
 		}
@@ -48,15 +48,15 @@ public class BrandService
 		}
 	}
 
-	public async Task UpdateBrand(BrandDto brandDto)
+	public async Task UpdateCpu(CpuDto cpuDto)
 	{
-		var brand = mapper.Map<Brand>(brandDto);
+		var cpu = mapper.Map<Cpu>(cpuDto);
 
 		unitOfWork.BeginTransaction();
 
 		try
 		{
-			await unitOfWork.Brands.Update(brand);
+			await unitOfWork.Cpus.Update(cpu);
 			await unitOfWork.SaveAsync();
 			unitOfWork.CommitTransaction();
 		}
@@ -67,13 +67,13 @@ public class BrandService
 		}
 	}
 
-	public async Task DeleteBrand(int id)
+	public async Task DeleteCpu(int id)
 	{
 		unitOfWork.BeginTransaction();
 
 		try
 		{
-			await unitOfWork.Brands.Delete(id);
+			await unitOfWork.Cpus.Delete(id);
 			await unitOfWork.SaveAsync();
 			unitOfWork.CommitTransaction();
 		}
@@ -84,8 +84,8 @@ public class BrandService
 		}
 	}
 
-	public async Task<bool> BrandExists(int id)
+	public async Task<bool> CpuExists(int id)
 	{
-		return await unitOfWork.Brands.Find(id) != null;
+		return await unitOfWork.Cpus.Find(id) != null;
 	}
 }
