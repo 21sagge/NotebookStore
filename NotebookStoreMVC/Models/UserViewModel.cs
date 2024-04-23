@@ -1,6 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace NotebookStore.Entities;
+namespace NotebookStoreMVC.Models;
 
 public class UserViewModel
 {

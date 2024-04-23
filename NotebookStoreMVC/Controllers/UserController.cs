@@ -1,7 +1,7 @@
 using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 using NotebookStore.Business;
-using NotebookStore.Entities;
+using NotebookStoreMVC.Models;
 
 namespace NotebookStoreMVC.Controllers;
 
