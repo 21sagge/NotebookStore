@@ -55,7 +55,7 @@ public class StorageController : Controller
     // POST: StorageViewModel/Create
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public IActionResult Create([Bind("Id,Brand,Model")] StorageViewModel StorageViewModel)
+    public IActionResult Create([Bind("Id,Capacity,Type")] StorageViewModel StorageViewModel)
     {
         unitOfWork.BeginTransaction();
 
@@ -96,7 +96,7 @@ public class StorageController : Controller
     // POST: StorageViewModel/Edit/5
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public IActionResult Edit(int id, [Bind("Id,Brand,Model")] StorageViewModel StorageViewModel)
+    public IActionResult Edit(int id, [Bind("Id,Capacity,Type")] StorageViewModel StorageViewModel)
     {
         if (id != StorageViewModel.Id)
         {
