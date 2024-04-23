@@ -1,19 +1,18 @@
 using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using NotebookStore.DAL;
+using NotebookStore.Business;
 using NotebookStore.Entities;
 
 namespace NotebookStoreMVC.Controllers;
 
 public class UserController : Controller
 {
-    private readonly IUnitOfWork unitOfWork;
+    private readonly UserService service;
     private readonly IMapper mapper;
 
-    public UserController(IUnitOfWork unitOfWork, IMapper mapper)
+    public UserController(UserService service, IMapper mapper)
     {
-        this.unitOfWork = unitOfWork;
+        this.service = service;
         this.mapper = mapper;
     }
 
@@ -21,49 +20,24 @@ public class UserController : Controller
     [HttpGet]
     public async Task<IActionResult> Index()
     {
-        unitOfWork.BeginTransaction();
+        var users = await service.GetUsers();
+        var mappedUsers = mapper.Map<IEnumerable<UserViewModel>>(users);
 
-        try
-        {
-            var users = await unitOfWork.Users.Read();
-            unitOfWork.CommitTransaction();
-            return View(mapper.Map<IEnumerable<UserViewModel>>(users));
-        }
-        catch (Exception ex)
-        {
-            unitOfWork.RollbackTransaction();
-            return Problem(ex.Message);
-        }
+        return View(mappedUsers);
     }
 
     // GET: userViewModel/Details/5
     [HttpGet]
-    public async Task<IActionResult> Details(int? id)
+    public async Task<IActionResult> Details(int id)
     {
-        if (id == null || unitOfWork.Users.Read() == null)
+        var user = await service.GetUser(id);
+
+        if (user == null)
         {
             return NotFound();
         }
 
-        unitOfWork.BeginTransaction();
-
-        try
-        {
-            var userViewModel = await unitOfWork.Users.Find(id);
-            unitOfWork.CommitTransaction();
-
-            if (userViewModel == null)
-            {
-                return NotFound();
-            }
-
-            return View(mapper.Map<UserViewModel>(userViewModel));
-        }
-        catch (Exception ex)
-        {
-            unitOfWork.RollbackTransaction();
-            return Problem(ex.Message);
-        }
+        return View(mapper.Map<UserViewModel>(user));
     }
 
     // GET: userViewModel/Create
@@ -76,61 +50,36 @@ public class UserController : Controller
     // POST: userViewModel/Create
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public IActionResult Create([Bind("Id,Name")] UserViewModel userViewModel)
+    public async Task<IActionResult> Create([Bind("Id,Name,Email,Password,Role,Token")] UserViewModel userViewModel)
     {
         if (ModelState.IsValid)
         {
-            unitOfWork.BeginTransaction();
+            await service.CreateUser(mapper.Map<UserDto>(userViewModel));
 
-            try
-            {
-                unitOfWork.Users.Create(mapper.Map<User>(userViewModel));
-                unitOfWork.CommitTransaction();
-                return RedirectToAction(nameof(Index));
-            }
-            catch (Exception ex)
-            {
-                unitOfWork.RollbackTransaction();
-                return Problem(ex.Message);
-            }
+            return RedirectToAction(nameof(Index));
         }
+
         return View(userViewModel);
     }
 
     // GET: userViewModel/Edit/5
     [HttpGet]
-    public async Task<IActionResult> Edit(int? id)
+    public async Task<IActionResult> Edit(int id)
     {
-        if (id == null || unitOfWork.Users.Read() == null)
+        var user = await service.GetUser(id);
+
+        if (user == null)
         {
             return NotFound();
         }
 
-        unitOfWork.BeginTransaction();
-
-        try
-        {
-            var userViewModel = await unitOfWork.Users.Find(id);
-            unitOfWork.CommitTransaction();
-
-            if (userViewModel == null)
-            {
-                return NotFound();
-            }
-
-            return View(mapper.Map<UserViewModel>(userViewModel));
-        }
-        catch (Exception ex)
-        {
-            unitOfWork.RollbackTransaction();
-            return Problem(ex.Message);
-        }
+        return View(mapper.Map<UserViewModel>(user));
     }
 
     // POST: userViewModel/Edit/5
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public IActionResult Edit(int id, [Bind("Id,Name")] UserViewModel userViewModel)
+    public async Task<IActionResult> Edit(int id, [Bind("Id,Name,Email,Password,Role,Token")] UserViewModel userViewModel)
     {
         if (id != userViewModel.Id)
         {
@@ -139,65 +88,26 @@ public class UserController : Controller
 
         if (ModelState.IsValid)
         {
-            unitOfWork.BeginTransaction();
+            await service.UpdateUser(mapper.Map<UserDto>(userViewModel));
 
-            try
-            {
-                try
-                {
-                    unitOfWork.Users.Update(mapper.Map<User>(userViewModel));
-                    unitOfWork.CommitTransaction();
-                }
-                catch (DbUpdateConcurrencyException)
-                {
-                    if (!UserExists(userViewModel.Id))
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
-                }
-                return RedirectToAction(nameof(Index));
-            }
-            catch (Exception ex)
-            {
-                unitOfWork.RollbackTransaction();
-                return Problem(ex.Message);
-            }
+            return RedirectToAction(nameof(Index));
         }
+
         return View(userViewModel);
     }
 
     // GET: userViewModel/Delete/5
     [HttpGet]
-    public async Task<IActionResult> Delete(int? id)
+    public async Task<IActionResult> Delete(int id)
     {
-        if (id == null || unitOfWork.Users.Read() == null)
+        var user = await service.GetUser(id);
+
+        if (user == null)
         {
             return NotFound();
         }
 
-        unitOfWork.BeginTransaction();
-
-        try
-        {
-            var userViewModel = await unitOfWork.Users.Find(id);
-            unitOfWork.CommitTransaction();
-
-            if (userViewModel == null)
-            {
-                return NotFound();
-            }
-
-            return View(mapper.Map<UserViewModel>(userViewModel));
-        }
-        catch (Exception ex)
-        {
-            unitOfWork.RollbackTransaction();
-            return Problem(ex.Message);
-        }
+        return View(mapper.Map<UserViewModel>(user));
     }
 
     // POST: userViewModel/Delete/5
@@ -205,28 +115,13 @@ public class UserController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> DeleteConfirmed(int id)
     {
-        if (unitOfWork.Users.Read() == null)
-        {
-            return NotFound();
-        }
+        await service.DeleteUser(id);
 
-        unitOfWork.BeginTransaction();
-
-        try
-        {
-            await unitOfWork.Users.Delete(id);
-            unitOfWork.CommitTransaction();
-            return RedirectToAction(nameof(Index));
-        }
-        catch (Exception ex)
-        {
-            unitOfWork.RollbackTransaction();
-            return Problem(ex.Message);
-        }
+        return RedirectToAction(nameof(Index));
     }
 
-    private bool UserExists(int id)
+    private async Task<bool> UserExists(int id)
     {
-        return unitOfWork.Users.Find(id) != null;
+        return await service.UserExists(id);
     }
 }
