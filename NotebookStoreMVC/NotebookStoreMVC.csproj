@@ -31,7 +31,7 @@
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="8.0.0" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\NotebookStore.DAL\NotebookStore.DAL.csproj">
+    <ProjectReference Include="..\NotebookStore.Business\NotebookStore.Business.csproj">
       <GlobalPropertiesToRemove></GlobalPropertiesToRemove>
     </ProjectReference>
   </ItemGroup>

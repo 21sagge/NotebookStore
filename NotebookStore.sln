@@ -13,6 +13,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NotebookStoreMVC", "Noteboo
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NotebookStore.DAL", "NotebookStore.DAL\NotebookStore.DAL.csproj", "{737CD183-9FC3-415B-ABDE-2CC17EBBBA71}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NotebookStore.Business", "NotebookStore.Business\NotebookStore.Business.csproj", "{58CCB745-5344-432C-AC77-CB890762052C}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -39,6 +41,10 @@ Global
 		{737CD183-9FC3-415B-ABDE-2CC17EBBBA71}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{737CD183-9FC3-415B-ABDE-2CC17EBBBA71}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{737CD183-9FC3-415B-ABDE-2CC17EBBBA71}.Release|Any CPU.Build.0 = Release|Any CPU
+		{58CCB745-5344-432C-AC77-CB890762052C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{58CCB745-5344-432C-AC77-CB890762052C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{58CCB745-5344-432C-AC77-CB890762052C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{58CCB745-5344-432C-AC77-CB890762052C}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
