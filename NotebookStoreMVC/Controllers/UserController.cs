@@ -2,6 +2,7 @@ using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 using NotebookStore.Business;
 using NotebookStoreMVC.Models;
+using Microsoft.AspNetCore.Authorization;
 
 namespace NotebookStoreMVC.Controllers;
 
@@ -18,6 +19,7 @@ public class UserController : Controller
 
     // GET: userViewModel
     [HttpGet]
+    [Authorize]
     public async Task<IActionResult> Index()
     {
         var users = await service.GetUsers();
@@ -28,6 +30,7 @@ public class UserController : Controller
 
     // GET: userViewModel/Details/5
     [HttpGet]
+    [Authorize]
     public async Task<IActionResult> Details(int id)
     {
         var user = await service.GetUser(id);
@@ -42,6 +45,7 @@ public class UserController : Controller
 
     // GET: userViewModel/Create
     [HttpGet]
+    [Authorize]
     public IActionResult Create()
     {
         return View();
@@ -64,6 +68,7 @@ public class UserController : Controller
 
     // GET: userViewModel/Edit/5
     [HttpGet]
+    [Authorize]
     public async Task<IActionResult> Edit(int id)
     {
         var user = await service.GetUser(id);
@@ -98,6 +103,7 @@ public class UserController : Controller
 
     // GET: userViewModel/Delete/5
     [HttpGet]
+    [Authorize]
     public async Task<IActionResult> Delete(int id)
     {
         var user = await service.GetUser(id);
