@@ -1,4 +1,6 @@
-﻿using NotebookStore.Entities;
+﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
+using NotebookStore.Business;
 using NotebookStore.DAL;
 
 namespace NotebookStoreTestConsole;
@@ -7,33 +9,25 @@ class Program
 {
     static void Main(string[] args)
     {
-        using var context = new NotebookStoreContext.NotebookStoreContext();
-        var unitOfWork = new UnitOfWork(context);
+        var serviceProvider = new ServiceCollection()
+            .AddDbContext<NotebookStoreContext.NotebookStoreContext>(options => options.UseSqlite("Data Source=NotebookStoreMVC/notebookstore.db"))
+            .AddAutoMapper(configure =>
+            {
+                configure.AddProfile(new MapperMvc());
+            })
+            .AddScoped<IUnitOfWork, UnitOfWork>()
+            .AddScoped<NotebookService>()
+            .BuildServiceProvider();
 
-        var brand = new Brand { Name = "Dell" };
-        unitOfWork.Brands.Create(brand);
+        using var scope = serviceProvider.CreateScope();
+        var context = scope.ServiceProvider.GetRequiredService<NotebookStoreContext.NotebookStoreContext>();
+        var service = scope.ServiceProvider.GetRequiredService<NotebookService>();
 
-        var brands = unitOfWork.Brands.Read().Result;
-        foreach (var b in brands)
+        var notebooks = service.GetNotebooks();
+
+        foreach (var notebook in notebooks.Result)
         {
-            Console.WriteLine(b.Name);
-        }
-
-        brand.Name = "HP";
-        unitOfWork.Brands.Update(brand);
-
-        brands = unitOfWork.Brands.Read().Result;
-        foreach (var b in brands)
-        {
-            Console.WriteLine(b.Name);
-        }
-
-        unitOfWork.Brands.Delete(brand.Id);
-
-        brands = unitOfWork.Brands.Read().Result;
-        foreach (var b in brands)
-        {
-            Console.WriteLine(b.Name);
+            Console.WriteLine($"{notebook.Brand.Name} {notebook.Model.Name} {notebook.Cpu.Model}");
         }
     }
 }

@@ -3,7 +3,7 @@ using NotebookStore.Entities;
 using NotebookStoreMVC.Models;
 using NotebookStoreMVC.Services;
 
-internal class MapperMvc : Profile
+public class MapperMvc : Profile
 {
     public MapperMvc()
     {

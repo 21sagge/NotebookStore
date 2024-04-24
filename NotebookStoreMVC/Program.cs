@@ -1,4 +1,4 @@
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using NotebookStoreMVC;
@@ -71,13 +71,14 @@ var app = builder.Build();
 
 if (!app.Environment.IsDevelopment())
 {
-    app.UseExceptionHandler("/Home/Error");
     app.UseHsts();
 }
 else
 {
     app.UseDeveloper("Rosario").UseDeveloper("Niccolo");
 }
+
+app.UseExceptionHandler("/Home/Error");
 
 app.UseHttpsRedirection();
 app.UseStaticFiles();
