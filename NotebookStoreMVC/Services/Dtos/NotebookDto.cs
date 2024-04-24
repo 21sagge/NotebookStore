@@ -2,7 +2,7 @@
 
 namespace NotebookStoreMVC.Services;
 
-public class NotebookDto : BaseDto
+public class NotebookDto
 {
   public required string Color { get; set; }
   public required int Price { get; set; }

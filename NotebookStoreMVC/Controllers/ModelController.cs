@@ -1,20 +1,18 @@
 using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using NotebookStoreMVC.Models;
-using NotebookStore.Repositories;
-using NotebookStore.Entities;
+using NotebookStore.Business;
 
 namespace NotebookStoreMVC.Controllers;
 
 public class ModelController : Controller
 {
-    private readonly IRepository<Model> _modelRepository;
+    private readonly ModelService service;
     private readonly IMapper mapper;
 
-    public ModelController(IRepository<Model> repository, IMapper mapper)
+    public ModelController(ModelService service, IMapper mapper)
     {
-        _modelRepository = repository;
+        this.service = service;
         this.mapper = mapper;
     }
 
@@ -22,26 +20,24 @@ public class ModelController : Controller
     [HttpGet]
     public async Task<IActionResult> Index()
     {
-        var modelViewModels = await _modelRepository.Read();
-        return View(mapper.Map<IEnumerable<ModelViewModel>>(modelViewModels));
+        var models = await service.GetModels();
+        var mappedModels = mapper.Map<IEnumerable<ModelViewModel>>(models);
+
+        return View(mappedModels);
     }
 
     // GET: ModelViewModel/Details/5
     [HttpGet]
-    public async Task<IActionResult> Details(int? id)
+    public async Task<IActionResult> Details(int id)
     {
-        if (id == null || _modelRepository.Read() == null)
+        var model = await service.GetModel(id);
+
+        if (model == null)
         {
             return NotFound();
         }
 
-        var ModelViewModel = await _modelRepository.Find(id);
-        if (ModelViewModel == null)
-        {
-            return NotFound();
-        }
-
-        return View(mapper.Map<ModelViewModel>(ModelViewModel));
+        return View(mapper.Map<ModelViewModel>(model));
     }
 
     // GET: ModelViewModel/Create
@@ -54,37 +50,36 @@ public class ModelController : Controller
     // POST: ModelViewModel/Create
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public IActionResult Create([Bind("Id,Name")] ModelViewModel ModelViewModel)
+    public async Task<IActionResult> Create([Bind("Id,Name")] ModelViewModel ModelViewModel)
     {
         if (ModelState.IsValid)
         {
-            _modelRepository.Create(mapper.Map<Model>(ModelViewModel));
+            await service.CreateModel(mapper.Map<ModelDto>(ModelViewModel));
+
             return RedirectToAction(nameof(Index));
         }
-        return View(mapper.Map<ModelViewModel>(ModelViewModel));
+
+        return View(ModelViewModel);
     }
 
     // GET: ModelViewModel/Edit/5
     [HttpGet]
-    public async Task<IActionResult> Edit(int? id)
+    public async Task<IActionResult> Edit(int id)
     {
-        if (id == null || _modelRepository.Read() == null)
+        var model = await service.GetModel(id);
+
+        if (model == null)
         {
             return NotFound();
         }
 
-        var ModelViewModel = await _modelRepository.Find(id);
-        if (ModelViewModel == null)
-        {
-            return NotFound();
-        }
-        return View(mapper.Map<ModelViewModel>(ModelViewModel));
+        return View(mapper.Map<ModelViewModel>(model));
     }
 
     // POST: ModelViewModel/Edit/5
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public IActionResult Edit(int id, [Bind("Id,Name")] ModelViewModel ModelViewModel)
+    public async Task<IActionResult> Edit(int id, [Bind("Id,Name")] ModelViewModel ModelViewModel)
     {
         if (id != ModelViewModel.Id)
         {
@@ -93,42 +88,26 @@ public class ModelController : Controller
 
         if (ModelState.IsValid)
         {
-            try
-            {
-                _modelRepository.Update(mapper.Map<Model>(ModelViewModel));
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!ModelExists(ModelViewModel.Id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
-            }
+            await service.UpdateModel(mapper.Map<ModelDto>(ModelViewModel));
+
             return RedirectToAction(nameof(Index));
         }
-        return View(mapper.Map<ModelViewModel>(ModelViewModel));
+
+        return View(ModelViewModel);
     }
 
     // GET: ModelViewModel/Delete/5
     [HttpGet]
-    public async Task<IActionResult> Delete(int? id)
+    public async Task<IActionResult> Delete(int id)
     {
-        if (id == null || _modelRepository.Read() == null)
+        var model = await service.GetModel(id);
+
+        if (model == null)
         {
             return NotFound();
         }
 
-        var ModelViewModel = await _modelRepository.Find(id);
-        if (ModelViewModel == null)
-        {
-            return NotFound();
-        }
-
-        return View(mapper.Map<ModelViewModel>(ModelViewModel));
+        return View(mapper.Map<ModelViewModel>(model));
     }
 
     // POST: ModelViewModel/Delete/5
@@ -136,17 +115,13 @@ public class ModelController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> DeleteConfirmed(int id)
     {
-        if (_modelRepository.Read() == null)
-        {
-            return Problem("Entity set 'NotebookStoreContext.Model'  is null.");
-        }
+        await service.DeleteModel(id);
 
-        await _modelRepository.Delete(id);
         return RedirectToAction(nameof(Index));
     }
 
-    private bool ModelExists(int id)
+    private async Task<bool> ModelExists(int id)
     {
-        return _modelRepository.Find(id) != null;
+        return await service.ModelExists(id);
     }
 }

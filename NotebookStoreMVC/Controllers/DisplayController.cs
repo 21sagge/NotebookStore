@@ -1,20 +1,19 @@
 using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using NotebookStoreMVC.Models;
-using NotebookStore.Repositories;
 using NotebookStore.Entities;
+using NotebookStore.Business;
 
 namespace NotebookStoreMVC.Controllers;
 
 public class DisplayController : Controller
 {
-    private readonly IRepository<Display> _displayRepository;
+    private readonly DisplayService service;
     private readonly IMapper mapper;
 
-    public DisplayController(IRepository<Display> repository, IMapper mapper)
+    public DisplayController(DisplayService service, IMapper mapper)
     {
-        _displayRepository = repository;
+        this.service = service;
         this.mapper = mapper;
     }
 
@@ -22,26 +21,24 @@ public class DisplayController : Controller
     [HttpGet]
     public async Task<IActionResult> Index()
     {
-        var displayViewModels = await _displayRepository.Read();
-        return View(mapper.Map<IEnumerable<DisplayViewModel>>(displayViewModels));
+        var displays = await service.GetDisplays();
+        var mappedDisplays = mapper.Map<IEnumerable<DisplayViewModel>>(displays);
+
+        return View(mappedDisplays);
     }
 
     // GET: DisplayViewModel/Details/5
     [HttpGet]
-    public async Task<IActionResult> Details(int? id)
+    public async Task<IActionResult> Details(int id)
     {
-        if (id == null || _displayRepository.Read() == null)
+        var display = await service.GetDisplay(id);
+
+        if (display == null)
         {
             return NotFound();
         }
 
-        var DisplayViewModel = await _displayRepository.Find(id);
-        if (DisplayViewModel == null)
-        {
-            return NotFound();
-        }
-
-        return View(mapper.Map<DisplayViewModel>(DisplayViewModel));
+        return View(mapper.Map<DisplayViewModel>(display));
     }
 
     // GET: DisplayViewModel/Create
@@ -54,37 +51,36 @@ public class DisplayController : Controller
     // POST: DisplayViewModel/Create
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public IActionResult Create([Bind("Id,Size,ResolutionWidth,ResolutionHeight,PanelType")] DisplayViewModel DisplayViewModel)
+    public async Task<IActionResult> Create([Bind("Id,Brand,Model")] DisplayViewModel DisplayViewModel)
     {
         if (ModelState.IsValid)
         {
-            _displayRepository.Create(mapper.Map<Display>(DisplayViewModel));
+            await service.CreateDisplay(mapper.Map<DisplayDto>(DisplayViewModel));
+
             return RedirectToAction(nameof(Index));
         }
-        return View(mapper.Map<DisplayViewModel>(DisplayViewModel));
+
+        return View(DisplayViewModel);
     }
 
     // GET: DisplayViewModel/Edit/5
     [HttpGet]
-    public async Task<IActionResult> Edit(int? id)
+    public async Task<IActionResult> Edit(int id)
     {
-        if (id == null || _displayRepository.Read() == null)
+        var display = await service.GetDisplay(id);
+
+        if (display == null)
         {
             return NotFound();
         }
 
-        var DisplayViewModel = await _displayRepository.Find(id);
-        if (DisplayViewModel == null)
-        {
-            return NotFound();
-        }
-        return View(mapper.Map<DisplayViewModel>(DisplayViewModel));
+        return View(mapper.Map<DisplayViewModel>(display));
     }
 
     // POST: DisplayViewModel/Edit/5
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public IActionResult Edit(int id, [Bind("Id,Size,ResolutionWidth,ResolutionHeight,PanelType")] DisplayViewModel DisplayViewModel)
+    public async Task<IActionResult> Edit(int id, [Bind("Id,Brand,Model")] DisplayViewModel DisplayViewModel)
     {
         if (id != DisplayViewModel.Id)
         {
@@ -95,40 +91,32 @@ public class DisplayController : Controller
         {
             try
             {
-                _displayRepository.Update(mapper.Map<Display>(DisplayViewModel));
+                await service.UpdateDisplay(mapper.Map<DisplayDto>(DisplayViewModel));
             }
-            catch (DbUpdateConcurrencyException)
+            catch (Exception ex)
             {
-                if (!DisplayExists(DisplayViewModel.Id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
+                return Problem(ex.Message);
             }
+
             return RedirectToAction(nameof(Index));
         }
-        return View(mapper.Map<DisplayViewModel>(DisplayViewModel));
+
+        return View(DisplayViewModel);
     }
+
 
     // GET: DisplayViewModel/Delete/5
     [HttpGet]
-    public async Task<IActionResult> Delete(int? id)
+    public async Task<IActionResult> Delete(int id)
     {
-        if (id == null || _displayRepository.Read() == null)
+        var display = await service.GetDisplay(id);
+
+        if (display == null)
         {
             return NotFound();
         }
 
-        var DisplayViewModel = await _displayRepository.Find(id);
-        if (DisplayViewModel == null)
-        {
-            return NotFound();
-        }
-
-        return View(mapper.Map<DisplayViewModel>(DisplayViewModel));
+        return View(mapper.Map<DisplayViewModel>(display));
     }
 
     // POST: DisplayViewModel/Delete/5
@@ -136,17 +124,13 @@ public class DisplayController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> DeleteConfirmed(int id)
     {
-        if (_displayRepository.Read() == null)
-        {
-            return Problem("Entity set 'NotebookStoreContext.Display'  is null.");
-        }
+        await service.DeleteDisplay(id);
 
-        await _displayRepository.Delete(id);
         return RedirectToAction(nameof(Index));
     }
 
-    private bool DisplayExists(int id)
+    private async Task<bool> DisplayExists(int id)
     {
-        return _displayRepository.Find(id) != null;
+        return await service.DisplayExists(id);
     }
 }

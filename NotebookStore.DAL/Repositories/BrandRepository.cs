@@ -1,4 +1,4 @@
-﻿namespace NotebookStore.Repositories;
+﻿namespace NotebookStore.DAL;
 
 using Microsoft.EntityFrameworkCore;
 using NotebookStoreContext;

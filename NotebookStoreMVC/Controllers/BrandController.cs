@@ -1,47 +1,43 @@
 using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using NotebookStoreMVC.Models;
-using NotebookStore.Repositories;
-using NotebookStore.Entities;
+using NotebookStore.Business;
 
 namespace NotebookStoreMVC.Controllers;
 
 public class BrandController : Controller
 {
-    private readonly IRepository<Brand> _brandRepository;
     private readonly IMapper mapper;
+    private readonly BrandService service;
 
-    public BrandController(IRepository<Brand> brandRepository, IMapper mapper)
+    public BrandController(IMapper mapper, BrandService service)
     {
-        _brandRepository = brandRepository;
         this.mapper = mapper;
+        this.service = service;
     }
 
     // GET: BrandViewModel
     [HttpGet]
     public async Task<IActionResult> Index()
     {
-        var brands = await _brandRepository.Read();
-        return View(mapper.Map<IEnumerable<BrandViewModel>>(brands));
+        var brands = await service.GetBrands();
+        var mappedBrands = mapper.Map<IEnumerable<BrandViewModel>>(brands);
+
+        return View(mappedBrands);
     }
 
     // GET: BrandViewModel/Details/5
     [HttpGet]
-    public async Task<IActionResult> Details(int? id)
+    public async Task<IActionResult> Details(int id)
     {
-        if (id == null || _brandRepository.Read() == null)
+        var brand = await service.GetBrand(id);
+
+        if (brand == null)
         {
             return NotFound();
         }
 
-        var BrandViewModel = await _brandRepository.Find(id);
-        if (BrandViewModel == null)
-        {
-            return NotFound();
-        }
-
-        return View(mapper.Map<BrandViewModel>(BrandViewModel));
+        return View(mapper.Map<BrandViewModel>(brand));
     }
 
     // GET: BrandViewModel/Create
@@ -54,36 +50,35 @@ public class BrandController : Controller
     // POST: BrandViewModel/Create
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public IActionResult Create([Bind("Id,Name")] BrandViewModel BrandViewModel)
+    public async Task<IActionResult> CreateAsync([Bind("Id,Name")] BrandViewModel BrandViewModel)
     {
         if (ModelState.IsValid)
         {
-            _brandRepository.Create(mapper.Map<Brand>(BrandViewModel));
+            await service.CreateBrand(mapper.Map<BrandDto>(BrandViewModel));
+
             return RedirectToAction(nameof(Index));
         }
-        return View(mapper.Map<BrandViewModel>(BrandViewModel));
+
+        return View(BrandViewModel);
     }
 
     // GET: BrandViewModel/Edit/5
-    public async Task<IActionResult> Edit(int? id)
+    public async Task<IActionResult> Edit(int id)
     {
-        if (id == null || _brandRepository.Read() == null)
+        var brand = await service.GetBrand(id);
+
+        if (brand == null)
         {
             return NotFound();
         }
 
-        var BrandViewModel = await _brandRepository.Find(id);
-        if (BrandViewModel == null)
-        {
-            return NotFound();
-        }
-        return View(mapper.Map<BrandViewModel>(BrandViewModel));
+        return View(mapper.Map<BrandViewModel>(brand));
     }
 
     // POST: BrandViewModel/Edit/5
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public IActionResult Edit(int id, [Bind("Id,Name")] BrandViewModel BrandViewModel)
+    public async Task<IActionResult> EditAsync(int id, [Bind("Id,Name")] BrandViewModel BrandViewModel)
     {
         if (id != BrandViewModel.Id)
         {
@@ -92,42 +87,31 @@ public class BrandController : Controller
 
         if (ModelState.IsValid)
         {
-            try
-            {
-                _brandRepository.Update(mapper.Map<Brand>(BrandViewModel));
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!BrandExists(BrandViewModel.Id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
-            }
+            await service.UpdateBrand(mapper.Map<BrandDto>(BrandViewModel));
+
             return RedirectToAction(nameof(Index));
         }
-        return View(mapper.Map<BrandViewModel>(BrandViewModel));
+
+        return View(BrandViewModel);
     }
 
     // GET: BrandViewModel/Delete/5
     [HttpGet]
-    public async Task<IActionResult> Delete(int? id)
+    public async Task<IActionResult> Delete(int id)
     {
-        if (id == null || _brandRepository.Read() == null)
+        if (service.GetBrands() == null)
         {
             return NotFound();
         }
 
-        var BrandViewModel = await _brandRepository.Find(id);
-        if (BrandViewModel == null)
+        var brand = await service.GetBrand(id);
+
+        if (brand == null)
         {
             return NotFound();
         }
 
-        return View(mapper.Map<BrandViewModel>(BrandViewModel));
+        return View(mapper.Map<BrandViewModel>(brand));
     }
 
     // POST: BrandViewModel/Delete/5
@@ -135,17 +119,13 @@ public class BrandController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> DeleteConfirmed(int id)
     {
-        if (_brandRepository.Read() == null)
-        {
-            return Problem("Entity set 'NotebookStoreContext.Brands'  is null.");
-        }
+        await service.DeleteBrand(id);
 
-        await _brandRepository.Delete(id);
         return RedirectToAction(nameof(Index));
     }
 
-    private bool BrandExists(int id)
+    private async Task<bool> BrandExists(int id)
     {
-        return _brandRepository.Find(id) != null;
+        return await service.BrandExists(id);
     }
 }

@@ -7,36 +7,65 @@ internal class MapperMvc : Profile
 {
     public MapperMvc()
     {
-        CreateMap<Brand, BrandViewModel>()
+        CreateMap<NotebookStore.Business.BrandDto, BrandViewModel>()
             .ForMember(dest => dest.Id, act => act.MapFrom(src => src.Id))
             .ForMember(dest => dest.Name, act => act.MapFrom(src => src.Name))
             .ReverseMap();
-        CreateMap<Cpu, CpuViewModel>()
+        CreateMap<Brand, NotebookStore.Business.BrandDto>()
+            .ForMember(dest => dest.Id, act => act.MapFrom(src => src.Id))
+            .ForMember(dest => dest.Name, act => act.MapFrom(src => src.Name))
+            .ReverseMap();
+        CreateMap<NotebookStore.Business.CpuDto, CpuViewModel>()
             .ForMember(dest => dest.Id, act => act.MapFrom(src => src.Id))
             .ForMember(dest => dest.Brand, act => act.MapFrom(src => src.Brand))
             .ForMember(dest => dest.Model, act => act.MapFrom(src => src.Model))
             .ReverseMap();
-        CreateMap<Display, DisplayViewModel>()
+        CreateMap<Cpu, NotebookStore.Business.CpuDto>()
+            .ForMember(dest => dest.Id, act => act.MapFrom(src => src.Id))
+            .ForMember(dest => dest.Brand, act => act.MapFrom(src => src.Brand))
+            .ForMember(dest => dest.Model, act => act.MapFrom(src => src.Model))
+            .ReverseMap();
+        CreateMap<NotebookStore.Business.DisplayDto, DisplayViewModel>()
             .ForMember(dest => dest.Id, act => act.MapFrom(src => src.Id))
             .ForMember(dest => dest.Size, act => act.MapFrom(src => src.Size))
             .ForMember(dest => dest.ResolutionWidth, act => act.MapFrom(src => src.ResolutionWidth))
             .ForMember(dest => dest.ResolutionHeight, act => act.MapFrom(src => src.ResolutionHeight))
             .ReverseMap();
-        CreateMap<Memory, MemoryViewModel>()
+        CreateMap<Display, NotebookStore.Business.DisplayDto>()
+            .ForMember(dest => dest.Id, act => act.MapFrom(src => src.Id))
+            .ForMember(dest => dest.Size, act => act.MapFrom(src => src.Size))
+            .ForMember(dest => dest.ResolutionWidth, act => act.MapFrom(src => src.ResolutionWidth))
+            .ForMember(dest => dest.ResolutionHeight, act => act.MapFrom(src => src.ResolutionHeight))
+            .ReverseMap();
+        CreateMap<NotebookStore.Business.MemoryDto, MemoryViewModel>()
             .ForMember(dest => dest.Id, act => act.MapFrom(src => src.Id))
             .ForMember(dest => dest.Capacity, act => act.MapFrom(src => src.Capacity))
             .ForMember(dest => dest.Speed, act => act.MapFrom(src => src.Speed))
             .ReverseMap();
-        CreateMap<Model, ModelViewModel>()
+        CreateMap<Memory, NotebookStore.Business.MemoryDto>()
+            .ForMember(dest => dest.Id, act => act.MapFrom(src => src.Id))
+            .ForMember(dest => dest.Capacity, act => act.MapFrom(src => src.Capacity))
+            .ForMember(dest => dest.Speed, act => act.MapFrom(src => src.Speed))
+            .ReverseMap();
+        CreateMap<NotebookStore.Business.ModelDto, ModelViewModel>()
             .ForMember(dest => dest.Id, act => act.MapFrom(src => src.Id))
             .ForMember(dest => dest.Name, act => act.MapFrom(src => src.Name))
             .ReverseMap();
-        CreateMap<Storage, StorageViewModel>()
+        CreateMap<Model, NotebookStore.Business.ModelDto>()
+            .ForMember(dest => dest.Id, act => act.MapFrom(src => src.Id))
+            .ForMember(dest => dest.Name, act => act.MapFrom(src => src.Name))
+            .ReverseMap();
+        CreateMap<Storage, NotebookStore.Business.StorageDto>()
             .ForMember(dest => dest.Id, act => act.MapFrom(src => src.Id))
             .ForMember(dest => dest.Capacity, act => act.MapFrom(src => src.Capacity))
             .ForMember(dest => dest.Type, act => act.MapFrom(src => src.Type))
             .ReverseMap();
-        CreateMap<Notebook, NotebookViewModel>()
+        CreateMap<NotebookStore.Business.StorageDto, StorageViewModel>()
+            .ForMember(dest => dest.Id, act => act.MapFrom(src => src.Id))
+            .ForMember(dest => dest.Capacity, act => act.MapFrom(src => src.Capacity))
+            .ForMember(dest => dest.Type, act => act.MapFrom(src => src.Type))
+            .ReverseMap();
+        CreateMap<NotebookStore.Business.NotebookDto, NotebookViewModel>()
             .ForMember(dest => dest.Id, act => act.MapFrom(src => src.Id))
             .ForMember(dest => dest.Brand, act => act.MapFrom(src => src.Brand))
             .ForMember(dest => dest.Model, act => act.MapFrom(src => src.Model))
@@ -45,7 +74,16 @@ internal class MapperMvc : Profile
             .ForMember(dest => dest.Memory, act => act.MapFrom(src => src.Memory))
             .ForMember(dest => dest.Storage, act => act.MapFrom(src => src.Storage))
             .ReverseMap();
-        CreateMap<Brand, BrandDto>();
+        CreateMap<Notebook, NotebookStore.Business.NotebookDto>()
+            .ForMember(dest => dest.Id, act => act.MapFrom(src => src.Id))
+            .ForMember(dest => dest.Brand, act => act.MapFrom(src => src.Brand))
+            .ForMember(dest => dest.Model, act => act.MapFrom(src => src.Model))
+            .ForMember(dest => dest.Cpu, act => act.MapFrom(src => src.Cpu))
+            .ForMember(dest => dest.Display, act => act.MapFrom(src => src.Display))
+            .ForMember(dest => dest.Memory, act => act.MapFrom(src => src.Memory))
+            .ForMember(dest => dest.Storage, act => act.MapFrom(src => src.Storage))
+            .ReverseMap();
+        CreateMap<Brand, NotebookStore.Business.BrandDto>();
         CreateMap<Cpu, CpuDto>();
         CreateMap<Display, DisplayDto>();
         CreateMap<Memory, MemoryDto>();

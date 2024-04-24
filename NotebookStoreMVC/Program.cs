@@ -1,20 +1,22 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using NotebookStoreMVC;
-using NotebookStore.Repositories;
+using NotebookStore.DAL;
 using NotebookStoreMVC.Services;
-using NotebookStore.Entities;
+using NotebookStore.Business;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllersWithViews();
 
-builder.Services.AddScoped<IRepository<Brand>, BrandRepository>();
-builder.Services.AddScoped<IRepository<Cpu>, CpuRepository>();
-builder.Services.AddScoped<IRepository<Display>, DisplayRepository>();
-builder.Services.AddScoped<IRepository<Memory>, MemoryRepository>();
-builder.Services.AddScoped<IRepository<Model>, ModelRepository>();
-builder.Services.AddScoped<IRepository<Storage>, StorageRepository>();
-builder.Services.AddScoped<INotebookRepository, NotebookRepository>();
+builder.Services.AddScoped<BrandService>();
+builder.Services.AddScoped<CpuService>();
+builder.Services.AddScoped<DisplayService>();
+builder.Services.AddScoped<MemoryService>();
+builder.Services.AddScoped<ModelService>();
+builder.Services.AddScoped<NotebookService>();
+builder.Services.AddScoped<StorageService>();
+
+builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 
 builder.Services.AddAutoMapper(configure =>
 {

@@ -1,20 +1,18 @@
 using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using NotebookStoreMVC.Models;
-using NotebookStore.Repositories;
-using NotebookStore.Entities;
+using NotebookStore.Business;
 
 namespace NotebookStoreMVC.Controllers;
 
 public class StorageController : Controller
 {
-    private readonly IRepository<Storage> _storageRepository;
+    private readonly StorageService service;
     private readonly IMapper mapper;
 
-    public StorageController(IRepository<Storage> repository, IMapper mapper)
+    public StorageController(StorageService service, IMapper mapper)
     {
-        _storageRepository = repository;
+        this.service = service;
         this.mapper = mapper;
     }
 
@@ -22,27 +20,24 @@ public class StorageController : Controller
     [HttpGet]
     public async Task<IActionResult> Index()
     {
-        var storageViewModels = await _storageRepository.Read();
+        var storages = await service.GetStorages();
+        var mappedStorages = mapper.Map<IEnumerable<StorageViewModel>>(storages);
 
-        return View(mapper.Map<IEnumerable<StorageViewModel>>(storageViewModels));
+        return View(mappedStorages);
     }
 
     // GET: StorageViewModel/Details/5
     [HttpGet]
-    public async Task<IActionResult> Details(int? id)
+    public async Task<IActionResult> Details(int id)
     {
-        if (id == null || _storageRepository.Read() == null)
+        var storage = await service.GetStorage(id);
+
+        if (storage == null)
         {
             return NotFound();
         }
 
-        var storageViewModel = await _storageRepository.Find(id);
-        if (storageViewModel == null)
-        {
-            return NotFound();
-        }
-
-        return View(mapper.Map<StorageViewModel>(storageViewModel));
+        return View(mapper.Map<StorageViewModel>(storage));
     }
 
     // GET: StorageViewModel/Create
@@ -55,81 +50,63 @@ public class StorageController : Controller
     // POST: StorageViewModel/Create
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public IActionResult Create([Bind("Id,Type,Capacity")] StorageViewModel StorageViewModel)
+    public async Task<IActionResult> Create([Bind("Id,Brand,Model")] StorageViewModel StorageViewModel)
     {
         if (ModelState.IsValid)
         {
-            _storageRepository.Create(mapper.Map<Storage>(StorageViewModel));
+            await service.CreateStorage(mapper.Map<StorageDto>(StorageViewModel));
+
             return RedirectToAction(nameof(Index));
         }
-        return View(mapper.Map<StorageViewModel>(StorageViewModel));
+        return View(StorageViewModel);
     }
 
     // GET: StorageViewModel/Edit/5
     [HttpGet]
-    public async Task<IActionResult> Edit(int? id)
+    public async Task<IActionResult> Edit(int id)
     {
-        if (id == null || _storageRepository.Read() == null)
+        var storage = await service.GetStorage(id);
+
+        if (storage == null)
         {
             return NotFound();
         }
 
-        var storageViewModel = await _storageRepository.Find(id);
-        if (storageViewModel == null)
-        {
-            return NotFound();
-        }
-        return View(mapper.Map<StorageViewModel>(storageViewModel));
+        return View(mapper.Map<StorageViewModel>(storage));
     }
 
     // POST: StorageViewModel/Edit/5
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public IActionResult Edit(int id, [Bind("Id,Type,Capacity")] StorageViewModel storageViewModel)
+    public async Task<IActionResult> Edit(int id, [Bind("Id,Brand,Model")] StorageViewModel StorageViewModel)
     {
-        if (id != storageViewModel.Id)
+        if (id != StorageViewModel.Id)
         {
             return NotFound();
         }
 
         if (ModelState.IsValid)
         {
-            try
-            {
-                _storageRepository.Update(mapper.Map<Storage>(storageViewModel));
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!StorageExists(storageViewModel.Id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
-            }
+            await service.UpdateStorage(mapper.Map<StorageDto>(StorageViewModel));
+
             return RedirectToAction(nameof(Index));
         }
-        return View(mapper.Map<StorageViewModel>(storageViewModel));
+        return View(StorageViewModel);
     }
+
 
     // GET: StorageViewModel/Delete/5
     [HttpGet]
-    public async Task<IActionResult> Delete(int? id)
+    public async Task<IActionResult> Delete(int id)
     {
-        if (id == null || _storageRepository.Read() == null)
+        var storage = await service.GetStorage(id);
+
+        if (storage == null)
         {
             return NotFound();
         }
 
-        var storageViewModel = await _storageRepository.Find(id);
-        if (storageViewModel == null)
-        {
-            return NotFound();
-        }
-
-        return View(mapper.Map<StorageViewModel>(storageViewModel));
+        return View(mapper.Map<StorageViewModel>(storage));
     }
 
     // POST: StorageViewModel/Delete/5
@@ -137,17 +114,13 @@ public class StorageController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> DeleteConfirmed(int id)
     {
-        if (_storageRepository.Read() == null)
-        {
-            return Problem("Entity set 'NotebookStoreContext.Storage'  is null.");
-        }
+        await service.DeleteStorage(id);
 
-        await _storageRepository.Delete(id);
         return RedirectToAction(nameof(Index));
     }
 
-    private bool StorageExists(int id)
+    private async Task<bool> StorageExists(int id)
     {
-        return _storageRepository.Find(id) != null;
+        return await service.StorageExists(id);
     }
 }

@@ -28,12 +28,4 @@ public class XmlHandler : ISerializer
 
         return Encoding.UTF8.GetString(stream.ToArray());
     }
-
-    static string Serialize<T>(IEnumerable<T> data)
-    {
-        using var stream = new MemoryStream();
-        new XmlSerializer(typeof(List<T>)).Serialize(stream, data.ToList());
-
-        return Encoding.UTF8.GetString(stream.ToArray());
-    }
 }
