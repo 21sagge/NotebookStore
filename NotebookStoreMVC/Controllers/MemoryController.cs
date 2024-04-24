@@ -50,7 +50,7 @@ public class MemoryController : Controller
     // POST: MemoryViewModel/Create
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Create([Bind("Id,Brand,Model")] MemoryViewModel MemoryViewModel)
+    public async Task<IActionResult> Create([Bind("Id,Capacity,Speed")] MemoryViewModel MemoryViewModel)
     {
         if (ModelState.IsValid)
         {
@@ -79,7 +79,7 @@ public class MemoryController : Controller
     // POST: MemoryViewModel/Edit/5
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Edit(int id, [Bind("Id,Brand,Model")] MemoryViewModel MemoryViewModel)
+    public async Task<IActionResult> Edit(int id, [Bind("Id,Capacity,Speed")] MemoryViewModel MemoryViewModel)
     {
         if (id != MemoryViewModel.Id)
         {

@@ -11,6 +11,7 @@ public class NotebookStoreContext : DbContext
 
     public NotebookStoreContext(DbContextOptions<NotebookStoreContext> options) : base(options) { }
 
+    public DbSet<User> Users { get; set; }
     public DbSet<Brand> Brands { get; set; }
     public DbSet<Model> Models { get; set; }
     public DbSet<Cpu> Cpus { get; set; }
@@ -100,6 +101,15 @@ public class NotebookStoreContext : DbContext
             n.HasOne(n => n.Memory).WithMany().HasForeignKey(n => n.MemoryId);
             n.HasOne(n => n.Storage).WithMany().HasForeignKey(n => n.StorageId);
             n.HasIndex(n => new { n.BrandId, n.ModelId, n.CpuId, n.DisplayId, n.MemoryId, n.StorageId, n.Color, n.Price }).IsUnique();
+        });
+
+        modelBuilder.Entity<User>(u =>
+        {
+            u.HasKey(u => u.Id);
+            u.Property(u => u.Name).IsRequired();
+            u.Property(u => u.Email).IsRequired();
+            u.Property(u => u.Password).IsRequired();
+            u.HasIndex(u => u.Email).IsUnique();
         });
     }
 }

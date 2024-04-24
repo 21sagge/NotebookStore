@@ -3,7 +3,7 @@ using NotebookStore.Entities;
 using NotebookStoreMVC.Models;
 using NotebookStoreMVC.Services;
 
-internal class MapperMvc : Profile
+public class MapperMvc : Profile
 {
     public MapperMvc()
     {
@@ -82,6 +82,18 @@ internal class MapperMvc : Profile
             .ForMember(dest => dest.Display, act => act.MapFrom(src => src.Display))
             .ForMember(dest => dest.Memory, act => act.MapFrom(src => src.Memory))
             .ForMember(dest => dest.Storage, act => act.MapFrom(src => src.Storage))
+            .ReverseMap();
+        CreateMap<NotebookStore.Business.UserDto, UserViewModel>()
+            .ForMember(dest => dest.Id, act => act.MapFrom(src => src.Id))
+            .ForMember(dest => dest.Name, act => act.MapFrom(src => src.Name))
+            .ForMember(dest => dest.Email, act => act.MapFrom(src => src.Email))
+            .ForMember(dest => dest.Password, act => act.MapFrom(src => src.Password))
+            .ReverseMap();
+        CreateMap<User, NotebookStore.Business.UserDto>()
+            .ForMember(dest => dest.Id, act => act.MapFrom(src => src.Id))
+            .ForMember(dest => dest.Name, act => act.MapFrom(src => src.Name))
+            .ForMember(dest => dest.Email, act => act.MapFrom(src => src.Email))
+            .ForMember(dest => dest.Password, act => act.MapFrom(src => src.Password))
             .ReverseMap();
         CreateMap<Brand, NotebookStore.Business.BrandDto>();
         CreateMap<Cpu, CpuDto>();

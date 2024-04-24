@@ -51,7 +51,7 @@ public class DisplayController : Controller
     // POST: DisplayViewModel/Create
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Create([Bind("Id,Brand,Model")] DisplayViewModel DisplayViewModel)
+    public async Task<IActionResult> Create([Bind("Id, Size, ResolutionWidth, ResolutionHeight, PanelType")] DisplayViewModel DisplayViewModel)
     {
         if (ModelState.IsValid)
         {
@@ -80,7 +80,7 @@ public class DisplayController : Controller
     // POST: DisplayViewModel/Edit/5
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Edit(int id, [Bind("Id,Brand,Model")] DisplayViewModel DisplayViewModel)
+    public async Task<IActionResult> Edit(int id, [Bind("Id, Size, ResolutionWidth, ResolutionHeight, PanelType")] DisplayViewModel DisplayViewModel)
     {
         if (id != DisplayViewModel.Id)
         {
