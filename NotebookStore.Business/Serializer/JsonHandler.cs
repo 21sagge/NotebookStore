@@ -1,7 +1,7 @@
 ﻿using System.Text;
 using System.Text.Json;
 
-namespace NotebookStoreMVC.Services;
+namespace NotebookStore.Business;
 
 public class JsonHandler : ISerializer
 {

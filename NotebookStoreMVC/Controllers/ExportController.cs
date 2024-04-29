@@ -1,42 +1,40 @@
 ﻿using System.Text;
 using Microsoft.AspNetCore.Mvc;
-using NotebookStore.DAL;
-using NotebookStoreMVC.Services;
-using NotebookStore.Entities;
 using AutoMapper;
+using NotebookStore.Business;
 
 namespace NotebookStoreMVC.Controllers;
 
 public class ExportController : Controller
 {
-    private readonly IRepository<Brand> _brandRepository;
-    private readonly IRepository<Cpu> _cpuRepository;
-    private readonly IRepository<Display> _displayRepository;
-    private readonly IRepository<Memory> _memoryRepository;
-    private readonly IRepository<Model> _modelRepository;
-    private readonly IRepository<Storage> _storageRepository;
-    private readonly IRepository<Notebook> _notebookRepository;
+    private readonly BrandService _brandService;
+    private readonly CpuService _cpuService;
+    private readonly DisplayService _displayService;
+    private readonly MemoryService _memoryService;
+    private readonly ModelService _modelService;
+    private readonly StorageService _storageService;
+    private readonly NotebookService _notebookService;
     private readonly IEnumerable<ISerializer> serializers;
     private readonly IMapper mapper;
 
     public ExportController(
-        IRepository<Brand> brandRepository,
-        IRepository<Cpu> cpuRepository,
-        IRepository<Display> displayRepository,
-        IRepository<Memory> memoryRepository,
-        IRepository<Model> modelRepository,
-        IRepository<Storage> storageRepository,
-        IRepository<Notebook> notebookRepository,
+        BrandService brandService,
+        CpuService cpuService,
+        DisplayService displayService,
+        MemoryService memoryService,
+        ModelService modelService,
+        StorageService storageService,
+        NotebookService notebookService,
         IEnumerable<ISerializer> serializer,
         IMapper mapper)
     {
-        _brandRepository = brandRepository;
-        _cpuRepository = cpuRepository;
-        _displayRepository = displayRepository;
-        _memoryRepository = memoryRepository;
-        _modelRepository = modelRepository;
-        _storageRepository = storageRepository;
-        _notebookRepository = notebookRepository;
+        _brandService = brandService;
+        _cpuService = cpuService;
+        _displayService = displayService;
+        _memoryService = memoryService;
+        _modelService = modelService;
+        _storageService = storageService;
+        _notebookService = notebookService;
         serializers = serializer;
         this.mapper = mapper;
     }
@@ -62,7 +60,7 @@ public class ExportController : Controller
         switch (dataType)
         {
             case "Brand":
-                var brands = (await _brandRepository.Read()).ToList();
+                var brands = (await _brandService.GetBrands()).ToList();
 
                 var brandsMapped = mapper.Map<IEnumerable<BrandDto>>(brands).ToList();
 
@@ -73,7 +71,7 @@ public class ExportController : Controller
                 return File(bytes, "application/octet-stream", $"{dataType.ToLower()}Export.{format}");
 
             case "Cpu":
-                var cpus = (await _cpuRepository.Read()).ToList();
+                var cpus = (await _cpuService.GetCpus()).ToList();
 
                 var cpusMapped = mapper.Map<IEnumerable<CpuDto>>(cpus).ToList();
 
@@ -84,7 +82,7 @@ public class ExportController : Controller
                 return File(bytes, "application/octet-stream", $"{dataType.ToLower()}Export.{format}");
 
             case "Display":
-                var displays = (await _displayRepository.Read()).ToList();
+                var displays = (await _displayService.GetDisplays()).ToList();
 
                 var displaysMapped = mapper.Map<IEnumerable<DisplayDto>>(displays).ToList();
 
@@ -95,7 +93,7 @@ public class ExportController : Controller
                 return File(bytes, "application/octet-stream", $"{dataType.ToLower()}Export.{format}");
 
             case "Memory":
-                var memories = (await _memoryRepository.Read()).ToList();
+                var memories = (await _memoryService.GetMemories()).ToList();
 
                 var memoriesMapped = mapper.Map<IEnumerable<MemoryDto>>(memories).ToList();
 
@@ -106,7 +104,7 @@ public class ExportController : Controller
                 return File(bytes, "application/octet-stream", $"{dataType.ToLower()}Export.{format}");
 
             case "Model":
-                var models = (await _modelRepository.Read()).ToList();
+                var models = (await _modelService.GetModels()).ToList();
 
                 var modelsMapped = mapper.Map<IEnumerable<ModelDto>>(models).ToList();
 
@@ -117,7 +115,7 @@ public class ExportController : Controller
                 return File(bytes, "application/octet-stream", $"{dataType.ToLower()}Export.{format}");
 
             case "Storage":
-                var storages = (await _storageRepository.Read()).ToList();
+                var storages = (await _storageService.GetStorages()).ToList();
 
                 var storagesMapped = mapper.Map<IEnumerable<StorageDto>>(storages).ToList();
 
@@ -128,7 +126,7 @@ public class ExportController : Controller
                 return File(bytes, "application/octet-stream", $"{dataType.ToLower()}Export.{format}");
 
             case "Notebook":
-                var notebooks = (await _notebookRepository.Read()).ToList();
+                var notebooks = (await _notebookService.GetNotebooks()).ToList();
 
                 var notebooksMapped = mapper.Map<IEnumerable<NotebookDto>>(notebooks).ToList();
 

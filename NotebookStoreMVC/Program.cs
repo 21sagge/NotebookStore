@@ -3,7 +3,6 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using NotebookStoreMVC;
 using NotebookStore.DAL;
-using NotebookStoreMVC.Services;
 using NotebookStore.Business;
 
 var builder = WebApplication.CreateBuilder(args);

@@ -1,6 +1,7 @@
 ﻿namespace NotebookStore.Business;
 
 using AutoMapper;
+using Microsoft.EntityFrameworkCore;
 using NotebookStore.DAL;
 using NotebookStore.Entities;
 
@@ -71,7 +72,7 @@ public class NotebookService
 		return mapper.Map<NotebookDto>(notebook);
 	}
 
-	public async Task CreateNotebook(NotebookDto notebookDto)
+	public async Task<bool> CreateNotebook(NotebookDto notebookDto)
 	{
 		var notebook = mapper.Map<Notebook>(notebookDto);
 
@@ -82,15 +83,27 @@ public class NotebookService
 			await unitOfWork.Notebooks.Create(notebook);
 			await unitOfWork.SaveAsync();
 			unitOfWork.CommitTransaction();
+			return true;
 		}
-		catch (Exception)
+		catch (DbUpdateException ex)
+		{
+			throw new DbUpdateException("Impossibile creare il notebook", ex);
+		}
+		catch (ArgumentNullException ex)
+		{
+			throw new ArgumentNullException("Il notebook è nullo", ex);
+		}
+		catch (Exception ex)
+		{
+			throw new Exception("Errore durante la creazione del notebook", ex);
+		}
+		finally
 		{
 			unitOfWork.RollbackTransaction();
-			throw;
 		}
 	}
 
-	public async Task UpdateNotebook(NotebookDto notebookDto)
+	public async Task<bool> UpdateNotebook(NotebookDto notebookDto)
 	{
 		var notebook = mapper.Map<Notebook>(notebookDto);
 
@@ -101,15 +114,27 @@ public class NotebookService
 			await unitOfWork.Notebooks.Update(notebook);
 			await unitOfWork.SaveAsync();
 			unitOfWork.CommitTransaction();
+			return true;
 		}
-		catch (Exception)
+		catch (DbUpdateException ex)
+		{
+			throw new DbUpdateException("Impossibile aggiornare il notebook", ex);
+		}
+		catch (ArgumentNullException ex)
+		{
+			throw new ArgumentNullException("Il notebook è nullo", ex);
+		}
+		catch (Exception ex)
+		{
+			throw new Exception("Errore durante l'aggiornamento del notebook", ex);
+		}
+		finally
 		{
 			unitOfWork.RollbackTransaction();
-			throw;
 		}
 	}
 
-	public async Task DeleteNotebook(int id)
+	public async Task<bool> DeleteNotebook(int id)
 	{
 		unitOfWork.BeginTransaction();
 
@@ -118,11 +143,23 @@ public class NotebookService
 			await unitOfWork.Notebooks.Delete(id);
 			await unitOfWork.SaveAsync();
 			unitOfWork.CommitTransaction();
+			return true;
 		}
-		catch (Exception)
+		catch (DbUpdateException ex)
+		{
+			throw new DbUpdateException("Impossibile eliminare il notebook", ex);
+		}
+		catch (ArgumentNullException ex)
+		{
+			throw new ArgumentNullException("Il notebook è nullo", ex);
+		}
+		catch (Exception ex)
+		{
+			throw new Exception("Errore durante l'eliminazione del notebook", ex);
+		}
+		finally
 		{
 			unitOfWork.RollbackTransaction();
-			throw;
 		}
 	}
 

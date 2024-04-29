@@ -1,4 +1,4 @@
-﻿namespace NotebookStoreMVC.Services;
+﻿namespace NotebookStore.Business;
 
 public interface ISerializer
 {

@@ -1,6 +1,7 @@
 ﻿namespace NotebookStore.Business;
 
 using AutoMapper;
+using Microsoft.EntityFrameworkCore;
 using NotebookStore.DAL;
 using NotebookStore.Entities;
 
@@ -29,7 +30,7 @@ public class UserService
 		return mapper.Map<UserDto>(user);
 	}
 
-	public async Task CreateUser(UserDto userDto)
+	public async Task<bool> CreateUser(UserDto userDto)
 	{
 		var user = mapper.Map<User>(userDto);
 
@@ -40,15 +41,27 @@ public class UserService
 			await unitOfWork.Users.Create(user);
 			await unitOfWork.SaveAsync();
 			unitOfWork.CommitTransaction();
+			return true;
 		}
-		catch (Exception)
+		catch (DbUpdateException ex)
+		{
+			throw new DbUpdateException("Impossibile creare l'utente", ex);
+		}
+		catch (ArgumentNullException ex)
+		{
+			throw new ArgumentNullException("L'utente è nullo", ex);
+		}
+		catch (Exception ex)
+		{
+			throw new Exception("Errore durante la creazione dell'utente", ex);
+		}
+		finally
 		{
 			unitOfWork.RollbackTransaction();
-			throw;
 		}
 	}
 
-	public async Task UpdateUser(UserDto userDto)
+	public async Task<bool> UpdateUser(UserDto userDto)
 	{
 		var user = mapper.Map<User>(userDto);
 
@@ -59,15 +72,27 @@ public class UserService
 			await unitOfWork.Users.Update(user);
 			await unitOfWork.SaveAsync();
 			unitOfWork.CommitTransaction();
+			return true;
 		}
-		catch (Exception)
+		catch (DbUpdateException ex)
+		{
+			throw new DbUpdateException("Impossibile aggiornare l'utente", ex);
+		}
+		catch (ArgumentNullException ex)
+		{
+			throw new ArgumentNullException("L'utente è nullo", ex);
+		}
+		catch (Exception ex)
+		{
+			throw new Exception("Errore durante l'aggiornamento dell'utente", ex);
+		}
+		finally
 		{
 			unitOfWork.RollbackTransaction();
-			throw;
 		}
 	}
 
-	public async Task DeleteUser(int id)
+	public async Task<bool> DeleteUser(int id)
 	{
 		unitOfWork.BeginTransaction();
 
@@ -76,11 +101,23 @@ public class UserService
 			await unitOfWork.Users.Delete(id);
 			await unitOfWork.SaveAsync();
 			unitOfWork.CommitTransaction();
+			return true;
 		}
-		catch (Exception)
+		catch (DbUpdateException ex)
+		{
+			throw new DbUpdateException("Impossibile eliminare l'utente", ex);
+		}
+		catch (ArgumentNullException ex)
+		{
+			throw new ArgumentNullException("L'utente è nullo", ex);
+		}
+		catch (Exception ex)
+		{
+			throw new Exception("Errore durante l'eliminazione dell'utente", ex);
+		}
+		finally
 		{
 			unitOfWork.RollbackTransaction();
-			throw;
 		}
 	}
 

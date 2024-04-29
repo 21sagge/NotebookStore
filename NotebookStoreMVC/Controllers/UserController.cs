@@ -19,7 +19,7 @@ public class UserController : Controller
 
     // GET: userViewModel
     [HttpGet]
-    [Authorize]
+    // [Authorize]
     public async Task<IActionResult> Index()
     {
         var users = await service.GetUsers();

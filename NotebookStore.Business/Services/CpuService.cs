@@ -1,6 +1,7 @@
 ﻿namespace NotebookStore.Business;
 
 using AutoMapper;
+using Microsoft.EntityFrameworkCore;
 using NotebookStore.DAL;
 using NotebookStore.Entities;
 
@@ -29,7 +30,7 @@ public class CpuService
 		return mapper.Map<CpuDto>(cpu);
 	}
 
-	public async Task CreateCpu(CpuDto cpuDto)
+	public async Task<bool> CreateCpu(CpuDto cpuDto)
 	{
 		var cpu = mapper.Map<Cpu>(cpuDto);
 
@@ -40,15 +41,27 @@ public class CpuService
 			await unitOfWork.Cpus.Create(cpu);
 			await unitOfWork.SaveAsync();
 			unitOfWork.CommitTransaction();
+			return true;
 		}
-		catch (Exception)
+		catch (DbUpdateException ex)
+		{
+			throw new DbUpdateException("Impossibile creare il processore", ex);
+		}
+		catch (ArgumentNullException ex)
+		{
+			throw new ArgumentNullException("Il processore è nullo", ex);
+		}
+		catch (Exception ex)
+		{
+			throw new Exception("Errore durante la creazione del processore", ex);
+		}
+		finally
 		{
 			unitOfWork.RollbackTransaction();
-			throw;
 		}
 	}
 
-	public async Task UpdateCpu(CpuDto cpuDto)
+	public async Task<bool> UpdateCpu(CpuDto cpuDto)
 	{
 		var cpu = mapper.Map<Cpu>(cpuDto);
 
@@ -59,15 +72,27 @@ public class CpuService
 			await unitOfWork.Cpus.Update(cpu);
 			await unitOfWork.SaveAsync();
 			unitOfWork.CommitTransaction();
+			return true;
 		}
-		catch (Exception)
+		catch (DbUpdateException ex)
+		{
+			throw new DbUpdateException("Impossibile aggiornare il processore", ex);
+		}
+		catch (ArgumentNullException ex)
+		{
+			throw new ArgumentNullException("Il processore è nullo", ex);
+		}
+		catch (Exception ex)
+		{
+			throw new Exception("Errore durante l'aggiornamento del processore", ex);
+		}
+		finally
 		{
 			unitOfWork.RollbackTransaction();
-			throw;
 		}
 	}
 
-	public async Task DeleteCpu(int id)
+	public async Task<bool> DeleteCpu(int id)
 	{
 		unitOfWork.BeginTransaction();
 
@@ -76,11 +101,23 @@ public class CpuService
 			await unitOfWork.Cpus.Delete(id);
 			await unitOfWork.SaveAsync();
 			unitOfWork.CommitTransaction();
+			return true;
 		}
-		catch (Exception)
+		catch (DbUpdateException ex)
+		{
+			throw new DbUpdateException("Impossibile eliminare il processore", ex);
+		}
+		catch (ArgumentNullException ex)
+		{
+			throw new ArgumentNullException("Il processore è nullo", ex);
+		}
+		catch (Exception ex)
+		{
+			throw new Exception("Errore durante l'eliminazione del processore", ex);
+		}
+		finally
 		{
 			unitOfWork.RollbackTransaction();
-			throw;
 		}
 	}
 

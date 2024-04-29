@@ -1,6 +1,7 @@
 ﻿namespace NotebookStore.Business;
 
 using AutoMapper;
+using Microsoft.EntityFrameworkCore;
 using NotebookStore.DAL;
 using NotebookStore.Entities;
 
@@ -29,7 +30,7 @@ public class ModelService
 		return mapper.Map<ModelDto>(model);
 	}
 
-	public async Task CreateModel(ModelDto modelDto)
+	public async Task<bool> CreateModel(ModelDto modelDto)
 	{
 		var model = mapper.Map<Model>(modelDto);
 
@@ -40,15 +41,27 @@ public class ModelService
 			await unitOfWork.Models.Create(model);
 			await unitOfWork.SaveAsync();
 			unitOfWork.CommitTransaction();
+			return true;
 		}
-		catch (Exception)
+		catch (DbUpdateException ex)
+		{
+			throw new DbUpdateException("Impossibile creare il modello", ex);
+		}
+		catch (ArgumentNullException ex)
+		{
+			throw new ArgumentNullException("Il modello è nullo", ex);
+		}
+		catch (Exception ex)
+		{
+			throw new Exception("Errore durante la creazione del modello", ex);
+		}
+		finally
 		{
 			unitOfWork.RollbackTransaction();
-			throw;
 		}
 	}
 
-	public async Task UpdateModel(ModelDto modelDto)
+	public async Task<bool> UpdateModel(ModelDto modelDto)
 	{
 		var model = mapper.Map<Model>(modelDto);
 
@@ -59,15 +72,27 @@ public class ModelService
 			await unitOfWork.Models.Update(model);
 			await unitOfWork.SaveAsync();
 			unitOfWork.CommitTransaction();
+			return true;
 		}
-		catch (Exception)
+		catch (DbUpdateException ex)
+		{
+			throw new DbUpdateException("Impossibile aggiornare il modello", ex);
+		}
+		catch (ArgumentNullException ex)
+		{
+			throw new ArgumentNullException("Il modello è nullo", ex);
+		}
+		catch (Exception ex)
+		{
+			throw new Exception("Errore durante l'aggiornamento del modello", ex);
+		}
+		finally
 		{
 			unitOfWork.RollbackTransaction();
-			throw;
 		}
 	}
 
-	public async Task DeleteModel(int id)
+	public async Task<bool> DeleteModel(int id)
 	{
 		unitOfWork.BeginTransaction();
 
@@ -76,11 +101,23 @@ public class ModelService
 			await unitOfWork.Models.Delete(id);
 			await unitOfWork.SaveAsync();
 			unitOfWork.CommitTransaction();
+			return true;
 		}
-		catch (Exception)
+		catch (DbUpdateException ex)
+		{
+			throw new DbUpdateException("Impossibile eliminare il modello", ex);
+		}
+		catch (ArgumentNullException ex)
+		{
+			throw new ArgumentNullException("Il modello è nullo", ex);
+		}
+		catch (Exception ex)
+		{
+			throw new Exception("Errore durante l'eliminazione del modello", ex);
+		}
+		finally
 		{
 			unitOfWork.RollbackTransaction();
-			throw;
 		}
 	}
 

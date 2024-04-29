@@ -1,6 +1,7 @@
 ﻿namespace NotebookStore.Business;
 
 using AutoMapper;
+using Microsoft.EntityFrameworkCore;
 using NotebookStore.DAL;
 using NotebookStore.Entities;
 
@@ -60,7 +61,7 @@ public class BrandService
         }
     }
 
-    public async Task<string> UpdateBrand(BrandDto brandDto)
+    public async Task<bool> UpdateBrand(BrandDto brandDto)
     {
         var brand = mapper.Map<Brand>(brandDto);
 
@@ -71,11 +72,19 @@ public class BrandService
             await unitOfWork.Brands.Update(brand);
             await unitOfWork.SaveAsync();
             unitOfWork.CommitTransaction();
-            return string.Empty;
+            return true;
         }
-        catch
+        catch (DbUpdateException ex)
         {
-            return "Qualcosa è andato storto, riprovare";
+            throw new DbUpdateException("Impossibile aggiornare il brand", ex);
+        }
+        catch (ArgumentNullException ex)
+        {
+            throw new ArgumentNullException("Il brand è nullo", ex);
+        }
+        catch (Exception ex)
+        {
+            throw new Exception("Errore durante l'aggiornamento del brand", ex);
         }
         finally
         {
@@ -83,7 +92,7 @@ public class BrandService
         }
     }
 
-    public async Task<string> DeleteBrand(int id)
+    public async Task<bool> DeleteBrand(int id)
     {
         unitOfWork.BeginTransaction();
 
@@ -92,11 +101,19 @@ public class BrandService
             await unitOfWork.Brands.Delete(id);
             await unitOfWork.SaveAsync();
             unitOfWork.CommitTransaction();
-            return string.Empty;
+            return true;
         }
-        catch
+        catch (DbUpdateException ex)
         {
-            return "Qualcosa è andato storto, riprovare";
+            throw new DbUpdateException("Impossibile eliminare il brand", ex);
+        }
+        catch (ArgumentNullException ex)
+        {
+            throw new ArgumentNullException("Il brand è nullo", ex);
+        }
+        catch (Exception ex)
+        {
+            throw new Exception("Errore durante l'eliminazione del brand", ex);
         }
         finally
         {

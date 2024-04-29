@@ -1,6 +1,7 @@
 ﻿namespace NotebookStore.Business;
 
 using AutoMapper;
+using Microsoft.EntityFrameworkCore;
 using NotebookStore.DAL;
 using NotebookStore.Entities;
 
@@ -29,7 +30,7 @@ public class MemoryService
 		return mapper.Map<MemoryDto>(memory);
 	}
 
-	public async Task CreateMemory(MemoryDto memoryDto)
+	public async Task<bool> CreateMemory(MemoryDto memoryDto)
 	{
 		var memory = mapper.Map<Memory>(memoryDto);
 
@@ -40,15 +41,27 @@ public class MemoryService
 			await unitOfWork.Memories.Create(memory);
 			await unitOfWork.SaveAsync();
 			unitOfWork.CommitTransaction();
+			return true;
 		}
-		catch (Exception)
+		catch (DbUpdateException ex)
+		{
+			throw new DbUpdateException("Impossibile creare la memoria", ex);
+		}
+		catch (ArgumentNullException ex)
+		{
+			throw new ArgumentNullException("La memoria è nulla", ex);
+		}
+		catch (Exception ex)
+		{
+			throw new Exception("Errore durante la creazione della memoria", ex);
+		}
+		finally
 		{
 			unitOfWork.RollbackTransaction();
-			throw;
 		}
 	}
 
-	public async Task UpdateMemory(MemoryDto memoryDto)
+	public async Task<bool> UpdateMemory(MemoryDto memoryDto)
 	{
 		var memory = mapper.Map<Memory>(memoryDto);
 
@@ -59,15 +72,27 @@ public class MemoryService
 			await unitOfWork.Memories.Update(memory);
 			await unitOfWork.SaveAsync();
 			unitOfWork.CommitTransaction();
+			return true;
 		}
-		catch (Exception)
+		catch (DbUpdateException ex)
+		{
+			throw new DbUpdateException("Impossibile aggiornare la memoria", ex);
+		}
+		catch (ArgumentNullException ex)
+		{
+			throw new ArgumentNullException("La memoria è nulla", ex);
+		}
+		catch (Exception ex)
+		{
+			throw new Exception("Errore durante l'aggiornamento della memoria", ex);
+		}
+		finally
 		{
 			unitOfWork.RollbackTransaction();
-			throw;
 		}
 	}
 
-	public async Task DeleteMemory(int id)
+	public async Task<bool> DeleteMemory(int id)
 	{
 		unitOfWork.BeginTransaction();
 
@@ -76,11 +101,23 @@ public class MemoryService
 			await unitOfWork.Memories.Delete(id);
 			await unitOfWork.SaveAsync();
 			unitOfWork.CommitTransaction();
+			return true;
 		}
-		catch (Exception)
+		catch (DbUpdateException ex)
+		{
+			throw new DbUpdateException("Impossibile eliminare la memoria", ex);
+		}
+		catch (ArgumentNullException ex)
+		{
+			throw new ArgumentNullException("La memoria è nulla", ex);
+		}
+		catch (Exception ex)
+		{
+			throw new Exception("Errore durante l'eliminazione della memoria", ex);
+		}
+		finally
 		{
 			unitOfWork.RollbackTransaction();
-			throw;
 		}
 	}
 

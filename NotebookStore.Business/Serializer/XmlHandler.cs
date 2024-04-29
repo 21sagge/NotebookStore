@@ -1,8 +1,7 @@
 ﻿using System.Text;
 using System.Xml.Serialization;
-using NotebookStoreMVC.Services;
 
-namespace NotebookStoreMVC;
+namespace NotebookStore.Business;
 
 public class XmlHandler : ISerializer
 {

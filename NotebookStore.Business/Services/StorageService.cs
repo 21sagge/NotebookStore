@@ -1,6 +1,7 @@
 ﻿namespace NotebookStore.Business;
 
 using AutoMapper;
+using Microsoft.EntityFrameworkCore;
 using NotebookStore.DAL;
 using NotebookStore.Entities;
 
@@ -29,7 +30,7 @@ public class StorageService
 		return mapper.Map<StorageDto>(storage);
 	}
 
-	public async Task CreateStorage(StorageDto storageDto)
+	public async Task<bool> CreateStorage(StorageDto storageDto)
 	{
 		var storage = mapper.Map<Storage>(storageDto);
 
@@ -40,15 +41,27 @@ public class StorageService
 			await unitOfWork.Storages.Create(storage);
 			await unitOfWork.SaveAsync();
 			unitOfWork.CommitTransaction();
+			return true;
 		}
-		catch (Exception)
+		catch (DbUpdateException ex)
+		{
+			throw new DbUpdateException("Impossibile creare lo storage", ex);
+		}
+		catch (ArgumentNullException ex)
+		{
+			throw new ArgumentNullException("Lo storage è nullo", ex);
+		}
+		catch (Exception ex)
+		{
+			throw new Exception("Errore durante la creazione dello storage", ex);
+		}
+		finally
 		{
 			unitOfWork.RollbackTransaction();
-			throw;
 		}
 	}
 
-	public async Task UpdateStorage(StorageDto storageDto)
+	public async Task<bool> UpdateStorage(StorageDto storageDto)
 	{
 		var storage = mapper.Map<Storage>(storageDto);
 
@@ -59,15 +72,27 @@ public class StorageService
 			await unitOfWork.Storages.Update(storage);
 			await unitOfWork.SaveAsync();
 			unitOfWork.CommitTransaction();
+			return true;
 		}
-		catch (Exception)
+		catch (DbUpdateException ex)
+		{
+			throw new DbUpdateException("Impossibile aggiornare lo storage", ex);
+		}
+		catch (ArgumentNullException ex)
+		{
+			throw new ArgumentNullException("Lo storage è nullo", ex);
+		}
+		catch (Exception ex)
+		{
+			throw new Exception("Errore durante l'aggiornamento dello storage", ex);
+		}
+		finally
 		{
 			unitOfWork.RollbackTransaction();
-			throw;
 		}
 	}
 
-	public async Task DeleteStorage(int id)
+	public async Task<bool> DeleteStorage(int id)
 	{
 		unitOfWork.BeginTransaction();
 
@@ -76,11 +101,23 @@ public class StorageService
 			await unitOfWork.Storages.Delete(id);
 			await unitOfWork.SaveAsync();
 			unitOfWork.CommitTransaction();
+			return true;
 		}
-		catch (Exception)
+		catch (DbUpdateException ex)
+		{
+			throw new DbUpdateException("Impossibile eliminare lo storage", ex);
+		}
+		catch (ArgumentNullException ex)
+		{
+			throw new ArgumentNullException("Lo storage è nullo", ex);
+		}
+		catch (Exception ex)
+		{
+			throw new Exception("Errore durante l'eliminazione dello storage", ex);
+		}
+		finally
 		{
 			unitOfWork.RollbackTransaction();
-			throw;
 		}
 	}
 
