@@ -43,21 +43,10 @@ public class CpuService
 			unitOfWork.CommitTransaction();
 			return true;
 		}
-		catch (DbUpdateException ex)
-		{
-			throw new DbUpdateException("Impossibile creare il processore", ex);
-		}
-		catch (ArgumentNullException ex)
-		{
-			throw new ArgumentNullException("Il processore è nullo", ex);
-		}
 		catch (Exception ex)
 		{
-			throw new Exception("Errore durante la creazione del processore", ex);
-		}
-		finally
-		{
 			unitOfWork.RollbackTransaction();
+			throw new Exception("Errore durante la creazione del processore", ex);
 		}
 	}
 
@@ -74,21 +63,10 @@ public class CpuService
 			unitOfWork.CommitTransaction();
 			return true;
 		}
-		catch (DbUpdateException ex)
-		{
-			throw new DbUpdateException("Impossibile aggiornare il processore", ex);
-		}
-		catch (ArgumentNullException ex)
-		{
-			throw new ArgumentNullException("Il processore è nullo", ex);
-		}
 		catch (Exception ex)
 		{
-			throw new Exception("Errore durante l'aggiornamento del processore", ex);
-		}
-		finally
-		{
 			unitOfWork.RollbackTransaction();
+			throw new Exception("Errore durante l'aggiornamento del processore", ex);
 		}
 	}
 
@@ -103,21 +81,10 @@ public class CpuService
 			unitOfWork.CommitTransaction();
 			return true;
 		}
-		catch (DbUpdateException ex)
-		{
-			throw new DbUpdateException("Impossibile eliminare il processore", ex);
-		}
-		catch (ArgumentNullException ex)
-		{
-			throw new ArgumentNullException("Il processore è nullo", ex);
-		}
 		catch (Exception ex)
 		{
-			throw new Exception("Errore durante l'eliminazione del processore", ex);
-		}
-		finally
-		{
 			unitOfWork.RollbackTransaction();
+			throw new Exception("Errore durante l'eliminazione del processore", ex);
 		}
 	}
 

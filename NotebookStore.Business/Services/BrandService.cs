@@ -43,21 +43,10 @@ public class BrandService
             unitOfWork.CommitTransaction();
             return true;
         }
-        catch (DbUpdateException ex)
-        {
-            throw new DbUpdateException("Impossibile creare il brand", ex);
-        }
-        catch (ArgumentNullException ex)
-        {
-            throw new ArgumentNullException("Il brand è nullo", ex);
-        }
         catch (Exception ex)
         {
-            throw new Exception("Errore durante la creazione del brand", ex);
-        }
-        finally
-        {
             unitOfWork.RollbackTransaction();
+            throw new Exception("Errore durante la creazione del brand", ex);
         }
     }
 
@@ -74,21 +63,10 @@ public class BrandService
             unitOfWork.CommitTransaction();
             return true;
         }
-        catch (DbUpdateException ex)
-        {
-            throw new DbUpdateException("Impossibile aggiornare il brand", ex);
-        }
-        catch (ArgumentNullException ex)
-        {
-            throw new ArgumentNullException("Il brand è nullo", ex);
-        }
         catch (Exception ex)
         {
-            throw new Exception("Errore durante l'aggiornamento del brand", ex);
-        }
-        finally
-        {
             unitOfWork.RollbackTransaction();
+            throw new Exception("Errore durante l'aggiornamento del brand", ex);
         }
     }
 
@@ -103,21 +81,10 @@ public class BrandService
             unitOfWork.CommitTransaction();
             return true;
         }
-        catch (DbUpdateException ex)
-        {
-            throw new DbUpdateException("Impossibile eliminare il brand", ex);
-        }
-        catch (ArgumentNullException ex)
-        {
-            throw new ArgumentNullException("Il brand è nullo", ex);
-        }
         catch (Exception ex)
         {
-            throw new Exception("Errore durante l'eliminazione del brand", ex);
-        }
-        finally
-        {
             unitOfWork.RollbackTransaction();
+            throw new Exception("Errore durante l'eliminazione del brand", ex);
         }
     }
 

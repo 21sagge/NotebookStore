@@ -43,21 +43,10 @@ public class StorageService
 			unitOfWork.CommitTransaction();
 			return true;
 		}
-		catch (DbUpdateException ex)
-		{
-			throw new DbUpdateException("Impossibile creare lo storage", ex);
-		}
-		catch (ArgumentNullException ex)
-		{
-			throw new ArgumentNullException("Lo storage è nullo", ex);
-		}
 		catch (Exception ex)
 		{
-			throw new Exception("Errore durante la creazione dello storage", ex);
-		}
-		finally
-		{
 			unitOfWork.RollbackTransaction();
+			throw new Exception("Errore durante la creazione dello storage", ex);
 		}
 	}
 
@@ -74,21 +63,10 @@ public class StorageService
 			unitOfWork.CommitTransaction();
 			return true;
 		}
-		catch (DbUpdateException ex)
-		{
-			throw new DbUpdateException("Impossibile aggiornare lo storage", ex);
-		}
-		catch (ArgumentNullException ex)
-		{
-			throw new ArgumentNullException("Lo storage è nullo", ex);
-		}
 		catch (Exception ex)
 		{
-			throw new Exception("Errore durante l'aggiornamento dello storage", ex);
-		}
-		finally
-		{
 			unitOfWork.RollbackTransaction();
+			throw new Exception("Errore durante l'aggiornamento dello storage", ex);
 		}
 	}
 
@@ -103,21 +81,10 @@ public class StorageService
 			unitOfWork.CommitTransaction();
 			return true;
 		}
-		catch (DbUpdateException ex)
-		{
-			throw new DbUpdateException("Impossibile eliminare lo storage", ex);
-		}
-		catch (ArgumentNullException ex)
-		{
-			throw new ArgumentNullException("Lo storage è nullo", ex);
-		}
 		catch (Exception ex)
 		{
-			throw new Exception("Errore durante l'eliminazione dello storage", ex);
-		}
-		finally
-		{
 			unitOfWork.RollbackTransaction();
+			throw new Exception("Errore durante l'eliminazione dello storage", ex);
 		}
 	}
 

@@ -43,21 +43,10 @@ public class MemoryService
 			unitOfWork.CommitTransaction();
 			return true;
 		}
-		catch (DbUpdateException ex)
-		{
-			throw new DbUpdateException("Impossibile creare la memoria", ex);
-		}
-		catch (ArgumentNullException ex)
-		{
-			throw new ArgumentNullException("La memoria è nulla", ex);
-		}
 		catch (Exception ex)
 		{
-			throw new Exception("Errore durante la creazione della memoria", ex);
-		}
-		finally
-		{
 			unitOfWork.RollbackTransaction();
+			throw new Exception("Errore durante la creazione della memoria", ex);
 		}
 	}
 
@@ -74,21 +63,10 @@ public class MemoryService
 			unitOfWork.CommitTransaction();
 			return true;
 		}
-		catch (DbUpdateException ex)
-		{
-			throw new DbUpdateException("Impossibile aggiornare la memoria", ex);
-		}
-		catch (ArgumentNullException ex)
-		{
-			throw new ArgumentNullException("La memoria è nulla", ex);
-		}
 		catch (Exception ex)
 		{
-			throw new Exception("Errore durante l'aggiornamento della memoria", ex);
-		}
-		finally
-		{
 			unitOfWork.RollbackTransaction();
+			throw new Exception("Errore durante l'aggiornamento della memoria", ex);
 		}
 	}
 
@@ -103,21 +81,10 @@ public class MemoryService
 			unitOfWork.CommitTransaction();
 			return true;
 		}
-		catch (DbUpdateException ex)
-		{
-			throw new DbUpdateException("Impossibile eliminare la memoria", ex);
-		}
-		catch (ArgumentNullException ex)
-		{
-			throw new ArgumentNullException("La memoria è nulla", ex);
-		}
 		catch (Exception ex)
 		{
-			throw new Exception("Errore durante l'eliminazione della memoria", ex);
-		}
-		finally
-		{
 			unitOfWork.RollbackTransaction();
+			throw new Exception("Errore durante l'eliminazione della memoria", ex);
 		}
 	}
 

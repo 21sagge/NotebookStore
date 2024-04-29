@@ -43,21 +43,10 @@ public class DisplayService
 			unitOfWork.CommitTransaction();
 			return true;
 		}
-		catch (DbUpdateException ex)
-		{
-			throw new DbUpdateException("Impossibile creare il display", ex);
-		}
-		catch (ArgumentNullException ex)
-		{
-			throw new ArgumentNullException("Il display è nullo", ex);
-		}
 		catch (Exception ex)
 		{
-			throw new Exception("Errore durante la creazione del display", ex);
-		}
-		finally
-		{
 			unitOfWork.RollbackTransaction();
+			throw new Exception("Errore durante la creazione del display", ex);
 		}
 	}
 
@@ -74,21 +63,10 @@ public class DisplayService
 			unitOfWork.CommitTransaction();
 			return true;
 		}
-		catch (DbUpdateException ex)
-		{
-			throw new DbUpdateException("Impossibile aggiornare il display", ex);
-		}
-		catch (ArgumentNullException ex)
-		{
-			throw new ArgumentNullException("Il display è nullo", ex);
-		}
 		catch (Exception ex)
 		{
-			throw new Exception("Errore durante l'aggiornamento del display", ex);
-		}
-		finally
-		{
 			unitOfWork.RollbackTransaction();
+			throw new Exception("Errore durante l'aggiornamento del display", ex);
 		}
 	}
 
@@ -103,21 +81,10 @@ public class DisplayService
 			unitOfWork.CommitTransaction();
 			return true;
 		}
-		catch (DbUpdateException ex)
-		{
-			throw new DbUpdateException("Impossibile eliminare il display", ex);
-		}
-		catch (ArgumentNullException ex)
-		{
-			throw new ArgumentNullException("Il display è nullo", ex);
-		}
 		catch (Exception ex)
 		{
-			throw new Exception("Errore durante l'eliminazione del display", ex);
-		}
-		finally
-		{
 			unitOfWork.RollbackTransaction();
+			throw new Exception("Errore durante l'eliminazione del display", ex);
 		}
 	}
 

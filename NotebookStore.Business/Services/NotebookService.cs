@@ -85,21 +85,10 @@ public class NotebookService
 			unitOfWork.CommitTransaction();
 			return true;
 		}
-		catch (DbUpdateException ex)
-		{
-			throw new DbUpdateException("Impossibile creare il notebook", ex);
-		}
-		catch (ArgumentNullException ex)
-		{
-			throw new ArgumentNullException("Il notebook è nullo", ex);
-		}
 		catch (Exception ex)
 		{
-			throw new Exception("Errore durante la creazione del notebook", ex);
-		}
-		finally
-		{
 			unitOfWork.RollbackTransaction();
+			throw new Exception("Errore durante la creazione del notebook", ex);
 		}
 	}
 
@@ -116,21 +105,10 @@ public class NotebookService
 			unitOfWork.CommitTransaction();
 			return true;
 		}
-		catch (DbUpdateException ex)
-		{
-			throw new DbUpdateException("Impossibile aggiornare il notebook", ex);
-		}
-		catch (ArgumentNullException ex)
-		{
-			throw new ArgumentNullException("Il notebook è nullo", ex);
-		}
 		catch (Exception ex)
 		{
-			throw new Exception("Errore durante l'aggiornamento del notebook", ex);
-		}
-		finally
-		{
 			unitOfWork.RollbackTransaction();
+			throw new Exception("Errore durante l'aggiornamento del notebook", ex);
 		}
 	}
 
@@ -145,21 +123,10 @@ public class NotebookService
 			unitOfWork.CommitTransaction();
 			return true;
 		}
-		catch (DbUpdateException ex)
-		{
-			throw new DbUpdateException("Impossibile eliminare il notebook", ex);
-		}
-		catch (ArgumentNullException ex)
-		{
-			throw new ArgumentNullException("Il notebook è nullo", ex);
-		}
 		catch (Exception ex)
 		{
-			throw new Exception("Errore durante l'eliminazione del notebook", ex);
-		}
-		finally
-		{
 			unitOfWork.RollbackTransaction();
+			throw new Exception("Errore durante l'eliminazione del notebook", ex);
 		}
 	}
 

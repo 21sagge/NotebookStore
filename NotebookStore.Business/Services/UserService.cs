@@ -43,21 +43,10 @@ public class UserService
 			unitOfWork.CommitTransaction();
 			return true;
 		}
-		catch (DbUpdateException ex)
-		{
-			throw new DbUpdateException("Impossibile creare l'utente", ex);
-		}
-		catch (ArgumentNullException ex)
-		{
-			throw new ArgumentNullException("L'utente è nullo", ex);
-		}
 		catch (Exception ex)
 		{
-			throw new Exception("Errore durante la creazione dell'utente", ex);
-		}
-		finally
-		{
 			unitOfWork.RollbackTransaction();
+			throw new Exception("Errore durante la creazione dell'utente", ex);
 		}
 	}
 
@@ -74,21 +63,10 @@ public class UserService
 			unitOfWork.CommitTransaction();
 			return true;
 		}
-		catch (DbUpdateException ex)
-		{
-			throw new DbUpdateException("Impossibile aggiornare l'utente", ex);
-		}
-		catch (ArgumentNullException ex)
-		{
-			throw new ArgumentNullException("L'utente è nullo", ex);
-		}
 		catch (Exception ex)
 		{
-			throw new Exception("Errore durante l'aggiornamento dell'utente", ex);
-		}
-		finally
-		{
 			unitOfWork.RollbackTransaction();
+			throw new Exception("Errore durante l'aggiornamento dell'utente", ex);
 		}
 	}
 
@@ -103,21 +81,10 @@ public class UserService
 			unitOfWork.CommitTransaction();
 			return true;
 		}
-		catch (DbUpdateException ex)
-		{
-			throw new DbUpdateException("Impossibile eliminare l'utente", ex);
-		}
-		catch (ArgumentNullException ex)
-		{
-			throw new ArgumentNullException("L'utente è nullo", ex);
-		}
 		catch (Exception ex)
 		{
-			throw new Exception("Errore durante l'eliminazione dell'utente", ex);
-		}
-		finally
-		{
 			unitOfWork.RollbackTransaction();
+			throw new Exception("Errore durante l'eliminazione dell'utente", ex);
 		}
 	}
 

@@ -43,21 +43,10 @@ public class ModelService
 			unitOfWork.CommitTransaction();
 			return true;
 		}
-		catch (DbUpdateException ex)
-		{
-			throw new DbUpdateException("Impossibile creare il modello", ex);
-		}
-		catch (ArgumentNullException ex)
-		{
-			throw new ArgumentNullException("Il modello è nullo", ex);
-		}
 		catch (Exception ex)
 		{
-			throw new Exception("Errore durante la creazione del modello", ex);
-		}
-		finally
-		{
 			unitOfWork.RollbackTransaction();
+			throw new Exception("Errore durante la creazione del modello", ex);
 		}
 	}
 
@@ -74,21 +63,10 @@ public class ModelService
 			unitOfWork.CommitTransaction();
 			return true;
 		}
-		catch (DbUpdateException ex)
-		{
-			throw new DbUpdateException("Impossibile aggiornare il modello", ex);
-		}
-		catch (ArgumentNullException ex)
-		{
-			throw new ArgumentNullException("Il modello è nullo", ex);
-		}
 		catch (Exception ex)
 		{
-			throw new Exception("Errore durante l'aggiornamento del modello", ex);
-		}
-		finally
-		{
 			unitOfWork.RollbackTransaction();
+			throw new Exception("Errore durante l'aggiornamento del modello", ex);
 		}
 	}
 
@@ -103,21 +81,10 @@ public class ModelService
 			unitOfWork.CommitTransaction();
 			return true;
 		}
-		catch (DbUpdateException ex)
-		{
-			throw new DbUpdateException("Impossibile eliminare il modello", ex);
-		}
-		catch (ArgumentNullException ex)
-		{
-			throw new ArgumentNullException("Il modello è nullo", ex);
-		}
 		catch (Exception ex)
 		{
-			throw new Exception("Errore durante l'eliminazione del modello", ex);
-		}
-		finally
-		{
 			unitOfWork.RollbackTransaction();
+			throw new Exception("Errore durante l'eliminazione del modello", ex);
 		}
 	}
 

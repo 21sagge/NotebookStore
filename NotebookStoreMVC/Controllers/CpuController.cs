@@ -73,7 +73,7 @@ public class CpuController : Controller
             return NotFound();
         }
 
-        return View(mapper.Map<BrandViewModel>(cpu));
+        return View(mapper.Map<CpuViewModel>(cpu));
     }
 
     // POST: CpuViewModel/Edit/5
