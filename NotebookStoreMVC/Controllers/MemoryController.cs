@@ -7,12 +7,12 @@ namespace NotebookStoreMVC.Controllers;
 
 public class MemoryController : Controller
 {
-    private readonly MemoryService service;
+    private readonly IServices services;
     private readonly IMapper mapper;
 
-    public MemoryController(MemoryService service, IMapper mapper)
+    public MemoryController(IServices services, IMapper mapper)
     {
-        this.service = service;
+        this.services = services;
         this.mapper = mapper;
     }
 
@@ -20,7 +20,7 @@ public class MemoryController : Controller
     [HttpGet]
     public async Task<IActionResult> Index()
     {
-        var memories = await service.GetMemories();
+        var memories = await services.Memories.GetAll();
         var mappedMemories = mapper.Map<IEnumerable<MemoryViewModel>>(memories);
 
         return View(mappedMemories);
@@ -30,7 +30,7 @@ public class MemoryController : Controller
     [HttpGet]
     public async Task<IActionResult> Details(int id)
     {
-        var memory = await service.GetMemory(id);
+        var memory = await services.Memories.Find(id);
 
         if (memory == null)
         {
@@ -54,7 +54,7 @@ public class MemoryController : Controller
     {
         if (ModelState.IsValid)
         {
-            await service.CreateMemory(mapper.Map<MemoryDto>(MemoryViewModel));
+            await services.Memories.Create(mapper.Map<MemoryDto>(MemoryViewModel));
 
             return RedirectToAction(nameof(Index));
         }
@@ -66,7 +66,7 @@ public class MemoryController : Controller
     [HttpGet]
     public async Task<IActionResult> Edit(int id)
     {
-        var memory = await service.GetMemory(id);
+        var memory = await services.Memories.Find(id);
 
         if (memory == null)
         {
@@ -88,7 +88,7 @@ public class MemoryController : Controller
 
         if (ModelState.IsValid)
         {
-            await service.UpdateMemory(mapper.Map<MemoryDto>(MemoryViewModel));
+            await services.Memories.Update(mapper.Map<MemoryDto>(MemoryViewModel));
 
             return RedirectToAction(nameof(Index));
         }
@@ -101,7 +101,7 @@ public class MemoryController : Controller
     [HttpGet]
     public async Task<IActionResult> Delete(int id)
     {
-        var memory = await service.GetMemory(id);
+        var memory = await services.Memories.Find(id);
 
         if (memory == null)
         {
@@ -116,13 +116,8 @@ public class MemoryController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> DeleteConfirmed(int id)
     {
-        await service.DeleteMemory(id);
+        await services.Memories.Delete(id);
 
         return RedirectToAction(nameof(Index));
-    }
-
-    private async Task<bool> MemoryExists(int id)
-    {
-        return await service.MemoryExists(id);
     }
 }

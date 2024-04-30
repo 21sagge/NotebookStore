@@ -15,4 +15,10 @@ public class HomeController : Controller
     {
         return View();
     }
+
+    // GET: /<controller>/Error
+    public IActionResult Error()
+    {
+        return View();
+    }
 }

@@ -7,12 +7,12 @@ namespace NotebookStoreMVC.Controllers;
 
 public class StorageController : Controller
 {
-    private readonly StorageService service;
+    private readonly IServices services;
     private readonly IMapper mapper;
 
-    public StorageController(StorageService service, IMapper mapper)
+    public StorageController(IServices services, IMapper mapper)
     {
-        this.service = service;
+        this.services = services;
         this.mapper = mapper;
     }
 
@@ -20,7 +20,7 @@ public class StorageController : Controller
     [HttpGet]
     public async Task<IActionResult> Index()
     {
-        var storages = await service.GetStorages();
+        var storages = await services.Storages.GetAll();
         var mappedStorages = mapper.Map<IEnumerable<StorageViewModel>>(storages);
 
         return View(mappedStorages);
@@ -30,7 +30,7 @@ public class StorageController : Controller
     [HttpGet]
     public async Task<IActionResult> Details(int id)
     {
-        var storage = await service.GetStorage(id);
+        var storage = await services.Storages.Find(id);
 
         if (storage == null)
         {
@@ -54,7 +54,7 @@ public class StorageController : Controller
     {
         if (ModelState.IsValid)
         {
-            await service.CreateStorage(mapper.Map<StorageDto>(StorageViewModel));
+            await services.Storages.Create(mapper.Map<StorageDto>(StorageViewModel));
 
             return RedirectToAction(nameof(Index));
         }
@@ -65,7 +65,7 @@ public class StorageController : Controller
     [HttpGet]
     public async Task<IActionResult> Edit(int id)
     {
-        var storage = await service.GetStorage(id);
+        var storage = await services.Storages.Find(id);
 
         if (storage == null)
         {
@@ -87,7 +87,7 @@ public class StorageController : Controller
 
         if (ModelState.IsValid)
         {
-            await service.UpdateStorage(mapper.Map<StorageDto>(StorageViewModel));
+            await services.Storages.Update(mapper.Map<StorageDto>(StorageViewModel));
 
             return RedirectToAction(nameof(Index));
         }
@@ -99,7 +99,7 @@ public class StorageController : Controller
     [HttpGet]
     public async Task<IActionResult> Delete(int id)
     {
-        var storage = await service.GetStorage(id);
+        var storage = await services.Storages.Find(id);
 
         if (storage == null)
         {
@@ -114,13 +114,8 @@ public class StorageController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> DeleteConfirmed(int id)
     {
-        await service.DeleteStorage(id);
+        await services.Storages.Delete(id);
 
         return RedirectToAction(nameof(Index));
-    }
-
-    private async Task<bool> StorageExists(int id)
-    {
-        return await service.StorageExists(id);
     }
 }

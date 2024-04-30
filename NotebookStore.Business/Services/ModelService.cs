@@ -1,11 +1,10 @@
 ﻿namespace NotebookStore.Business;
 
 using AutoMapper;
-using Microsoft.EntityFrameworkCore;
 using NotebookStore.DAL;
 using NotebookStore.Entities;
 
-public class ModelService
+public class ModelService : IService<ModelDto>
 {
 	private readonly IUnitOfWork unitOfWork;
 	private readonly IMapper mapper;
@@ -16,21 +15,21 @@ public class ModelService
 		this.mapper = mapper;
 	}
 
-	public async Task<IEnumerable<ModelDto>> GetModels()
+	public async Task<IEnumerable<ModelDto>> GetAll()
 	{
 		var models = await unitOfWork.Models.Read();
 
 		return mapper.Map<IEnumerable<ModelDto>>(models);
 	}
 
-	public async Task<ModelDto> GetModel(int id)
+	public async Task<ModelDto> Find(int id)
 	{
 		var model = await unitOfWork.Models.Find(id);
 
 		return mapper.Map<ModelDto>(model);
 	}
 
-	public async Task<bool> CreateModel(ModelDto modelDto)
+	public async Task<bool> Create(ModelDto modelDto)
 	{
 		var model = mapper.Map<Model>(modelDto);
 
@@ -50,7 +49,7 @@ public class ModelService
 		}
 	}
 
-	public async Task<bool> UpdateModel(ModelDto modelDto)
+	public async Task<bool> Update(ModelDto modelDto)
 	{
 		var model = mapper.Map<Model>(modelDto);
 
@@ -70,7 +69,7 @@ public class ModelService
 		}
 	}
 
-	public async Task<bool> DeleteModel(int id)
+	public async Task<bool> Delete(int id)
 	{
 		unitOfWork.BeginTransaction();
 
@@ -86,10 +85,5 @@ public class ModelService
 			unitOfWork.RollbackTransaction();
 			throw new Exception("Errore durante l'eliminazione del modello", ex);
 		}
-	}
-
-	public async Task<bool> ModelExists(int id)
-	{
-		return await unitOfWork.Models.Find(id) != null;
 	}
 }

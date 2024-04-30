@@ -7,12 +7,12 @@ namespace NotebookStoreMVC.Controllers;
 
 public class ModelController : Controller
 {
-    private readonly ModelService service;
+    private readonly IServices services;
     private readonly IMapper mapper;
 
-    public ModelController(ModelService service, IMapper mapper)
+    public ModelController(IServices services, IMapper mapper)
     {
-        this.service = service;
+        this.services = services;
         this.mapper = mapper;
     }
 
@@ -20,7 +20,7 @@ public class ModelController : Controller
     [HttpGet]
     public async Task<IActionResult> Index()
     {
-        var models = await service.GetModels();
+        var models = await services.Models.GetAll();
         var mappedModels = mapper.Map<IEnumerable<ModelViewModel>>(models);
 
         return View(mappedModels);
@@ -30,7 +30,7 @@ public class ModelController : Controller
     [HttpGet]
     public async Task<IActionResult> Details(int id)
     {
-        var model = await service.GetModel(id);
+        var model = await services.Models.Find(id);
 
         if (model == null)
         {
@@ -54,7 +54,7 @@ public class ModelController : Controller
     {
         if (ModelState.IsValid)
         {
-            await service.CreateModel(mapper.Map<ModelDto>(ModelViewModel));
+            await services.Models.Create(mapper.Map<ModelDto>(ModelViewModel));
 
             return RedirectToAction(nameof(Index));
         }
@@ -66,7 +66,7 @@ public class ModelController : Controller
     [HttpGet]
     public async Task<IActionResult> Edit(int id)
     {
-        var model = await service.GetModel(id);
+        var model = await services.Models.Find(id);
 
         if (model == null)
         {
@@ -88,7 +88,7 @@ public class ModelController : Controller
 
         if (ModelState.IsValid)
         {
-            await service.UpdateModel(mapper.Map<ModelDto>(ModelViewModel));
+            await services.Models.Update(mapper.Map<ModelDto>(ModelViewModel));
 
             return RedirectToAction(nameof(Index));
         }
@@ -100,7 +100,7 @@ public class ModelController : Controller
     [HttpGet]
     public async Task<IActionResult> Delete(int id)
     {
-        var model = await service.GetModel(id);
+        var model = await services.Models.Find(id);
 
         if (model == null)
         {
@@ -115,13 +115,8 @@ public class ModelController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> DeleteConfirmed(int id)
     {
-        await service.DeleteModel(id);
+        await services.Models.Delete(id);
 
         return RedirectToAction(nameof(Index));
-    }
-
-    private async Task<bool> ModelExists(int id)
-    {
-        return await service.ModelExists(id);
     }
 }

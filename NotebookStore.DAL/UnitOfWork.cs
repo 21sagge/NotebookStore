@@ -29,11 +29,21 @@ public class UnitOfWork : IUnitOfWork
 
     public async Task SaveAsync() => await context.SaveChangesAsync();
 
-    // context.Database.CurrentTransaction();
+    public void BeginTransaction()
+    {
+        if (context.Database.CurrentTransaction == null)
+            context.Database.BeginTransaction();
+    }
 
-    public void BeginTransaction() => context.Database.BeginTransaction();
+    public void CommitTransaction()
+    {
+        if (context.Database.CurrentTransaction != null)
+            context.Database.CommitTransaction();
+    }
 
-    public void CommitTransaction() => context.Database.CommitTransaction();
-
-    public void RollbackTransaction() => context.Database.RollbackTransaction();
+    public void RollbackTransaction()
+    {
+        if (context.Database.CurrentTransaction != null)
+            context.Database.RollbackTransaction();
+    }
 }

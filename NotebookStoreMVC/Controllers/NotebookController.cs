@@ -7,12 +7,12 @@ namespace NotebookStoreMVC.Controllers;
 
 public class NotebookController : Controller
 {
-	private readonly NotebookService service;
+	private readonly IServices services;
 	private readonly IMapper mapper;
 
-	public NotebookController(NotebookService service, IMapper mapper)
+	public NotebookController(IServices services, IMapper mapper)
 	{
-		this.service = service;
+		this.services = services;
 		this.mapper = mapper;
 	}
 
@@ -20,7 +20,7 @@ public class NotebookController : Controller
 	[HttpGet]
 	public async Task<IActionResult> Index()
 	{
-		var notebooks = await service.GetNotebooks();
+		var notebooks = await services.Notebooks.GetAll();
 		var mappedNotebooks = mapper.Map<IEnumerable<NotebookViewModel>>(notebooks);
 
 		return View(mappedNotebooks);
@@ -30,7 +30,7 @@ public class NotebookController : Controller
 	[HttpGet]
 	public async Task<IActionResult> Details(int id)
 	{
-		var notebook = await service.GetNotebook(id);
+		var notebook = await services.Notebooks.Find(id);
 
 		if (notebook == null)
 		{
@@ -44,12 +44,12 @@ public class NotebookController : Controller
 	[HttpGet]
 	public async Task<IActionResult> Create()
 	{
-		ViewBag.Brands = mapper.Map<IEnumerable<BrandViewModel>>(await service.GetBrands());
-		ViewBag.Cpus = mapper.Map<IEnumerable<CpuViewModel>>(await service.GetCpus());
-		ViewBag.Displays = mapper.Map<IEnumerable<DisplayViewModel>>(await service.GetDisplays());
-		ViewBag.Memories = mapper.Map<IEnumerable<MemoryViewModel>>(await service.GetMemories());
-		ViewBag.Models = mapper.Map<IEnumerable<ModelViewModel>>(await service.GetModels());
-		ViewBag.Storages = mapper.Map<IEnumerable<StorageViewModel>>(await service.GetStorages());
+		ViewBag.Brands = mapper.Map<IEnumerable<BrandViewModel>>(await services.Notebooks.GetAll());
+		ViewBag.Cpus = mapper.Map<IEnumerable<CpuViewModel>>(await services.Notebooks.GetAll());
+		ViewBag.Displays = mapper.Map<IEnumerable<DisplayViewModel>>(await services.Notebooks.GetAll());
+		ViewBag.Memories = mapper.Map<IEnumerable<MemoryViewModel>>(await services.Notebooks.GetAll());
+		ViewBag.Models = mapper.Map<IEnumerable<ModelViewModel>>(await services.Notebooks.GetAll());
+		ViewBag.Storages = mapper.Map<IEnumerable<StorageViewModel>>(await services.Notebooks.GetAll());
 
 		return View();
 	}
@@ -61,7 +61,7 @@ public class NotebookController : Controller
 	{
 		if (ModelState.IsValid)
 		{
-			await service.CreateNotebook(mapper.Map<NotebookDto>(notebook));
+			await services.Notebooks.Create(mapper.Map<NotebookDto>(notebook));
 
 			return RedirectToAction(nameof(Index));
 		}
@@ -73,19 +73,19 @@ public class NotebookController : Controller
 	[HttpGet]
 	public async Task<IActionResult> Edit(int id)
 	{
-		var notebook = await service.GetNotebook(id);
+		var notebook = await services.Notebooks.Find(id);
 
 		if (notebook == null)
 		{
 			return NotFound();
 		}
 
-		ViewBag.Brands = mapper.Map<IEnumerable<BrandViewModel>>(await service.GetBrands());
-		ViewBag.Cpus = mapper.Map<IEnumerable<CpuViewModel>>(await service.GetCpus());
-		ViewBag.Displays = mapper.Map<IEnumerable<DisplayViewModel>>(await service.GetDisplays());
-		ViewBag.Memories = mapper.Map<IEnumerable<MemoryViewModel>>(await service.GetMemories());
-		ViewBag.Models = mapper.Map<IEnumerable<ModelViewModel>>(await service.GetModels());
-		ViewBag.Storages = mapper.Map<IEnumerable<StorageViewModel>>(await service.GetStorages());
+		ViewBag.Brands = mapper.Map<IEnumerable<BrandViewModel>>(await services.Notebooks.GetAll());
+		ViewBag.Cpus = mapper.Map<IEnumerable<CpuViewModel>>(await services.Notebooks.GetAll());
+		ViewBag.Displays = mapper.Map<IEnumerable<DisplayViewModel>>(await services.Notebooks.GetAll());
+		ViewBag.Memories = mapper.Map<IEnumerable<MemoryViewModel>>(await services.Notebooks.GetAll());
+		ViewBag.Models = mapper.Map<IEnumerable<ModelViewModel>>(await services.Notebooks.GetAll());
+		ViewBag.Storages = mapper.Map<IEnumerable<StorageViewModel>>(await services.Notebooks.GetAll());
 
 		return View(mapper.Map<NotebookViewModel>(notebook));
 	}
@@ -102,7 +102,7 @@ public class NotebookController : Controller
 
 		if (ModelState.IsValid)
 		{
-			await service.UpdateNotebook(mapper.Map<NotebookDto>(notebook));
+			await services.Notebooks.Update(mapper.Map<NotebookDto>(notebook));
 
 			return RedirectToAction(nameof(Index));
 		}
@@ -114,7 +114,7 @@ public class NotebookController : Controller
 	[HttpGet]
 	public async Task<IActionResult> Delete(int id)
 	{
-		var notebook = await service.GetNotebook(id);
+		var notebook = await services.Notebooks.Find(id);
 
 		if (notebook == null)
 		{
@@ -129,13 +129,8 @@ public class NotebookController : Controller
 	[ValidateAntiForgeryToken]
 	public async Task<IActionResult> DeleteConfirmed(int id)
 	{
-		await service.DeleteNotebook(id);
+		await services.Notebooks.Delete(id);
 
 		return RedirectToAction(nameof(Index));
-	}
-
-	private Task<bool> NotebookExists(int id)
-	{
-		return service.NotebookExists(id);
 	}
 }

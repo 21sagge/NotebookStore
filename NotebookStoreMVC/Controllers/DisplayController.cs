@@ -8,12 +8,12 @@ namespace NotebookStoreMVC.Controllers;
 
 public class DisplayController : Controller
 {
-    private readonly DisplayService service;
+    private readonly IServices services;
     private readonly IMapper mapper;
 
-    public DisplayController(DisplayService service, IMapper mapper)
+    public DisplayController(IServices services, IMapper mapper)
     {
-        this.service = service;
+        this.services = services;
         this.mapper = mapper;
     }
 
@@ -21,7 +21,7 @@ public class DisplayController : Controller
     [HttpGet]
     public async Task<IActionResult> Index()
     {
-        var displays = await service.GetDisplays();
+        var displays = await services.Displays.GetAll();
         var mappedDisplays = mapper.Map<IEnumerable<DisplayViewModel>>(displays);
 
         return View(mappedDisplays);
@@ -31,7 +31,7 @@ public class DisplayController : Controller
     [HttpGet]
     public async Task<IActionResult> Details(int id)
     {
-        var display = await service.GetDisplay(id);
+        var display = await services.Displays.Find(id);
 
         if (display == null)
         {
@@ -55,7 +55,7 @@ public class DisplayController : Controller
     {
         if (ModelState.IsValid)
         {
-            await service.CreateDisplay(mapper.Map<DisplayDto>(DisplayViewModel));
+            await services.Displays.Create(mapper.Map<DisplayDto>(DisplayViewModel));
 
             return RedirectToAction(nameof(Index));
         }
@@ -67,7 +67,7 @@ public class DisplayController : Controller
     [HttpGet]
     public async Task<IActionResult> Edit(int id)
     {
-        var display = await service.GetDisplay(id);
+        var display = await services.Displays.Find(id);
 
         if (display == null)
         {
@@ -91,7 +91,7 @@ public class DisplayController : Controller
         {
             try
             {
-                await service.UpdateDisplay(mapper.Map<DisplayDto>(DisplayViewModel));
+                await services.Displays.Update(mapper.Map<DisplayDto>(DisplayViewModel));
             }
             catch (Exception ex)
             {
@@ -109,7 +109,7 @@ public class DisplayController : Controller
     [HttpGet]
     public async Task<IActionResult> Delete(int id)
     {
-        var display = await service.GetDisplay(id);
+        var display = await services.Displays.Find(id);
 
         if (display == null)
         {
@@ -124,13 +124,8 @@ public class DisplayController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> DeleteConfirmed(int id)
     {
-        await service.DeleteDisplay(id);
+        await services.Displays.Delete(id);
 
         return RedirectToAction(nameof(Index));
-    }
-
-    private async Task<bool> DisplayExists(int id)
-    {
-        return await service.DisplayExists(id);
     }
 }

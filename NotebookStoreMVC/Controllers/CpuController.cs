@@ -7,12 +7,12 @@ namespace NotebookStoreMVC.Controllers;
 
 public class CpuController : Controller
 {
-    private readonly CpuService service;
+    private readonly IServices services;
     private readonly IMapper mapper;
 
-    public CpuController(CpuService service, IMapper mapper)
+    public CpuController(IServices services, IMapper mapper)
     {
-        this.service = service;
+        this.services = services;
         this.mapper = mapper;
     }
 
@@ -20,7 +20,7 @@ public class CpuController : Controller
     [HttpGet]
     public async Task<IActionResult> Index()
     {
-        var cpus = await service.GetCpus();
+        var cpus = await services.Cpus.GetAll();
         var mappedCpus = mapper.Map<IEnumerable<CpuViewModel>>(cpus);
 
         return View(mappedCpus);
@@ -30,7 +30,7 @@ public class CpuController : Controller
     [HttpGet]
     public async Task<IActionResult> Details(int id)
     {
-        var cpu = await service.GetCpu(id);
+        var cpu = await services.Cpus.Find(id);
 
         if (cpu == null)
         {
@@ -54,7 +54,7 @@ public class CpuController : Controller
     {
         if (ModelState.IsValid)
         {
-            await service.CreateCpu(mapper.Map<CpuDto>(CpuViewModel));
+            await services.Cpus.Create(mapper.Map<CpuDto>(CpuViewModel));
 
             return RedirectToAction(nameof(Index));
         }
@@ -66,7 +66,7 @@ public class CpuController : Controller
     [HttpGet]
     public async Task<IActionResult> Edit(int id)
     {
-        var cpu = await service.GetCpu(id);
+        var cpu = await services.Cpus.Find(id);
 
         if (cpu == null)
         {
@@ -90,7 +90,7 @@ public class CpuController : Controller
         {
             try
             {
-                await service.UpdateCpu(mapper.Map<CpuDto>(CpuViewModel));
+                await services.Cpus.Update(mapper.Map<CpuDto>(CpuViewModel));
             }
             catch (Exception ex)
             {
@@ -108,7 +108,7 @@ public class CpuController : Controller
     [HttpGet]
     public async Task<IActionResult> Delete(int id)
     {
-        var cpu = await service.GetCpu(id);
+        var cpu = await services.Cpus.Find(id);
 
         if (cpu == null)
         {
@@ -123,13 +123,8 @@ public class CpuController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> DeleteConfirmed(int id)
     {
-        await service.DeleteCpu(id);
+        await services.Cpus.Delete(id);
 
         return RedirectToAction(nameof(Index));
-    }
-
-    private async Task<bool> CpuExists(int id)
-    {
-        return await service.CpuExists(id);
     }
 }

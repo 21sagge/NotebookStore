@@ -1,11 +1,10 @@
 ﻿namespace NotebookStore.Business;
 
 using AutoMapper;
-using Microsoft.EntityFrameworkCore;
 using NotebookStore.DAL;
 using NotebookStore.Entities;
 
-public class DisplayService
+public class DisplayService : IService<DisplayDto>
 {
 	private readonly IUnitOfWork unitOfWork;
 	private readonly IMapper mapper;
@@ -16,21 +15,21 @@ public class DisplayService
 		this.mapper = mapper;
 	}
 
-	public async Task<IEnumerable<DisplayDto>> GetDisplays()
+	public async Task<IEnumerable<DisplayDto>> GetAll()
 	{
 		var displays = await unitOfWork.Displays.Read();
 
 		return mapper.Map<IEnumerable<DisplayDto>>(displays);
 	}
 
-	public async Task<DisplayDto> GetDisplay(int id)
+	public async Task<DisplayDto> Find(int id)
 	{
 		var display = await unitOfWork.Displays.Find(id);
 
 		return mapper.Map<DisplayDto>(display);
 	}
 
-	public async Task<bool> CreateDisplay(DisplayDto displayDto)
+	public async Task<bool> Create(DisplayDto displayDto)
 	{
 		var display = mapper.Map<Display>(displayDto);
 
@@ -50,7 +49,7 @@ public class DisplayService
 		}
 	}
 
-	public async Task<bool> UpdateDisplay(DisplayDto displayDto)
+	public async Task<bool> Update(DisplayDto displayDto)
 	{
 		var display = mapper.Map<Display>(displayDto);
 
@@ -70,7 +69,7 @@ public class DisplayService
 		}
 	}
 
-	public async Task<bool> DeleteDisplay(int id)
+	public async Task<bool> Delete(int id)
 	{
 		unitOfWork.BeginTransaction();
 
@@ -86,10 +85,5 @@ public class DisplayService
 			unitOfWork.RollbackTransaction();
 			throw new Exception("Errore durante l'eliminazione del display", ex);
 		}
-	}
-
-	public async Task<bool> DisplayExists(int id)
-	{
-		return await unitOfWork.Displays.Find(id) != null;
 	}
 }

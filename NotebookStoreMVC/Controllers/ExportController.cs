@@ -7,34 +7,16 @@ namespace NotebookStoreMVC.Controllers;
 
 public class ExportController : Controller
 {
-    private readonly BrandService _brandService;
-    private readonly CpuService _cpuService;
-    private readonly DisplayService _displayService;
-    private readonly MemoryService _memoryService;
-    private readonly ModelService _modelService;
-    private readonly StorageService _storageService;
-    private readonly NotebookService _notebookService;
+    private readonly IServices services;
     private readonly IEnumerable<ISerializer> serializers;
     private readonly IMapper mapper;
 
     public ExportController(
-        BrandService brandService,
-        CpuService cpuService,
-        DisplayService displayService,
-        MemoryService memoryService,
-        ModelService modelService,
-        StorageService storageService,
-        NotebookService notebookService,
+        IServices services,
         IEnumerable<ISerializer> serializer,
         IMapper mapper)
     {
-        _brandService = brandService;
-        _cpuService = cpuService;
-        _displayService = displayService;
-        _memoryService = memoryService;
-        _modelService = modelService;
-        _storageService = storageService;
-        _notebookService = notebookService;
+        this.services = services;
         serializers = serializer;
         this.mapper = mapper;
     }
@@ -60,7 +42,7 @@ public class ExportController : Controller
         switch (dataType)
         {
             case "Brand":
-                var brands = (await _brandService.GetBrands()).ToList();
+                var brands = (await services.Brands.GetAll()).ToList();
 
                 var brandsMapped = mapper.Map<IEnumerable<BrandDto>>(brands).ToList();
 
@@ -71,7 +53,7 @@ public class ExportController : Controller
                 return File(bytes, "application/octet-stream", $"{dataType.ToLower()}Export.{format}");
 
             case "Cpu":
-                var cpus = (await _cpuService.GetCpus()).ToList();
+                var cpus = (await services.Cpus.GetAll()).ToList();
 
                 var cpusMapped = mapper.Map<IEnumerable<CpuDto>>(cpus).ToList();
 
@@ -82,7 +64,7 @@ public class ExportController : Controller
                 return File(bytes, "application/octet-stream", $"{dataType.ToLower()}Export.{format}");
 
             case "Display":
-                var displays = (await _displayService.GetDisplays()).ToList();
+                var displays = (await services.Displays.GetAll()).ToList();
 
                 var displaysMapped = mapper.Map<IEnumerable<DisplayDto>>(displays).ToList();
 
@@ -93,7 +75,7 @@ public class ExportController : Controller
                 return File(bytes, "application/octet-stream", $"{dataType.ToLower()}Export.{format}");
 
             case "Memory":
-                var memories = (await _memoryService.GetMemories()).ToList();
+                var memories = (await services.Memories.GetAll()).ToList();
 
                 var memoriesMapped = mapper.Map<IEnumerable<MemoryDto>>(memories).ToList();
 
@@ -104,7 +86,7 @@ public class ExportController : Controller
                 return File(bytes, "application/octet-stream", $"{dataType.ToLower()}Export.{format}");
 
             case "Model":
-                var models = (await _modelService.GetModels()).ToList();
+                var models = (await services.Models.GetAll()).ToList();
 
                 var modelsMapped = mapper.Map<IEnumerable<ModelDto>>(models).ToList();
 
@@ -115,7 +97,7 @@ public class ExportController : Controller
                 return File(bytes, "application/octet-stream", $"{dataType.ToLower()}Export.{format}");
 
             case "Storage":
-                var storages = (await _storageService.GetStorages()).ToList();
+                var storages = (await services.Storages.GetAll()).ToList();
 
                 var storagesMapped = mapper.Map<IEnumerable<StorageDto>>(storages).ToList();
 
@@ -126,7 +108,7 @@ public class ExportController : Controller
                 return File(bytes, "application/octet-stream", $"{dataType.ToLower()}Export.{format}");
 
             case "Notebook":
-                var notebooks = (await _notebookService.GetNotebooks()).ToList();
+                var notebooks = (await services.Notebooks.GetAll()).ToList();
 
                 var notebooksMapped = mapper.Map<IEnumerable<NotebookDto>>(notebooks).ToList();
 

@@ -1,11 +1,10 @@
 ﻿namespace NotebookStore.Business;
 
 using AutoMapper;
-using Microsoft.EntityFrameworkCore;
 using NotebookStore.DAL;
 using NotebookStore.Entities;
 
-public class StorageService
+public class StorageService : IService<StorageDto>
 {
 	private readonly IUnitOfWork unitOfWork;
 	private readonly IMapper mapper;
@@ -16,21 +15,21 @@ public class StorageService
 		this.mapper = mapper;
 	}
 
-	public async Task<IEnumerable<StorageDto>> GetStorages()
+	public async Task<IEnumerable<StorageDto>> GetAll()
 	{
 		var storages = await unitOfWork.Storages.Read();
 
 		return mapper.Map<IEnumerable<StorageDto>>(storages);
 	}
 
-	public async Task<StorageDto> GetStorage(int id)
+	public async Task<StorageDto> Find(int id)
 	{
 		var storage = await unitOfWork.Storages.Find(id);
 
 		return mapper.Map<StorageDto>(storage);
 	}
 
-	public async Task<bool> CreateStorage(StorageDto storageDto)
+	public async Task<bool> Create(StorageDto storageDto)
 	{
 		var storage = mapper.Map<Storage>(storageDto);
 
@@ -50,7 +49,7 @@ public class StorageService
 		}
 	}
 
-	public async Task<bool> UpdateStorage(StorageDto storageDto)
+	public async Task<bool> Update(StorageDto storageDto)
 	{
 		var storage = mapper.Map<Storage>(storageDto);
 
@@ -70,7 +69,7 @@ public class StorageService
 		}
 	}
 
-	public async Task<bool> DeleteStorage(int id)
+	public async Task<bool> Delete(int id)
 	{
 		unitOfWork.BeginTransaction();
 
@@ -86,10 +85,5 @@ public class StorageService
 			unitOfWork.RollbackTransaction();
 			throw new Exception("Errore durante l'eliminazione dello storage", ex);
 		}
-	}
-
-	public async Task<bool> StorageExists(int id)
-	{
-		return await unitOfWork.Storages.Find(id) != null;
 	}
 }

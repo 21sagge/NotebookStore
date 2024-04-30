@@ -1,11 +1,10 @@
 ﻿namespace NotebookStore.Business;
 
 using AutoMapper;
-using Microsoft.EntityFrameworkCore;
 using NotebookStore.DAL;
 using NotebookStore.Entities;
 
-public class NotebookService
+public class NotebookService : IService<NotebookDto>
 {
 	private readonly IUnitOfWork unitOfWork;
 	private readonly IMapper mapper;
@@ -16,7 +15,7 @@ public class NotebookService
 		this.mapper = mapper;
 	}
 
-	public async Task<IEnumerable<NotebookDto>> GetNotebooks()
+	public async Task<IEnumerable<NotebookDto>> GetAll()
 	{
 		var notebooks = await unitOfWork.Notebooks.Read();
 
@@ -65,14 +64,14 @@ public class NotebookService
 		return mapper.Map<IEnumerable<StorageDto>>(storages);
 	}
 
-	public async Task<NotebookDto> GetNotebook(int id)
+	public async Task<NotebookDto> Find(int id)
 	{
 		var notebook = await unitOfWork.Notebooks.Find(id);
 
 		return mapper.Map<NotebookDto>(notebook);
 	}
 
-	public async Task<bool> CreateNotebook(NotebookDto notebookDto)
+	public async Task<bool> Create(NotebookDto notebookDto)
 	{
 		var notebook = mapper.Map<Notebook>(notebookDto);
 
@@ -92,7 +91,7 @@ public class NotebookService
 		}
 	}
 
-	public async Task<bool> UpdateNotebook(NotebookDto notebookDto)
+	public async Task<bool> Update(NotebookDto notebookDto)
 	{
 		var notebook = mapper.Map<Notebook>(notebookDto);
 
@@ -112,7 +111,7 @@ public class NotebookService
 		}
 	}
 
-	public async Task<bool> DeleteNotebook(int id)
+	public async Task<bool> Delete(int id)
 	{
 		unitOfWork.BeginTransaction();
 
@@ -128,10 +127,5 @@ public class NotebookService
 			unitOfWork.RollbackTransaction();
 			throw new Exception("Errore durante l'eliminazione del notebook", ex);
 		}
-	}
-
-	public async Task<bool> NotebookExists(int id)
-	{
-		return await unitOfWork.Notebooks.Find(id) != null;
 	}
 }

@@ -8,12 +8,12 @@ namespace NotebookStoreMVC.Controllers;
 
 public class UserController : Controller
 {
-    private readonly UserService service;
+    private readonly IServices services;
     private readonly IMapper mapper;
 
-    public UserController(UserService service, IMapper mapper)
+    public UserController(IServices services, IMapper mapper)
     {
-        this.service = service;
+        this.services = services;
         this.mapper = mapper;
     }
 
@@ -22,7 +22,7 @@ public class UserController : Controller
     // [Authorize]
     public async Task<IActionResult> Index()
     {
-        var users = await service.GetUsers();
+        var users = await services.Users.GetAll();
         var mappedUsers = mapper.Map<IEnumerable<UserViewModel>>(users);
 
         return View(mappedUsers);
@@ -30,10 +30,10 @@ public class UserController : Controller
 
     // GET: userViewModel/Details/5
     [HttpGet]
-    [Authorize]
+    // [Authorize]
     public async Task<IActionResult> Details(int id)
     {
-        var user = await service.GetUser(id);
+        var user = await services.Users.Find(id);
 
         if (user == null)
         {
@@ -58,7 +58,7 @@ public class UserController : Controller
     {
         if (ModelState.IsValid)
         {
-            await service.CreateUser(mapper.Map<UserDto>(userViewModel));
+            await services.Users.Create(mapper.Map<UserDto>(userViewModel));
 
             return RedirectToAction(nameof(Index));
         }
@@ -71,7 +71,7 @@ public class UserController : Controller
     [Authorize]
     public async Task<IActionResult> Edit(int id)
     {
-        var user = await service.GetUser(id);
+        var user = await services.Users.Find(id);
 
         if (user == null)
         {
@@ -93,7 +93,7 @@ public class UserController : Controller
 
         if (ModelState.IsValid)
         {
-            await service.UpdateUser(mapper.Map<UserDto>(userViewModel));
+            await services.Users.Update(mapper.Map<UserDto>(userViewModel));
 
             return RedirectToAction(nameof(Index));
         }
@@ -106,7 +106,7 @@ public class UserController : Controller
     [Authorize]
     public async Task<IActionResult> Delete(int id)
     {
-        var user = await service.GetUser(id);
+        var user = await services.Users.Find(id);
 
         if (user == null)
         {
@@ -121,13 +121,8 @@ public class UserController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> DeleteConfirmed(int id)
     {
-        await service.DeleteUser(id);
+        await services.Users.Delete(id);
 
         return RedirectToAction(nameof(Index));
-    }
-
-    private async Task<bool> UserExists(int id)
-    {
-        return await service.UserExists(id);
     }
 }

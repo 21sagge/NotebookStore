@@ -23,11 +23,11 @@ class Program
         var context = scope.ServiceProvider.GetRequiredService<NotebookStoreContext.NotebookStoreContext>();
         var service = scope.ServiceProvider.GetRequiredService<NotebookService>();
 
-        var notebooks = service.GetNotebooks();
+        var notebooks = service.GetAll();
 
         foreach (var notebook in notebooks.Result)
         {
-            Console.WriteLine($"{notebook.Brand.Name} {notebook.Model.Name} {notebook.Cpu.Model}");
+            Console.WriteLine($"{notebook.Brand?.Name} {notebook.Model?.Name} {notebook.Cpu?.Model}");
         }
     }
 }

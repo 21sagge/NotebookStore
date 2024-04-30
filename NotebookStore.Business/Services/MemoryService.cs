@@ -1,11 +1,10 @@
 ﻿namespace NotebookStore.Business;
 
 using AutoMapper;
-using Microsoft.EntityFrameworkCore;
 using NotebookStore.DAL;
 using NotebookStore.Entities;
 
-public class MemoryService
+public class MemoryService : IService<MemoryDto>
 {
 	private readonly IUnitOfWork unitOfWork;
 	private readonly IMapper mapper;
@@ -16,21 +15,21 @@ public class MemoryService
 		this.mapper = mapper;
 	}
 
-	public async Task<IEnumerable<MemoryDto>> GetMemories()
+	public async Task<IEnumerable<MemoryDto>> GetAll()
 	{
 		var memories = await unitOfWork.Memories.Read();
 
 		return mapper.Map<IEnumerable<MemoryDto>>(memories);
 	}
 
-	public async Task<MemoryDto> GetMemory(int id)
+	public async Task<MemoryDto> Find(int id)
 	{
 		var memory = await unitOfWork.Memories.Find(id);
 
 		return mapper.Map<MemoryDto>(memory);
 	}
 
-	public async Task<bool> CreateMemory(MemoryDto memoryDto)
+	public async Task<bool> Create(MemoryDto memoryDto)
 	{
 		var memory = mapper.Map<Memory>(memoryDto);
 
@@ -50,7 +49,7 @@ public class MemoryService
 		}
 	}
 
-	public async Task<bool> UpdateMemory(MemoryDto memoryDto)
+	public async Task<bool> Update(MemoryDto memoryDto)
 	{
 		var memory = mapper.Map<Memory>(memoryDto);
 
@@ -70,7 +69,7 @@ public class MemoryService
 		}
 	}
 
-	public async Task<bool> DeleteMemory(int id)
+	public async Task<bool> Delete(int id)
 	{
 		unitOfWork.BeginTransaction();
 
@@ -86,10 +85,5 @@ public class MemoryService
 			unitOfWork.RollbackTransaction();
 			throw new Exception("Errore durante l'eliminazione della memoria", ex);
 		}
-	}
-
-	public async Task<bool> MemoryExists(int id)
-	{
-		return await unitOfWork.Memories.Find(id) != null;
 	}
 }

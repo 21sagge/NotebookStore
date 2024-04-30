@@ -9,13 +9,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllersWithViews();
 
-builder.Services.AddScoped<BrandService>();
-builder.Services.AddScoped<CpuService>();
-builder.Services.AddScoped<DisplayService>();
-builder.Services.AddScoped<MemoryService>();
-builder.Services.AddScoped<ModelService>();
-builder.Services.AddScoped<NotebookService>();
-builder.Services.AddScoped<StorageService>();
+builder.Services.AddScoped<IServices, Services>();
 builder.Services.AddScoped<UserService>();
 
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
@@ -25,8 +19,6 @@ builder.Services.AddAutoMapper(configure =>
     configure.AddProfile(new MapperMvc());
 });
 
-//builder.Services.AddKeyedScoped<ISerializer, JsonHandler>("json");
-//builder.Services.AddKeyedScoped<ISerializer, XmlHandler>("xml");
 builder.Services.AddScoped<ISerializer, JsonHandler>();
 builder.Services.AddScoped<ISerializer, XmlHandler>();
 

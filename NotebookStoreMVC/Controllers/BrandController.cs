@@ -8,19 +8,19 @@ namespace NotebookStoreMVC.Controllers;
 public class BrandController : Controller
 {
     private readonly IMapper mapper;
-    private readonly BrandService service;
+    private readonly IServices services;
 
-    public BrandController(IMapper mapper, BrandService service)
+    public BrandController(IMapper mapper, IServices services)
     {
         this.mapper = mapper;
-        this.service = service;
+        this.services = services;
     }
 
     // GET: BrandViewModel
     [HttpGet]
     public async Task<IActionResult> Index()
     {
-        var brands = await service.GetBrands();
+        var brands = await services.Brands.GetAll();
         var mappedBrands = mapper.Map<IEnumerable<BrandViewModel>>(brands);
 
         return View(mappedBrands);
@@ -30,7 +30,7 @@ public class BrandController : Controller
     [HttpGet]
     public async Task<IActionResult> Details(int id)
     {
-        var brand = await service.GetBrand(id);
+        var brand = await services.Brands.Find(id);
 
         if (brand == null)
         {
@@ -54,7 +54,7 @@ public class BrandController : Controller
     {
         if (ModelState.IsValid)
         {
-            await service.CreateBrand(mapper.Map<BrandDto>(BrandViewModel));
+            await services.Brands.Create(mapper.Map<BrandDto>(BrandViewModel));
 
             return RedirectToAction(nameof(Index));
         }
@@ -65,7 +65,7 @@ public class BrandController : Controller
     // GET: BrandViewModel/Edit/5
     public async Task<IActionResult> Edit(int id)
     {
-        var brand = await service.GetBrand(id);
+        var brand = await services.Brands.Find(id);
 
         if (brand == null)
         {
@@ -87,7 +87,7 @@ public class BrandController : Controller
 
         if (ModelState.IsValid)
         {
-            await service.UpdateBrand(mapper.Map<BrandDto>(BrandViewModel));
+            await services.Brands.Update(mapper.Map<BrandDto>(BrandViewModel));
 
             return RedirectToAction(nameof(Index));
         }
@@ -99,12 +99,12 @@ public class BrandController : Controller
     [HttpGet]
     public async Task<IActionResult> Delete(int id)
     {
-        if (service.GetBrands() == null)
+        if (services.Brands.GetAll() == null)
         {
             return NotFound();
         }
 
-        var brand = await service.GetBrand(id);
+        var brand = await services.Brands.Find(id);
 
         if (brand == null)
         {
@@ -119,13 +119,8 @@ public class BrandController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> DeleteConfirmed(int id)
     {
-        await service.DeleteBrand(id);
+        await services.Brands.Delete(id);
 
         return RedirectToAction(nameof(Index));
-    }
-
-    private async Task<bool> BrandExists(int id)
-    {
-        return await service.BrandExists(id);
     }
 }
