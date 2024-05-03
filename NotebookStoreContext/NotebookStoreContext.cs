@@ -1,7 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Logging;
 using NotebookStore.Entities;
-using Microsoft.Extensions.Configuration;
 
 namespace NotebookStoreContext;
 
@@ -19,20 +17,6 @@ public class NotebookStoreContext : DbContext
     public DbSet<Memory> Memories { get; set; }
     public DbSet<Storage> Storages { get; set; }
     public DbSet<Notebook> Notebooks { get; set; }
-
-    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-    {
-
-        var builder = new ConfigurationBuilder();
-        builder.SetBasePath(Directory.GetCurrentDirectory())
-           .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true);
-
-        IConfiguration config = builder.Build();
-
-        optionsBuilder.UseLazyLoadingProxies();
-        optionsBuilder.UseSqlite(config.GetSection("ConnectionStrings").GetSection("SqlLite").Value);
-        optionsBuilder.LogTo(Console.WriteLine, LogLevel.Warning).EnableDetailedErrors();
-    }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

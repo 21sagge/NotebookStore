@@ -26,7 +26,7 @@ builder.Services.AddDbContext<NotebookStoreContext.NotebookStoreContext>(options
     options.UseSqlite(builder.Configuration.GetConnectionString("SqlLite")));
 
 // Default Identity
-builder.Services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = true)
+builder.Services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = false)
    .AddEntityFrameworkStores<NotebookStoreContext.NotebookStoreContext>();
 
 builder.Services.Configure<IdentityOptions>(options =>
