@@ -12,14 +12,16 @@
   <ItemGroup>
     <None Remove="Views\Brand\" />
     <None Remove="Models\" />
+    <None Remove="Custom\" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Views\Brand\" />
     <Folder Include="Models\" />
+    <Folder Include="Custom\" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.Authentication.Cookies" Version="2.2.0" />
-    <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="7.0.12" />
+    <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="7.0.18" />
     <PackageReference Include="Microsoft.AspNetCore.Identity.UI" Version="7.0.12" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="7.0.16">
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
@@ -36,6 +38,9 @@
   <ItemGroup>
     <ProjectReference Include="..\NotebookStore.Business\NotebookStore.Business.csproj">
       <GlobalPropertiesToRemove></GlobalPropertiesToRemove>
+      <Targets></Targets>
+      <OutputItemType></OutputItemType>
+      <ReferenceSourceTarget>ProjectReference</ReferenceSourceTarget>
     </ProjectReference>
   </ItemGroup>
 </Project>

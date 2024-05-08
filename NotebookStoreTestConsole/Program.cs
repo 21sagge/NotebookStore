@@ -3,7 +3,6 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Configuration;
 using NotebookStore.Business;
 using NotebookStore.DAL;
-using Microsoft.Extensions.Logging;
 
 namespace NotebookStoreTestConsole;
 
@@ -33,7 +32,6 @@ class Program
             .BuildServiceProvider();
 
         using var scope = serviceProvider.CreateScope();
-        var context = scope.ServiceProvider.GetRequiredService<NotebookStoreContext.NotebookStoreContext>();
         var service = scope.ServiceProvider.GetRequiredService<IServices>();
 
         FetchAndPrintAsync(service);
@@ -55,5 +53,7 @@ class Program
         var display1 = await service.Displays.Find(1);
 
         Console.WriteLine($"{display1.Size}\" {display1.ResolutionWidth}x{display1.ResolutionHeight} {display1.PanelType}");
+
+        // Console.ReadKey();
     }
 }

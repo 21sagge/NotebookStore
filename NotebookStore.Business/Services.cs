@@ -21,5 +21,5 @@ public class Services: IServices
 	public IService<ModelDto> Models => new ModelService(_unitOfWork, _mapper);
 	public IService<StorageDto> Storages => new StorageService(_unitOfWork, _mapper);
 	public IService<NotebookDto> Notebooks => new NotebookService(_unitOfWork, _mapper);
-	public IService<UserDto> Users => new UserService(_unitOfWork, _mapper);
+	// public IService<UserDto> Users => new UserService(_unitOfWork, _mapper);
 }

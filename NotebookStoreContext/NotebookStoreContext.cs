@@ -1,15 +1,17 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using NotebookStore.Entities;
 
 namespace NotebookStoreContext;
 
-public class NotebookStoreContext : DbContext
+public class NotebookStoreContext : IdentityDbContext<IdentityUser>
 {
     public NotebookStoreContext() { }
 
     public NotebookStoreContext(DbContextOptions<NotebookStoreContext> options) : base(options) { }
 
-    public DbSet<User> Users { get; set; }
+    // public DbSet<User> Users { get; set; }
     public DbSet<Brand> Brands { get; set; }
     public DbSet<Model> Models { get; set; }
     public DbSet<Cpu> Cpus { get; set; }
@@ -18,8 +20,18 @@ public class NotebookStoreContext : DbContext
     public DbSet<Storage> Storages { get; set; }
     public DbSet<Notebook> Notebooks { get; set; }
 
+    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+    {
+        if (!optionsBuilder.IsConfigured)
+        {
+            optionsBuilder.UseSqlite("Data Source=notebookstore.db");
+        }
+    }
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+        base.OnModelCreating(modelBuilder);
+
         modelBuilder.Entity<Brand>(b =>
         {
             b.HasKey(b => b.Id);
@@ -87,13 +99,13 @@ public class NotebookStoreContext : DbContext
             n.HasIndex(n => new { n.BrandId, n.ModelId, n.CpuId, n.DisplayId, n.MemoryId, n.StorageId, n.Color, n.Price }).IsUnique();
         });
 
-        modelBuilder.Entity<User>(u =>
-        {
-            u.HasKey(u => u.Id);
-            u.Property(u => u.Name).IsRequired();
-            u.Property(u => u.Email).IsRequired();
-            u.Property(u => u.Password).IsRequired();
-            u.HasIndex(u => u.Email).IsUnique();
-        });
+        // modelBuilder.Entity<User>(u =>
+        // {
+        //     u.HasKey(u => u.Id);
+        //     u.Property(u => u.Name).IsRequired();
+        //     u.Property(u => u.Email).IsRequired();
+        //     u.Property(u => u.Password).IsRequired();
+        //     u.HasIndex(u => u.Email).IsUnique();
+        // });
     }
 }

@@ -1,104 +1,120 @@
-﻿using System.Security.Claims;
-using AutoMapper;
-using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Authentication.Cookies;
-using Microsoft.AspNetCore.Mvc;
-using NotebookStore.Business;
-using NotebookStoreMVC.Models;
+﻿// using System.Security.Claims;
+// using AutoMapper;
+// using Microsoft.AspNetCore.Authentication;
+// using Microsoft.AspNetCore.Authentication.Cookies;
+// using Microsoft.AspNetCore.Authorization;
+// using Microsoft.AspNetCore.Mvc;
+// using NotebookStore.Business;
+// using NotebookStoreMVC.Models;
 
-namespace NotebookStoreMVC;
+// namespace NotebookStoreMVC;
 
-public class AccountController : Controller
-{
-	private readonly UserService service;
-	private readonly IMapper mapper;
+// public class AccountController : Controller
+// {
+//     // private readonly UserService service;
+//     private readonly IMapper mapper;
 
-	public AccountController(UserService service, IMapper mapper)
-	{
-		this.service = service;
-		this.mapper = mapper;
-	}
+//     public AccountController(IMapper mapper)
+//     {
+//         // this.service = service;
+//         this.mapper = mapper;
+//     }
 
-	[HttpGet]
-	public IActionResult Login()
-	{
-		return View();
-	}
+//     [HttpGet]
+//     [AllowAnonymous]
+//     public IActionResult Login()
+//     {
+//         return View();
+//     }
 
-	[HttpPost]
-	[ValidateAntiForgeryToken]
-	public async Task<IActionResult> LoginAsync(UserViewModel user)
-	{
-		if (ModelState.IsValid)
-		{
-			// Check if user exists in the database
-			var loggedInUser = await service.Find(user.Email, user.Password);
+//     [HttpPost]
+//     [ValidateAntiForgeryToken]
+//     [AllowAnonymous]
+//     public async Task<IActionResult> LoginAsync(UserViewModel user)
+//     {
+//         if (ModelState.IsValid)
+//         {
+//             // Check if user exists in the database
+//             var loggedInUser = await service.Find(user.Email, user.Password);
 
-			if (loggedInUser != null && loggedInUser.Email == user.Email && loggedInUser.Password == user.Password)
-			{
-				// Create a new ClaimsIdentity
-				var claims = new List<Claim>
-				{
-					new Claim(ClaimTypes.Name, user.Name),
-					new Claim(ClaimTypes.Email, user.Email),
-				};
-				var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
+//             if (loggedInUser != null && loggedInUser.Email == user.Email && loggedInUser.Password == user.Password)
+//             {
+//                 // Ensure user.Name and user.Email are not null
+//                 if (string.IsNullOrEmpty(user.Name) || string.IsNullOrEmpty(user.Email))
+//                 {
+//                     ModelState.AddModelError(string.Empty, "User name or email is null.");
+//                     return View(user);
+//                 }
 
-				// Create a new ClaimsPrincipal
-				var claimsPrincipal = new ClaimsPrincipal(claimsIdentity);
+//                 var claims = new List<Claim>
+//                 {
+//                     new Claim(ClaimTypes.Name, user.Name),
+//                     new Claim(ClaimTypes.Email, user.Email)
+//                 };
 
-				// Sign in the user
-				await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, claimsPrincipal);
+//                 var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
 
-				return RedirectToAction("Index", "Home");
-			}
-			else
-			{
-				ModelState.AddModelError(string.Empty, "Invalid login attempt.");
-			}
-		}
+//                 var authProperties = new AuthenticationProperties
+//                 {
+//                     IsPersistent = false
+//                 };
 
-		return View(user);
-	}
+//                 await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, new ClaimsPrincipal(claimsIdentity), authProperties);
 
-	[HttpGet]
-	public IActionResult Logout()
-	{
-		return View();
-	}
+//                 // Sign in the user
+//                 // await signInManager.SignInAsync(appUser, isPersistent: false);
 
-	[HttpPost]
-	[ValidateAntiForgeryToken]
-	public async Task<IActionResult> LogoutAsync()
-	{
-		await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+//                 return RedirectToAction("Index", "Home");
+//             }
+//             else
+//             {
+//                 ModelState.AddModelError(string.Empty, "Invalid login attempt.");
+//             }
+//         }
 
-		return RedirectToAction("Index", "Home");
-	}
+//         return View(user);
+//     }
 
-	[HttpGet]
-	public IActionResult AccessDenied()
-	{
-		return View();
-	}
+//     [HttpGet]
+//     // [Authorize]
+//     public IActionResult Logout()
+//     {
+//         return View();
+//     }
 
-	[HttpGet]
-	public IActionResult Register()
-	{
-		return View();
-	}
+//     [HttpPost]
+//     [ValidateAntiForgeryToken]
+//     [Authorize]
+//     public async Task<IActionResult> LogoutAsync()
+//     {
+//         await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
 
-	[HttpPost]
-	[ValidateAntiForgeryToken]
-	public async Task<IActionResult> Register(UserViewModel user)
-	{
-		if (ModelState.IsValid)
-		{
-			await service.Create(mapper.Map<UserDto>(user));
+//         return RedirectToAction("Index", "Home");
+//     }
 
-			return RedirectToAction("Login");
-		}
+//     [HttpGet]
+//     public IActionResult AccessDenied()
+//     {
+//         return View();
+//     }
 
-		return View(user);
-	}
-}
+//     [HttpGet]
+//     public IActionResult Register()
+//     {
+//         return View();
+//     }
+
+//     [HttpPost]
+//     [ValidateAntiForgeryToken]
+//     public async Task<IActionResult> Register(UserViewModel user)
+//     {
+//         if (ModelState.IsValid)
+//         {
+//             await service.Create(mapper.Map<UserDto>(user));
+
+//             return RedirectToAction("Login");
+//         }
+
+//         return View(user);
+//     }
+// }

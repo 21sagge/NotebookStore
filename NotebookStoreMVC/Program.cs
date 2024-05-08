@@ -1,4 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using NotebookStoreMVC;
@@ -10,7 +10,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllersWithViews();
 
 builder.Services.AddScoped<IServices, Services>();
-builder.Services.AddScoped<UserService>();
+// builder.Services.AddScoped<UserService>();
 
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 
@@ -53,34 +53,39 @@ builder.Services.Configure<IdentityOptions>(options =>
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
     .AddCookie(options =>
     {
-        options.LoginPath = "/Account/Login";
-        options.LogoutPath = "/Account/Logout";
-        options.AccessDeniedPath = "/Account/AccessDenied";
+        options.Cookie.HttpOnly = true;
+        options.ExpireTimeSpan = TimeSpan.FromMinutes(20);
+        options.SlidingExpiration = true;
+        options.LoginPath = "/Identity/Account/Login";
+        options.LogoutPath = "/Identity/Account/Logout";
+        options.AccessDeniedPath = "/Identity/Account/AccessDenied";
     });
+builder.Services.AddRazorPages();
 
 var app = builder.Build();
+
+app.UseRouting();
+
+app.UseAuthentication();
+app.UseAuthorization();
 
 if (!app.Environment.IsDevelopment())
 {
     app.UseHsts();
+    app.UseExceptionHandler("/Home/Error");
 }
 else
 {
     app.UseDeveloper("Rosario").UseDeveloper("Niccolo");
 }
 
-app.UseExceptionHandler("/Home/Error");
-
-app.UseHttpsRedirection();
+// app.UseHttpsRedirection();
 app.UseStaticFiles();
-
-app.UseRouting();
-
-app.UseAuthorization();
-app.UseAuthentication();
 
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");
+
+app.MapRazorPages();
 
 app.Run();
