@@ -114,11 +114,13 @@ namespace NotebookStoreMVC.Areas.Identity.Pages.Account
                 var result = await _signInManager.PasswordSignInAsync(Input.Email, Input.Password, Input.RememberMe, lockoutOnFailure: false);
                 if (result.Succeeded)
                 {
+                    Console.WriteLine("Succeeded");
                     _logger.LogInformation("User logged in.");
                     return LocalRedirect(returnUrl);
                 }
                 if (result.RequiresTwoFactor)
                 {
+                    Console.WriteLine("RequiresTwoFactor");
                     return RedirectToPage("./LoginWith2fa", new { ReturnUrl = returnUrl, RememberMe = Input.RememberMe });
                 }
                 if (result.IsLockedOut)
@@ -128,11 +130,13 @@ namespace NotebookStoreMVC.Areas.Identity.Pages.Account
                 }
                 else
                 {
+                    Console.WriteLine("Invalid login attempt.");
                     ModelState.AddModelError(string.Empty, "Invalid login attempt.");
                     return Page();
                 }
             }
 
+            Console.WriteLine("Invalid login attempt.");
             // If we got this far, something failed, redisplay form
             return Page();
         }
