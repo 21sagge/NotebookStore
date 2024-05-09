@@ -1,32 +1,4 @@
-﻿@using Microsoft.AspNetCore.Identity;
-@using System.Security.Claims
-
-@{
-    @* var username = User.Identity?.Name ?? "Guest"; *@
-    var currentUser = ClaimsPrincipal.Current;
-
-    var username = "Guest";
-
-    if (currentUser != null)
-    {
-        if (currentUser.Identity != null)
-        {
-            username = currentUser.Identity.Name ?? "Guest";
-        }
-        else
-        {
-            Console.WriteLine("currentUser.Identity is null");
-        }
-    }
-    else
-    {
-        Console.WriteLine("currentUser is null");
-    }
-
-    @* var email = User.Identity?.IsAuthenticated ?? false; *@
-}
-
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 
 <head>
@@ -89,18 +61,6 @@
                     </ul>
                 </div>
                 <partial name="_LoginPartial" />
-                <div>
-                    @username
-                    @* @if (email)
-                    {
-                    <a class="nav-link text-dark" asp-area="" asp-controller="Account" asp-action="Logout"
-                    method="get">Logout</a>
-                    }
-                    else
-                    {
-                    <a class="nav-link text-dark" asp-area="" asp-controller="Account" asp-action="Login">Login</a>
-                    } *@
-                </div>
             </div>
         </nav>
     </header>

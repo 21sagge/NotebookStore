@@ -1,6 +1,5 @@
-using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.EntityFrameworkCore;
 using NotebookStoreMVC;
 using NotebookStore.DAL;
 using NotebookStore.Business;
@@ -24,10 +23,12 @@ builder.Services.AddScoped<ISerializer, XmlHandler>();
 
 builder.Services.AddDbContext<NotebookStoreContext.NotebookStoreContext>(options =>
     options.UseSqlite(builder.Configuration.GetConnectionString("SqlLite")));
+// builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 
 // Default Identity
 builder.Services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = false)
    .AddEntityFrameworkStores<NotebookStoreContext.NotebookStoreContext>();
+builder.Services.AddRazorPages();
 
 builder.Services.Configure<IdentityOptions>(options =>
 {
@@ -50,24 +51,18 @@ builder.Services.Configure<IdentityOptions>(options =>
     options.User.RequireUniqueEmail = false;
 });
 
-builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
-    .AddCookie(options =>
-    {
-        options.Cookie.HttpOnly = true;
-        options.ExpireTimeSpan = TimeSpan.FromMinutes(20);
-        options.SlidingExpiration = true;
-        options.LoginPath = "/Identity/Account/Login";
-        options.LogoutPath = "/Identity/Account/Logout";
-        options.AccessDeniedPath = "/Identity/Account/AccessDenied";
-    });
-builder.Services.AddRazorPages();
+builder.Services.ConfigureApplicationCookie(options =>
+{
+    // Cookie settings
+    options.Cookie.HttpOnly = true;
+    options.ExpireTimeSpan = TimeSpan.FromMinutes(5);
+
+    options.LoginPath = "/Identity/Account/Login";
+    options.AccessDeniedPath = "/Identity/Account/AccessDenied";
+    options.SlidingExpiration = true;
+});
 
 var app = builder.Build();
-
-app.UseRouting();
-
-app.UseAuthentication();
-app.UseAuthorization();
 
 if (!app.Environment.IsDevelopment())
 {
@@ -76,11 +71,17 @@ if (!app.Environment.IsDevelopment())
 }
 else
 {
+    // app.UseMigrationsEndPoint();
     app.UseDeveloper("Rosario").UseDeveloper("Niccolo");
 }
 
-// app.UseHttpsRedirection();
+app.UseHttpsRedirection();
 app.UseStaticFiles();
+
+app.UseRouting();
+
+app.UseAuthentication();
+app.UseAuthorization();
 
 app.MapControllerRoute(
     name: "default",
