@@ -9,7 +9,6 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllersWithViews();
 
 builder.Services.AddScoped<IServices, Services>();
-// builder.Services.AddScoped<UserService>();
 
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 
@@ -23,7 +22,6 @@ builder.Services.AddScoped<ISerializer, XmlHandler>();
 
 builder.Services.AddDbContext<NotebookStoreContext.NotebookStoreContext>(options =>
     options.UseSqlite(builder.Configuration.GetConnectionString("SqlLite")));
-// builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 
 // Default Identity
 builder.Services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = false)

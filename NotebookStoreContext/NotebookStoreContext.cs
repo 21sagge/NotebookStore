@@ -20,14 +20,6 @@ public class NotebookStoreContext : IdentityDbContext<IdentityUser>
     public DbSet<Storage> Storages { get; set; }
     public DbSet<Notebook> Notebooks { get; set; }
 
-    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-    {
-        if (!optionsBuilder.IsConfigured)
-        {
-            optionsBuilder.UseSqlite("Data Source=notebookstore.db");
-        }
-    }
-
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);

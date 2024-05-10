@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Microsoft.AspNetCore.Identity;
 using NotebookStore.Business;
 using NotebookStore.Entities;
 using NotebookStoreMVC.Models;
@@ -89,11 +90,11 @@ public class MapperMvc : Profile
             .ForMember(dest => dest.Email, act => act.MapFrom(src => src.Email))
             .ForMember(dest => dest.Password, act => act.MapFrom(src => src.Password))
             .ReverseMap();
-        CreateMap<User, UserDto>()
+        CreateMap<IdentityUser, UserDto>()
             .ForMember(dest => dest.Id, act => act.MapFrom(src => src.Id))
-            .ForMember(dest => dest.Name, act => act.MapFrom(src => src.Name))
+            .ForMember(dest => dest.Name, act => act.MapFrom(src => src.UserName))
             .ForMember(dest => dest.Email, act => act.MapFrom(src => src.Email))
-            .ForMember(dest => dest.Password, act => act.MapFrom(src => src.Password))
+            .ForMember(dest => dest.Password, act => act.MapFrom(src => src.PasswordHash))
             .ReverseMap();
     }
 }

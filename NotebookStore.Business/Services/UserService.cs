@@ -1,98 +1,97 @@
-﻿// namespace NotebookStore.Business;
+﻿namespace NotebookStore.Business;
 
-// using AutoMapper;
-// using NotebookStore.DAL;
-// using NotebookStore.Entities;
+using AutoMapper;
+using NotebookStore.DAL;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Identity;
 
-// public class UserService : IService<UserDto>
-// {
-// 	private readonly IUnitOfWork unitOfWork;
-// 	private readonly IMapper mapper;
+public class UserService : IUserService
+{
+    private readonly IUnitOfWork unitOfWork;
+    private readonly IMapper mapper;
+    private readonly IHttpContextAccessor context;
+    private readonly UserManager<IdentityUser> userManager;
 
-// 	public UserService(IUnitOfWork unitOfWork, IMapper mapper)
-// 	{
-// 		this.unitOfWork = unitOfWork;
-// 		this.mapper = mapper;
-// 	}
+    public UserService(IUnitOfWork unitOfWork, IMapper mapper, IHttpContextAccessor _context, UserManager<IdentityUser> _userManager)
+    {
+        this.unitOfWork = unitOfWork;
+        this.mapper = mapper;
+        context = _context;
+        userManager = _userManager;
+    }
 
-// 	public async Task<IEnumerable<UserDto>> GetAll()
-// 	{
-// 		var users = await unitOfWork.Users.Read();
+    public async Task<UserDto> GetCurrentUser()
+    {
+        var user = await userManager.GetUserAsync(context.HttpContext.User);
 
-// 		return mapper.Map<IEnumerable<UserDto>>(users);
-// 	}
+        return mapper.Map<UserDto>(user);
+    }
 
-// 	public async Task<UserDto> Find(int id)
-// 	{
-// 		var user = await unitOfWork.Users.Find(id);
+    public async Task<UserDto> GetUser(string id)
+    {
+        var user = await userManager.FindByIdAsync(id);
 
-// 		return mapper.Map<UserDto>(user);
-// 	}
+        return mapper.Map<UserDto>(user);
+    }
 
-// 	public async Task<UserDto> Find(string email, string password)
-// 	{
-// 		var users = await unitOfWork.Users.Read();
+    public async Task<UserDto> GetUserByEmail(string email)
+    {
+        var user = await userManager.FindByEmailAsync(email);
 
-// 		var user = users.FirstOrDefault(u => u.Email == email && u.Password == password);
+        return mapper.Map<UserDto>(user);
+    }
 
-// 		return mapper.Map<UserDto>(user);
-// 	}
+    public async Task<UserDto> GetUserByUserName(string userName)
+    {
+        var user = await userManager.FindByNameAsync(userName);
 
-// 	public async Task<bool> Create(UserDto userDto)
-// 	{
-// 		var user = mapper.Map<User>(userDto);
+        return mapper.Map<UserDto>(user);
+    }
 
-// 		unitOfWork.BeginTransaction();
+    public async Task<UserDto?> AddUser(UserDto user)
+    {
+        var identityUser = mapper.Map<IdentityUser>(user);
 
-// 		try
-// 		{
-// 			await unitOfWork.Users.Create(user);
-// 			await unitOfWork.SaveAsync();
-// 			unitOfWork.CommitTransaction();
-// 			return true;
-// 		}
-// 		catch (Exception ex)
-// 		{
-// 			unitOfWork.RollbackTransaction();
-// 			throw new Exception("Errore durante la creazione dell'utente", ex);
-// 		}
-// 	}
+        var result = await userManager.CreateAsync(identityUser, user.Password);
 
-// 	public async Task<bool> Update(UserDto userDto)
-// 	{
-// 		var user = mapper.Map<User>(userDto);
+        if (result.Succeeded)
+        {
+            return mapper.Map<UserDto>(identityUser);
+        }
 
-// 		unitOfWork.BeginTransaction();
+        return null;
+    }
 
-// 		try
-// 		{
-// 			await unitOfWork.Users.Update(user);
-// 			await unitOfWork.SaveAsync();
-// 			unitOfWork.CommitTransaction();
-// 			return true;
-// 		}
-// 		catch (Exception ex)
-// 		{
-// 			unitOfWork.RollbackTransaction();
-// 			throw new Exception("Errore durante l'aggiornamento dell'utente", ex);
-// 		}
-// 	}
+    public async Task<UserDto?> UpdateUser(UserDto user)
+    {
+        var identityUser = mapper.Map<IdentityUser>(user);
 
-// 	public async Task<bool> Delete(int id)
-// 	{
-// 		unitOfWork.BeginTransaction();
+        var result = await userManager.UpdateAsync(identityUser);
 
-// 		try
-// 		{
-// 			await unitOfWork.Users.Delete(id);
-// 			await unitOfWork.SaveAsync();
-// 			unitOfWork.CommitTransaction();
-// 			return true;
-// 		}
-// 		catch (Exception ex)
-// 		{
-// 			unitOfWork.RollbackTransaction();
-// 			throw new Exception("Errore durante l'eliminazione dell'utente", ex);
-// 		}
-// 	}
-// }
+        if (result.Succeeded)
+        {
+            return mapper.Map<UserDto>(identityUser);
+        }
+
+        return null;
+    }
+
+    public async Task<UserDto?> DeleteUser(string id)
+    {
+        var user = await userManager.FindByIdAsync(id);
+
+        if (user == null)
+        {
+            return null;
+        }
+
+        var result = await userManager.DeleteAsync(user);
+
+        if (result.Succeeded)
+        {
+            return mapper.Map<UserDto>(user);
+        }
+
+        return null;
+    }
+}
