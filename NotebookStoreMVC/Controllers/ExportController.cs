@@ -2,9 +2,11 @@
 using Microsoft.AspNetCore.Mvc;
 using AutoMapper;
 using NotebookStore.Business;
+using Microsoft.AspNetCore.Authorization;
 
 namespace NotebookStoreMVC.Controllers;
 
+[Authorize(Roles = "Admin")]
 public class ExportController : Controller
 {
     private readonly IServices services;

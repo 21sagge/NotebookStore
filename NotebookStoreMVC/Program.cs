@@ -9,6 +9,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllersWithViews();
 
 builder.Services.AddScoped<IServices, Services>();
+builder.Services.AddScoped<IUserService, UserService>();
 
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 
@@ -21,11 +22,13 @@ builder.Services.AddScoped<ISerializer, JsonHandler>();
 builder.Services.AddScoped<ISerializer, XmlHandler>();
 
 builder.Services.AddDbContext<NotebookStoreContext.NotebookStoreContext>(options =>
-    options.UseSqlite(builder.Configuration.GetConnectionString("SqlLite")));
+    options.UseSqlite(builder.Configuration.GetConnectionString("SqlLite"),
+    b => b.MigrationsAssembly("NotebookStoreMVC")));
 
 // Default Identity
 builder.Services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = false)
-   .AddEntityFrameworkStores<NotebookStoreContext.NotebookStoreContext>();
+    .AddRoles<IdentityRole>()
+    .AddEntityFrameworkStores<NotebookStoreContext.NotebookStoreContext>();
 builder.Services.AddRazorPages();
 
 builder.Services.Configure<IdentityOptions>(options =>
@@ -73,6 +76,7 @@ else
     app.UseDeveloper("Rosario").UseDeveloper("Niccolo");
 }
 
+
 app.UseHttpsRedirection();
 app.UseStaticFiles();
 
@@ -80,6 +84,8 @@ app.UseRouting();
 
 app.UseAuthentication();
 app.UseAuthorization();
+
+app.AddRoles();
 
 app.MapControllerRoute(
     name: "default",

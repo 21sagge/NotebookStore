@@ -1,23 +1,28 @@
 ﻿namespace NotebookStore.Business;
 
 using AutoMapper;
-using NotebookStore.DAL;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 
 public class UserService : IUserService
 {
-    private readonly IUnitOfWork unitOfWork;
     private readonly IMapper mapper;
     private readonly IHttpContextAccessor context;
     private readonly UserManager<IdentityUser> userManager;
 
-    public UserService(IUnitOfWork unitOfWork, IMapper mapper, IHttpContextAccessor _context, UserManager<IdentityUser> _userManager)
+    public UserService(IMapper mapper, IHttpContextAccessor _context, UserManager<IdentityUser> _userManager)
     {
-        this.unitOfWork = unitOfWork;
         this.mapper = mapper;
         context = _context;
         userManager = _userManager;
+    }
+
+    public async Task<IEnumerable<UserDto>> GetUsers()
+    {
+        var users = await userManager.Users.ToListAsync();
+
+        return mapper.Map<IEnumerable<UserDto>>(users);
     }
 
     public async Task<UserDto> GetCurrentUser()
@@ -93,5 +98,75 @@ public class UserService : IUserService
         }
 
         return null;
+    }
+
+    public async Task<IEnumerable<string>?> GetUserRoles(string id)
+    {
+        var user = await userManager.FindByIdAsync(id);
+
+        if (user == null)
+        {
+            return null;
+        }
+
+        return await userManager.GetRolesAsync(user);
+    }
+
+    public async Task<IEnumerable<UserDto>> GetUsersInRole(string role)
+    {
+        var users = await userManager.GetUsersInRoleAsync(role);
+
+        return mapper.Map<IEnumerable<UserDto>>(users);
+    }
+
+    public async Task<bool> AddUserToRole(string id, string role)
+    {
+        var user = await userManager.FindByIdAsync(id);
+
+        if (user == null)
+        {
+            return false;
+        }
+
+        // Limit the number of Admin users to 3
+        if (role == "Admin")
+        {
+            var adminUsers = await GetUsersInRole(role);
+
+            if (adminUsers.Count() >= 3)
+            {
+                return false;
+            }
+        }
+
+        var result = await userManager.AddToRoleAsync(user, role);
+
+        return result.Succeeded;
+    }
+
+    public async Task<bool> RemoveUserFromRole(string id, string role)
+    {
+        var user = await userManager.FindByIdAsync(id);
+
+        if (user == null)
+        {
+            return false;
+        }
+
+        var result = await userManager.RemoveFromRoleAsync(user, role);
+
+        return result.Succeeded;
+    }
+
+    public async Task<bool> IsInRole(string id, string role)
+    {
+        var user = await userManager.FindByIdAsync(id);
+
+        if (user == null)
+        {
+            return false;
+        }
+
+        return await userManager.IsInRoleAsync(user, role);
     }
 }

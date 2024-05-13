@@ -1,128 +1,133 @@
-// using AutoMapper;
-// using Microsoft.AspNetCore.Mvc;
-// using NotebookStore.Business;
-// using NotebookStoreMVC.Models;
-// using Microsoft.AspNetCore.Authorization;
+using AutoMapper;
+using Microsoft.AspNetCore.Mvc;
+using NotebookStore.Business;
+using NotebookStoreMVC.Models;
+using Microsoft.AspNetCore.Authorization;
 
-// namespace NotebookStoreMVC.Controllers;
+namespace NotebookStoreMVC.Controllers;
 
-// public class UserController : Controller
-// {
-//     private readonly IServices services;
-//     private readonly IMapper mapper;
+[Authorize]
+public class UserController : Controller
+{
+    private readonly IUserService services;
+    private readonly IMapper mapper;
 
-//     public UserController(IServices services, IMapper mapper)
-//     {
-//         this.services = services;
-//         this.mapper = mapper;
-//     }
+    public UserController(IUserService services, IMapper mapper)
+    {
+        this.services = services;
+        this.mapper = mapper;
+    }
 
-//     // GET: userViewModel
-//     [HttpGet]
-//     // [Authorize]
-//     public async Task<IActionResult> Index()
-//     {
-//         var users = await services.Users.GetAll();
-//         var mappedUsers = mapper.Map<IEnumerable<UserViewModel>>(users);
+    // GET: userViewModel
+    [HttpGet]
+    public async Task<IActionResult> Index()
+    {
+        var users = await services.GetUsers();
 
-//         return View(mappedUsers);
-//     }
+        foreach (var user in users)
+        {
+            var roles = await services.GetUserRoles(user.Id);
+            user.Role = roles?.LastOrDefault() ?? string.Empty;
+            // user.Roles = roles?.ToArray() ?? new string[0];
+        }
 
-//     // GET: userViewModel/Details/5
-//     [HttpGet]
-//     // [Authorize]
-//     public async Task<IActionResult> Details(int id)
-//     {
-//         var user = await services.Users.Find(id);
+        return View(mapper.Map<IEnumerable<UserViewModel>>(users));
+    }
 
-//         if (user == null)
-//         {
-//             return NotFound();
-//         }
+    // GET: userViewModel/Edit/5
+    [HttpGet]
+    [Authorize(Roles = "Admin")]
+    public async Task<IActionResult> Edit(string id)
+    {
+        var user = await services.GetUser(id);
 
-//         return View(mapper.Map<UserViewModel>(user));
-//     }
+        if (user == null)
+        {
+            return NotFound();
+        }
 
-//     // GET: userViewModel/Create
-//     [HttpGet]
-//     [Authorize]
-//     public IActionResult Create()
-//     {
-//         return View();
-//     }
+        var roles = await services.GetUserRoles(user.Id);
+        user.Role = roles?.LastOrDefault() ?? string.Empty;
+        // user.Roles = roles?.ToArray() ?? new string[0];
 
-//     // POST: userViewModel/Create
-//     [HttpPost]
-//     [ValidateAntiForgeryToken]
-//     public async Task<IActionResult> Create([Bind("Id,Name,Email,Password,Role,Token")] UserViewModel userViewModel)
-//     {
-//         if (ModelState.IsValid)
-//         {
-//             await services.Users.Create(mapper.Map<UserDto>(userViewModel));
+        return View(mapper.Map<UserViewModel>(user));
+    }
 
-//             return RedirectToAction(nameof(Index));
-//         }
+    // POST: userViewModel/Edit/5
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    [Authorize(Roles = "Admin")]
+    public async Task<IActionResult> Edit(string id, [Bind("Id,Role")] UserViewModel userViewModel)
+    {
+        if (id != userViewModel.Id)
+        {
+            return NotFound();
+        }
 
-//         return View(userViewModel);
-//     }
+        if (ModelState.IsValid)
+        {
+            var roles = await services.GetUserRoles(userViewModel.Id);
 
-//     // GET: userViewModel/Edit/5
-//     [HttpGet]
-//     [Authorize]
-//     public async Task<IActionResult> Edit(int id)
-//     {
-//         var user = await services.Users.Find(id);
+            var role = roles?.LastOrDefault() ?? string.Empty;
 
-//         if (user == null)
-//         {
-//             return NotFound();
-//         }
+            if (role != null)
+            {
+                await services.RemoveUserFromRole(userViewModel.Id, role);
+            }
 
-//         return View(mapper.Map<UserViewModel>(user));
-//     }
+            if (!string.IsNullOrEmpty(userViewModel.Role))
+            {
+                await services.AddUserToRole(userViewModel.Id, userViewModel.Role);
+            }
 
-//     // POST: userViewModel/Edit/5
-//     [HttpPost]
-//     [ValidateAntiForgeryToken]
-//     public async Task<IActionResult> Edit(int id, [Bind("Id,Name,Email,Password,Role,Token")] UserViewModel userViewModel)
-//     {
-//         if (id != userViewModel.Id)
-//         {
-//             return NotFound();
-//         }
+            return RedirectToAction(nameof(Index));
+        }
+        else
+        {
+            var errors = ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage);
+        }
 
-//         if (ModelState.IsValid)
-//         {
-//             await services.Users.Update(mapper.Map<UserDto>(userViewModel));
+        return View(userViewModel);
+    }
 
-//             return RedirectToAction(nameof(Index));
-//         }
+    // GET: userViewModel/Delete/5
+    [HttpGet]
+    [Authorize(Roles = "Admin")]
+    public async Task<IActionResult> Delete(string id)
+    {
+        var user = await services.GetUser(id);
 
-//         return View(userViewModel);
-//     }
+        if (user == null)
+        {
+            return NotFound();
+        }
 
-//     // GET: userViewModel/Delete/5
-//     [HttpGet]
-//     [Authorize]
-//     public async Task<IActionResult> Delete(int id)
-//     {
-//         var user = await services.Users.Find(id);
+        // if user is the current user, redirect to the index page
+        if (User.Identity!.Name == user.Name)
+        {
+            return RedirectToAction(nameof(Index));
+        }
 
-//         if (user == null)
-//         {
-//             return NotFound();
-//         }
+        // if user is an admin, redirect to the index page
+        if (User.IsInRole("Admin") && user.Role == "Admin")
+        {
+            return RedirectToAction(nameof(Index));
+        }
 
-//         return View(mapper.Map<UserViewModel>(user));
-//     }
+        var roles = await services.GetUserRoles(user.Id);
+        user.Role = roles?.LastOrDefault() ?? string.Empty;
 
-//     // POST: userViewModel/Delete/5
-//     [HttpPost, ActionName("Delete")]
-//     [ValidateAntiForgeryToken]
-//     public async Task<IActionResult> DeleteConfirmed(int id)
-//     {
-//         await services.Users.Delete(id);
+        return View(mapper.Map<UserViewModel>(user));
+    }
 
-//         return RedirectToAction(nameof(Index));
-//     }
-// }
+    // POST: userViewModel/Delete/5
+    [HttpPost, ActionName("Delete")]
+    [ValidateAntiForgeryToken]
+    [Authorize(Roles = "Admin")]
+    public async Task<IActionResult> DeleteConfirmed(string id)
+    {
+        await services.DeleteUser(id);
+
+        return RedirectToAction(nameof(Index));
+    }
+}

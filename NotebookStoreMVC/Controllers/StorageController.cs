@@ -2,9 +2,11 @@ using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 using NotebookStoreMVC.Models;
 using NotebookStore.Business;
+using Microsoft.AspNetCore.Authorization;
 
 namespace NotebookStoreMVC.Controllers;
 
+[Authorize(Roles = "Admin,Editor")]
 public class StorageController : Controller
 {
     private readonly IServices services;

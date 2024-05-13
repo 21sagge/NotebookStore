@@ -3,6 +3,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Configuration;
 using NotebookStore.Business;
 using NotebookStore.DAL;
+using NotebookStoreMVC;
 
 namespace NotebookStoreTestConsole;
 
@@ -54,6 +55,6 @@ class Program
 
         Console.WriteLine($"{display1.Size}\" {display1.ResolutionWidth}x{display1.ResolutionHeight} {display1.PanelType}");
 
-        // Console.ReadKey();
+        Console.ReadKey();
     }
 }

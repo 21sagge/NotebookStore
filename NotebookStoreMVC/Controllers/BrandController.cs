@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Authorization;
 
 namespace NotebookStoreMVC.Controllers;
 
-[Authorize]
+[Authorize(Roles = "Admin,Editor")]
 public class BrandController : Controller
 {
     private readonly IMapper mapper;
@@ -99,6 +99,7 @@ public class BrandController : Controller
 
     // GET: BrandViewModel/Delete/5
     [HttpGet]
+    [Authorize(Roles = "Admin")]
     public async Task<IActionResult> Delete(int id)
     {
         if (services.Brands.GetAll() == null)

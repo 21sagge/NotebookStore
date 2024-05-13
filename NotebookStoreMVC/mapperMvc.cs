@@ -4,6 +4,8 @@ using NotebookStore.Business;
 using NotebookStore.Entities;
 using NotebookStoreMVC.Models;
 
+namespace NotebookStoreMVC;
+
 public class MapperMvc : Profile
 {
     public MapperMvc()
@@ -95,6 +97,12 @@ public class MapperMvc : Profile
             .ForMember(dest => dest.Name, act => act.MapFrom(src => src.UserName))
             .ForMember(dest => dest.Email, act => act.MapFrom(src => src.Email))
             .ForMember(dest => dest.Password, act => act.MapFrom(src => src.PasswordHash))
+            .ReverseMap();
+        CreateMap<UserDto, IdentityUser>()
+            .ForMember(dest => dest.Id, act => act.MapFrom(src => src.Id))
+            .ForMember(dest => dest.UserName, act => act.MapFrom(src => src.Name))
+            .ForMember(dest => dest.Email, act => act.MapFrom(src => src.Email))
+            .ForMember(dest => dest.PasswordHash, act => act.MapFrom(src => src.Password))
             .ReverseMap();
     }
 }

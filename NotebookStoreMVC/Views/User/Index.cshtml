@@ -1,48 +1,70 @@
 @model IEnumerable<NotebookStoreMVC.Models.UserViewModel>
-
+@* @model NotebookStoreMVC.Models.UserViewModel *@
 
 @{
-    ViewData["Title"] = "Index";
+	ViewData["Title"] = "Index";
 }
 
 <h1>Index</h1>
 
 <p>
-    <a asp-action="Create">Create New</a>
+	<a asp-action="Create">Create New</a>
 </p>
 <table class="table">
-    <thead>
-        <tr>
-            <th>
-                @Html.DisplayNameFor(model => model.Name)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Email)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Password)
-            </th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-@foreach (var item in Model) {
-        <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.Name)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Email)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Password)
-            </td>
-            <td>
-                <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
-                <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
-                <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
-            </td>
-        </tr>
-}
-    </tbody>
+	<thead>
+		<tr>
+			<th>
+				@Html.DisplayNameFor(model => model.Name)
+			</th>
+			<th>
+				@Html.DisplayNameFor(model => model.Email)
+			</th>
+			<th>
+				@* @Html.DisplayNameFor(model => model.Password) *@
+				@Html.DisplayNameFor(model => model.Role)
+			</th>
+			<th></th>
+		</tr>
+	</thead>
+	<tbody>
+		@foreach (var item in Model)
+		{
+			<tr>
+				<td>
+					@Html.DisplayFor(modelItem => item.Name)
+				</td>
+				<td>
+					@Html.DisplayFor(modelItem => item.Email)
+				</td>
+				<td>
+					@* @Html.DisplayFor(modelItem => item.Password) *@
+					@Html.DisplayFor(modelItem => item.Role)
+				</td>
+				<td>
+					<a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
+					@if (item.Role != "Admin")
+					{
+						<a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
+					}
+				</td>
+			</tr>
+		}
+		@* <tr>
+		<td>
+		@Html.DisplayFor(model => model.Name)
+		</td>
+		<td>
+		@Html.DisplayFor(model => model.Email)
+		</td>
+		<td>
+		@* @Html.DisplayFor(model => model.Password)
+		@Html.DisplayFor(model => model.Role)
+		</td>
+		<td>
+		<a asp-action="Edit" asp-route-id="@Model.Id">Edit</a> |
+		<a asp-action="Details" asp-route-id="@Model.Id">Details</a> |
+		<a asp-action="Delete" asp-route-id="@Model.Id">Delete</a>
+		</td>
+		</tr> *@
+	</tbody>
 </table>

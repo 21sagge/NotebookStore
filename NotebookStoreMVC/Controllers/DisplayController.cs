@@ -3,9 +3,11 @@ using Microsoft.AspNetCore.Mvc;
 using NotebookStoreMVC.Models;
 using NotebookStore.Entities;
 using NotebookStore.Business;
+using Microsoft.AspNetCore.Authorization;
 
 namespace NotebookStoreMVC.Controllers;
 
+[Authorize(Roles = "Admin,Editor")]
 public class DisplayController : Controller
 {
     private readonly IServices services;
