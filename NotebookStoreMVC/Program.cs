@@ -22,8 +22,11 @@ builder.Services.AddScoped<ISerializer, JsonHandler>();
 builder.Services.AddScoped<ISerializer, XmlHandler>();
 
 builder.Services.AddDbContext<NotebookStoreContext.NotebookStoreContext>(options =>
-    options.UseSqlite(builder.Configuration.GetConnectionString("SqlLite"),
-    b => b.MigrationsAssembly("NotebookStoreMVC")));
+{
+    options.UseSqlite(builder.Configuration.GetConnectionString("SqlLite")
+    // b => b.MigrationsAssembly("NotebookStoreMVC")));
+    );
+});
 
 // Default Identity
 builder.Services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = false)
@@ -70,12 +73,6 @@ if (!app.Environment.IsDevelopment())
     app.UseHsts();
     app.UseExceptionHandler("/Home/Error");
 }
-else
-{
-    // app.UseMigrationsEndPoint();
-    app.UseDeveloper("Rosario").UseDeveloper("Niccolo");
-}
-
 
 app.UseHttpsRedirection();
 app.UseStaticFiles();
@@ -84,8 +81,6 @@ app.UseRouting();
 
 app.UseAuthentication();
 app.UseAuthorization();
-
-app.AddRoles();
 
 app.MapControllerRoute(
     name: "default",
