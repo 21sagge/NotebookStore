@@ -11,10 +11,7 @@ public class NotebookStoreContext : IdentityDbContext<IdentityUser, IdentityRole
 
     public NotebookStoreContext(DbContextOptions<NotebookStoreContext> options) : base(options)
     {
-        if (!Database.CanConnect())
-        {
-            Database.EnsureCreated();
-        }
+        Database.EnsureCreated();
     }
 
     public DbSet<Brand> Brands { get; set; }
@@ -107,17 +104,13 @@ public class NotebookStoreContext : IdentityDbContext<IdentityUser, IdentityRole
             new IdentityRole { Id = "3", Name = "Viewer", NormalizedName = "VIEWER" }
         );
 
-        modelBuilder.Entity<IdentityUser>().HasData(
-            new IdentityUser { Id = "1", UserName = "admin", NormalizedUserName = "ADMIN", Email = "admin@admin.com", NormalizedEmail = "ADMIN.COM", EmailConfirmed = true, PasswordHash = new PasswordHasher<IdentityUser>().HashPassword(null, "admin") },
-            new IdentityUser { Id = "2", UserName = "editor", NormalizedUserName = "EDITOR", Email = "editor@editor.com", NormalizedEmail = "EDITOR.COM", EmailConfirmed = true, PasswordHash = new PasswordHasher<IdentityUser>().HashPassword(null, "editor") },
-            new IdentityUser { Id = "3", UserName = "viewer", NormalizedUserName = "VIEWER", Email = "viewer@viewer.com", NormalizedEmail = "VIEWER.COM", EmailConfirmed = true, PasswordHash = new PasswordHasher<IdentityUser>().HashPassword(null, "viewer") }
-        );
+        var admin = new IdentityUser { Id = "1", UserName = "admin@admin.com", NormalizedUserName = "ADMIN@ADMIN.COM", Email = "admin@admin.com", NormalizedEmail = "ADMIN@ADMIN.COM", EmailConfirmed = true };
 
-        modelBuilder.Entity<IdentityUserRole<string>>().HasData(
-            new IdentityUserRole<string> { UserId = "1", RoleId = "1" },
-            new IdentityUserRole<string> { UserId = "2", RoleId = "2" },
-            new IdentityUserRole<string> { UserId = "3", RoleId = "3" }
-        );
+        admin.PasswordHash = new PasswordHasher<IdentityUser>().HashPassword(admin, "admin");
+
+        modelBuilder.Entity<IdentityUser>().HasData(admin);
+
+        modelBuilder.Entity<IdentityUserRole<string>>().HasData(new IdentityUserRole<string> { UserId = "1", RoleId = "1" });
 
         modelBuilder.Entity<Brand>().HasData(
             new Brand { Id = 1, Name = "Apple" },

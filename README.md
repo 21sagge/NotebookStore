@@ -16,7 +16,7 @@ This is an application that simulates a notebook store. It uses Entity Framework
 2. Navigate to the `NotebookStoreMVC` directory.
 3. Run the following command:
 	```bash
-	dotnet run
+	dotnet watch
 	```
 4. Navigate to `https://localhost:5211` in your browser.
 5. Login with the following credentials:
