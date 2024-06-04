@@ -4,6 +4,8 @@ using Microsoft.Extensions.Configuration;
 using NotebookStore.Business;
 using NotebookStore.DAL;
 using NotebookStoreMVC;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Identity;
 
 namespace NotebookStoreTestConsole;
 
@@ -13,12 +15,18 @@ class Program
     {
         var builder = new ConfigurationBuilder();
         builder.SetBasePath(Directory.GetCurrentDirectory())
-           .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true);
+               .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true);
 
         IConfiguration config = builder.Build();
 
-        var serviceProvider = new ServiceCollection()
-            .AddSingleton<IConfiguration>(config)
+        var services = new ServiceCollection();
+
+        services.AddDefaultIdentity<IdentityUser>()
+            .AddRoles<IdentityRole>()
+            .AddEntityFrameworkStores<NotebookStoreContext.NotebookStoreContext>();
+
+        services.AddSingleton(config)
+            .AddSingleton<IHttpContextAccessor, HttpContextAccessor>()
             .AddDbContext<NotebookStoreContext.NotebookStoreContext>(option =>
             {
                 option.UseLazyLoadingProxies();
@@ -29,11 +37,11 @@ class Program
                 configure.AddProfile(new MapperMvc());
             })
             .AddScoped<IUnitOfWork, UnitOfWork>()
-            .AddScoped<IServices, Services>()
-            .BuildServiceProvider();
+            .AddScoped<IServices, Services>();
 
-        using var scope = serviceProvider.CreateScope();
-        var service = scope.ServiceProvider.GetRequiredService<IServices>();
+        var serviceProvider = services.BuildServiceProvider();
+
+        var service = serviceProvider.GetRequiredService<IServices>();
 
         FetchAndPrintAsync(service);
     }
@@ -42,18 +50,23 @@ class Program
     {
         var notebooks = await service.Notebooks.GetAll();
 
+        Console.WriteLine("All notebooks:");
+
         foreach (var notebook in notebooks)
         {
-            Console.WriteLine($"{notebook.Brand?.Name} {notebook.Model?.Name} {notebook.Cpu?.Model}");
+            Console.WriteLine($"{notebook.Brand?.Name} {notebook.Model?.Name} {notebook.Cpu?.Brand} {notebook.Cpu?.Model} {notebook.Memory?.Capacity}Gb");
         }
 
-        var brand1 = await service.Brands.Find(1);
+        Console.WriteLine();
 
-        Console.WriteLine(brand1.Name);
+        Console.WriteLine("Notebooks with more than 16GB memory:");
 
-        var display1 = await service.Displays.Find(1);
+        var notebooksWithMoreThan16GBMemory = notebooks.Where(n => n.Memory?.Capacity > 16);
 
-        Console.WriteLine($"{display1.Size}\" {display1.ResolutionWidth}x{display1.ResolutionHeight} {display1.PanelType}");
+        foreach (var notebook in notebooksWithMoreThan16GBMemory)
+        {
+            Console.WriteLine($"{notebook.Brand?.Name} {notebook.Model?.Name} {notebook.Memory?.Capacity}Gb");
+        }
 
         Console.ReadKey();
     }
