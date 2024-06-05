@@ -1,7 +1,6 @@
 ﻿namespace NotebookStore.Business;
 
 using AutoMapper;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using NotebookStore.Business.Context;
@@ -28,7 +27,8 @@ public class UserService : IUserService
 
     public async Task<UserDto> GetCurrentUser()
     {
-        var user = await userManager.GetUserAsync(context.GetCurrentUser());
+        var user = await userManager.GetUserAsync(context.GetCurrentUser()
+            ?? throw new ArgumentNullException(nameof(context.GetCurrentUser)));
 
         return mapper.Map<UserDto>(user);
     }

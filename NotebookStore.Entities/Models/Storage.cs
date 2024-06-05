@@ -17,8 +17,6 @@ public class Storage
     /// </summary>
     [Range(128, 4096)]
     public required int Capacity { get; set; }
-
     public string? CreatedBy { get; set; }
-
-    public DateTime CreatedAt { get; set; }
+    public required string CreatedAt { get; set; }
 }

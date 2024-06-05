@@ -31,15 +31,11 @@ class Program
             .AddDbContext<NotebookStoreContext.NotebookStoreContext>(option =>
             {
                 option.UseLazyLoadingProxies();
-                option.UseSqlite(config.GetSection("ConnectionStrings").GetSection("SqlLite").Value, b =>
-                {
-                    b.MigrationsAssembly("NotebookStoreContext");
-                });
+                option.UseSqlite(
+                    config.GetSection("ConnectionStrings").GetSection("SqlLite").Value,
+                    b => b.MigrationsAssembly("NotebookStoreContext"));
             })
-            .AddAutoMapper(configure =>
-            {
-                configure.AddProfile(new MapperMvc());
-            })
+            .AddAutoMapper(configure => configure.AddProfile(new MapperMvc()))
             .AddScoped<IUnitOfWork, UnitOfWork>()
             .AddScoped<IServices, Services>();
 
@@ -47,13 +43,11 @@ class Program
 
         var service = serviceProvider.GetRequiredService<IServices>();
 
-        //FetchAndPrintAsync(service);
+        FetchAndPrintAsync(service);
     }
 
     private static async void FetchAndPrintAsync(IServices service)
     {
-        var currentUser = await service.Users.GetCurrentUser();
-
         var notebooks = await service.Notebooks.GetAll();
 
         Console.WriteLine("All notebooks:");

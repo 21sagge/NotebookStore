@@ -159,13 +159,17 @@ public class NotebookStoreContext : IdentityDbContext<IdentityUser, IdentityRole
             new Memory { Id = 6, Capacity = 32, Speed = 3200 }
         );
 
+        var now = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
+
+        Console.WriteLine(now);
+
         modelBuilder.Entity<Storage>().HasData(
-            new Storage { Id = 1, Capacity = 256, Type = "SSD" },
-            new Storage { Id = 2, Capacity = 512, Type = "SSD" },
-            new Storage { Id = 3, Capacity = 1024, Type = "SSD" },
-            new Storage { Id = 4, Capacity = 256, Type = "HDD" },
-            new Storage { Id = 5, Capacity = 512, Type = "HDD" },
-            new Storage { Id = 6, Capacity = 1024, Type = "HDD" }
+            new Storage { Id = 1, Capacity = 256, Type = "SSD", CreatedAt = now },
+            new Storage { Id = 2, Capacity = 512, Type = "SSD", CreatedAt = now },
+            new Storage { Id = 3, Capacity = 1024, Type = "SSD", CreatedAt = now },
+            new Storage { Id = 4, Capacity = 256, Type = "HDD", CreatedAt = now },
+            new Storage { Id = 5, Capacity = 512, Type = "HDD", CreatedAt = now },
+            new Storage { Id = 6, Capacity = 1024, Type = "HDD", CreatedAt = now }
         );
 
         modelBuilder.Entity<Notebook>().HasData(
