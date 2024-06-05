@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
+using NotebookStore.Business.Context;
 using NotebookStore.DAL;
 
 namespace NotebookStore.Business;
@@ -9,10 +10,10 @@ public class Services : IServices
 {
     private readonly IUnitOfWork _unitOfWork;
     private readonly IMapper _mapper;
-    private readonly IHttpContextAccessor _context;
+    private readonly IUserContext _context;
     private readonly UserManager<IdentityUser> _userManager;
 
-    public Services(IUnitOfWork unitOfWork, IMapper mapper, IHttpContextAccessor context, UserManager<IdentityUser> userManager)
+    public Services(IUnitOfWork unitOfWork, IMapper mapper, IUserContext context, UserManager<IdentityUser> userManager)
     {
         _unitOfWork = unitOfWork;
         _mapper = mapper;

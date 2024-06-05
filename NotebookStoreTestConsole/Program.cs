@@ -6,6 +6,7 @@ using NotebookStore.DAL;
 using NotebookStoreMVC;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
+using NotebookStore.Business.Context;
 
 namespace NotebookStoreTestConsole;
 
@@ -26,11 +27,14 @@ class Program
             .AddEntityFrameworkStores<NotebookStoreContext.NotebookStoreContext>();
 
         services.AddSingleton(config)
-            .AddSingleton<IHttpContextAccessor, HttpContextAccessor>()
+            .AddSingleton<IUserContext, ConsoleUserContext>()
             .AddDbContext<NotebookStoreContext.NotebookStoreContext>(option =>
             {
                 option.UseLazyLoadingProxies();
-                option.UseSqlite(config.GetSection("ConnectionStrings").GetSection("SqlLite").Value);
+                option.UseSqlite(config.GetSection("ConnectionStrings").GetSection("SqlLite").Value, b =>
+                {
+                    b.MigrationsAssembly("NotebookStoreContext");
+                });
             })
             .AddAutoMapper(configure =>
             {
@@ -43,11 +47,13 @@ class Program
 
         var service = serviceProvider.GetRequiredService<IServices>();
 
-        FetchAndPrintAsync(service);
+        //FetchAndPrintAsync(service);
     }
 
     private static async void FetchAndPrintAsync(IServices service)
     {
+        var currentUser = await service.Users.GetCurrentUser();
+
         var notebooks = await service.Notebooks.GetAll();
 
         Console.WriteLine("All notebooks:");

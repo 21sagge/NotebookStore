@@ -11,7 +11,7 @@ public class NotebookStoreContext : IdentityDbContext<IdentityUser, IdentityRole
 
     public NotebookStoreContext(DbContextOptions<NotebookStoreContext> options) : base(options)
     {
-        Database.EnsureCreated();
+        //Database.EnsureCreated();
     }
 
     public DbSet<Brand> Brands { get; set; }
@@ -68,6 +68,8 @@ public class NotebookStoreContext : IdentityDbContext<IdentityUser, IdentityRole
             s.HasKey(s => s.Id);
             s.Property(s => s.Capacity).IsRequired();
             s.Property(s => s.Type).IsRequired();
+            s.Property(s => s.CreatedBy);
+            s.Property(s => s.CreatedAt).IsRequired();
             s.HasIndex(s => new { s.Capacity, s.Type }).IsUnique();
         });
 

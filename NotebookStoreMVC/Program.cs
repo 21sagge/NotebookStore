@@ -3,10 +3,13 @@ using Microsoft.EntityFrameworkCore;
 using NotebookStoreMVC;
 using NotebookStore.DAL;
 using NotebookStore.Business;
+using NotebookStore.Business.Context;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllersWithViews();
+
+builder.Services.AddScoped<IUserContext, HttpUserContext>();
 
 builder.Services.AddScoped<IServices, Services>();
 builder.Services.AddScoped<IUserService, UserService>();
@@ -23,16 +26,16 @@ builder.Services.AddScoped<ISerializer, XmlHandler>();
 
 builder.Services.AddDbContext<NotebookStoreContext.NotebookStoreContext>(options =>
 {
-    options.UseSqlite(builder.Configuration.GetConnectionString("SqlLite")
-    // b => b.MigrationsAssembly("NotebookStoreMVC")));
-    );
+    options.UseSqlite(builder.Configuration.GetConnectionString("SqlLite"), b =>
+    {
+        b.MigrationsAssembly("NotebookStoreContext");
+    });
 });
 
 // Default Identity
 builder.Services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = false)
     .AddRoles<IdentityRole>()
     .AddEntityFrameworkStores<NotebookStoreContext.NotebookStoreContext>();
-builder.Services.AddRazorPages();
 
 builder.Services.Configure<IdentityOptions>(options =>
 {
@@ -73,11 +76,6 @@ if (!app.Environment.IsDevelopment())
     app.UseHsts();
     app.UseExceptionHandler("/Home/Error");
 }
-
-app.UseHttpsRedirection();
-app.UseStaticFiles();
-
-app.UseRouting();
 
 app.UseAuthentication();
 app.UseAuthorization();

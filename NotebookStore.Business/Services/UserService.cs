@@ -4,14 +4,15 @@ using AutoMapper;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using NotebookStore.Business.Context;
 
 public class UserService : IUserService
 {
     private readonly IMapper mapper;
-    private readonly IHttpContextAccessor context;
+    private readonly IUserContext context;
     private readonly UserManager<IdentityUser> userManager;
 
-    public UserService(IMapper mapper, IHttpContextAccessor _context, UserManager<IdentityUser> _userManager)
+    public UserService(IMapper mapper, IUserContext _context, UserManager<IdentityUser> _userManager)
     {
         this.mapper = mapper;
         context = _context;
@@ -27,7 +28,7 @@ public class UserService : IUserService
 
     public async Task<UserDto> GetCurrentUser()
     {
-        var user = await userManager.GetUserAsync(context.HttpContext.User);
+        var user = await userManager.GetUserAsync(context.GetCurrentUser());
 
         return mapper.Map<UserDto>(user);
     }
