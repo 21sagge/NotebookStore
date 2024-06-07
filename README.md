@@ -14,8 +14,9 @@ This is an application that simulates a notebook store. It uses Entity Framework
 
 1. Ensure you have .NET 7.0 or later installed.
 2. Navigate to the `NotebookStoreMVC` directory.
-3. Run the following command:
+3. Run the following commands:
 	```bash
+	dotnet ef database update
 	dotnet watch
 	```
 4. Navigate to `https://localhost:5211` in your browser.
