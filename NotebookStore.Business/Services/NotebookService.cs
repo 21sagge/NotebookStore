@@ -8,11 +8,13 @@ public class NotebookService : IService<NotebookDto>
 {
 	private readonly IUnitOfWork unitOfWork;
 	private readonly IMapper mapper;
+	private readonly IUserService userService;
 
-	public NotebookService(IUnitOfWork unitOfWork, IMapper mapper)
+	public NotebookService(IUnitOfWork unitOfWork, IMapper mapper, IUserService userService)
 	{
 		this.unitOfWork = unitOfWork;
 		this.mapper = mapper;
+		this.userService = userService;
 	}
 
 	public async Task<IEnumerable<NotebookDto>> GetAll()
@@ -79,9 +81,16 @@ public class NotebookService : IService<NotebookDto>
 
 		try
 		{
+			var currentUser = await userService.GetCurrentUser();
+
+			notebook.CreatedBy = currentUser.Id;
+			notebook.CreatedAt = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
+
 			await unitOfWork.Notebooks.Create(notebook);
 			await unitOfWork.SaveAsync();
+
 			unitOfWork.CommitTransaction();
+
 			return true;
 		}
 		catch (Exception ex)
@@ -99,9 +108,19 @@ public class NotebookService : IService<NotebookDto>
 
 		try
 		{
+			var currentUser = await userService.GetCurrentUser();
+			currentUser.Role = await userService.IsInRole(currentUser.Id, "admin") ? "admin" : "user";
+
+			if (notebook.CreatedBy != currentUser.Id && currentUser.Role != "admin" && notebook.CreatedBy != null)
+			{
+				throw new UnauthorizedAccessException("Non sei autorizzato a modificare questo notebook");
+			}
+
 			await unitOfWork.Notebooks.Update(notebook);
 			await unitOfWork.SaveAsync();
+
 			unitOfWork.CommitTransaction();
+
 			return true;
 		}
 		catch (Exception ex)
@@ -117,9 +136,20 @@ public class NotebookService : IService<NotebookDto>
 
 		try
 		{
+			var notebook = await unitOfWork.Notebooks.Find(id);
+			var currentUser = await userService.GetCurrentUser();
+			currentUser.Role = await userService.IsInRole(currentUser.Id, "admin") ? "admin" : "user";
+
+			if (notebook?.CreatedBy != currentUser.Id && currentUser.Role != "admin" && notebook?.CreatedBy != null)
+			{
+				return false;
+			}
+
 			await unitOfWork.Notebooks.Delete(id);
 			await unitOfWork.SaveAsync();
+
 			unitOfWork.CommitTransaction();
+
 			return true;
 		}
 		catch (Exception ex)

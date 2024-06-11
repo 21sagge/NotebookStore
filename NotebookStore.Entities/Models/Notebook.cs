@@ -21,4 +21,6 @@ public class Notebook
   public virtual Memory? Memory { get; set; }
   public int StorageId { get; set; }
   public virtual Storage? Storage { get; set; }
+  public string? CreatedBy { get; set; }
+  public required string CreatedAt { get; set; }
 }

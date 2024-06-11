@@ -8,11 +8,13 @@ public class ModelService : IService<ModelDto>
 {
 	private readonly IUnitOfWork unitOfWork;
 	private readonly IMapper mapper;
+	private readonly IUserService userService;
 
-	public ModelService(IUnitOfWork unitOfWork, IMapper mapper)
+	public ModelService(IUnitOfWork unitOfWork, IMapper mapper, IUserService userService)
 	{
 		this.unitOfWork = unitOfWork;
 		this.mapper = mapper;
+		this.userService = userService;
 	}
 
 	public async Task<IEnumerable<ModelDto>> GetAll()
@@ -37,9 +39,16 @@ public class ModelService : IService<ModelDto>
 
 		try
 		{
+			var currentUser = await userService.GetCurrentUser();
+
+			model.CreatedBy = currentUser.Id;
+			model.CreatedAt = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
+
 			await unitOfWork.Models.Create(model);
 			await unitOfWork.SaveAsync();
+
 			unitOfWork.CommitTransaction();
+
 			return true;
 		}
 		catch (Exception ex)
@@ -57,10 +66,25 @@ public class ModelService : IService<ModelDto>
 
 		try
 		{
+			var currentUser = await userService.GetCurrentUser();
+			currentUser.Role = await userService.IsInRole(currentUser.Id, "Admin") ? "Admin" : "User";
+
+			if (model.CreatedBy != currentUser.Id && currentUser.Role != "Admin" && model.CreatedBy != null)
+			{
+				throw new UnauthorizedAccessException("Non hai i permessi per modificare questo modello");
+			}
+
 			await unitOfWork.Models.Update(model);
 			await unitOfWork.SaveAsync();
+
 			unitOfWork.CommitTransaction();
+
 			return true;
+		}
+		catch (UnauthorizedAccessException)
+		{
+			unitOfWork.RollbackTransaction();
+			return false;
 		}
 		catch (Exception ex)
 		{
@@ -75,9 +99,20 @@ public class ModelService : IService<ModelDto>
 
 		try
 		{
+			var model = await unitOfWork.Models.Find(id);
+			var currentUser = await userService.GetCurrentUser();
+			currentUser.Role = await userService.IsInRole(currentUser.Id, "Admin") ? "Admin" : "User";
+
+			if (model?.CreatedBy != currentUser.Id && currentUser.Role != "Admin" && model?.CreatedBy != null)
+			{
+				return false;
+			}
+
 			await unitOfWork.Models.Delete(id);
 			await unitOfWork.SaveAsync();
+
 			unitOfWork.CommitTransaction();
+
 			return true;
 		}
 		catch (Exception ex)
