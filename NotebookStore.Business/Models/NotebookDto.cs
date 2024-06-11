@@ -17,6 +17,4 @@ public class NotebookDto
 	public MemoryDto? Memory { get; set; }
 	public int StorageId { get; set; }
 	public StorageDto? Storage { get; set; }
-	public string? CreatedBy { get; set; }
-	public required string CreatedAt { get; set; }
 }

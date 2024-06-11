@@ -17,8 +17,6 @@ public class MemoryViewModel
   /// </summary>
   [Range(800, 6400)]
   public required int Speed { get; set; }
-  public string? CreatedBy { get; set; }
-  public required string CreatedAt { get; set; }
 
   public string CapacityAndSpeed => $"{Capacity}GB {Speed}MHz";
 }

@@ -9,6 +9,4 @@ public class Cpu
   public required string Brand { get; set; }
   [MaxLength(50)]
   public required string Model { get; set; }
-  public string? CreatedBy { get; set; }
-  public required string CreatedAt { get; set; }
 }

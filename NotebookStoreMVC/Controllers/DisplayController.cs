@@ -55,8 +55,6 @@ public class DisplayController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Create([Bind("Id, Size, ResolutionWidth, ResolutionHeight, PanelType")] DisplayViewModel DisplayViewModel)
     {
-        ModelState.Remove("CreatedAt");
-
         if (ModelState.IsValid)
         {
             await services.Displays.Create(mapper.Map<DisplayDto>(DisplayViewModel));
@@ -84,7 +82,7 @@ public class DisplayController : Controller
     // POST: DisplayViewModel/Edit/5
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Edit(int id, [Bind("Id, Size, ResolutionWidth, ResolutionHeight, PanelType, CreatedAt, CreatedBy")] DisplayViewModel DisplayViewModel)
+    public async Task<IActionResult> Edit(int id, [Bind("Id, Size, ResolutionWidth, ResolutionHeight, PanelType")] DisplayViewModel DisplayViewModel)
     {
         if (id != DisplayViewModel.Id)
         {
@@ -93,16 +91,16 @@ public class DisplayController : Controller
 
         if (ModelState.IsValid)
         {
-            var result = await services.Displays.Update(mapper.Map<DisplayDto>(DisplayViewModel));
+            try
+            {
+                await services.Displays.Update(mapper.Map<DisplayDto>(DisplayViewModel));
+            }
+            catch (Exception ex)
+            {
+                return Problem(ex.Message);
+            }
 
-            if (result)
-            {
-                return RedirectToAction(nameof(Index));
-            }
-            else
-            {
-                ModelState.AddModelError(string.Empty, "Update failed.");
-            }
+            return RedirectToAction(nameof(Index));
         }
 
         return View(DisplayViewModel);

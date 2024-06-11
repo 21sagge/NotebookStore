@@ -8,13 +8,11 @@ public class BrandService : IService<BrandDto>
 {
     private readonly IUnitOfWork unitOfWork;
     private readonly IMapper mapper;
-    private readonly IUserService userService;
 
-    public BrandService(IUnitOfWork unitOfWork, IMapper mapper, IUserService userService)
+    public BrandService(IUnitOfWork unitOfWork, IMapper mapper)
     {
         this.unitOfWork = unitOfWork;
         this.mapper = mapper;
-        this.userService = userService;
     }
 
     public async Task<IEnumerable<BrandDto>> GetAll()
@@ -39,16 +37,9 @@ public class BrandService : IService<BrandDto>
 
         try
         {
-            var currentUser = await userService.GetCurrentUser();
-
-            brand.CreatedBy = currentUser.Id;
-            brand.CreatedAt = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
-
             await unitOfWork.Brands.Create(brand);
             await unitOfWork.SaveAsync();
-
             unitOfWork.CommitTransaction();
-
             return true;
         }
         catch (Exception ex)
@@ -66,23 +57,10 @@ public class BrandService : IService<BrandDto>
 
         try
         {
-            var currentUser = await userService.GetCurrentUser();
-            currentUser.Role = await userService.IsInRole(currentUser.Id, "admin") ? "admin" : "user";
-
-            if (brand.CreatedBy != currentUser.Id && currentUser.Role != "admin" && brand.CreatedBy != null)
-            {
-                throw new UnauthorizedAccessException("Non sei autorizzato a modificare questo brand");
-            }
-
             await unitOfWork.Brands.Update(brand);
             await unitOfWork.SaveAsync();
             unitOfWork.CommitTransaction();
             return true;
-        }
-        catch (UnauthorizedAccessException)
-        {
-            unitOfWork.RollbackTransaction();
-            return false;
         }
         catch (Exception ex)
         {
@@ -97,15 +75,6 @@ public class BrandService : IService<BrandDto>
 
         try
         {
-            var currentUser = await userService.GetCurrentUser();
-            currentUser.Role = await userService.IsInRole(currentUser.Id, "admin") ? "admin" : "user";
-            var brand = await unitOfWork.Brands.Find(id);
-
-            if (brand?.CreatedBy != currentUser.Id && currentUser.Role != "admin" && brand?.CreatedBy != null)
-            {
-                return false;
-            }
-
             await unitOfWork.Brands.Delete(id);
             await unitOfWork.SaveAsync();
             unitOfWork.CommitTransaction();

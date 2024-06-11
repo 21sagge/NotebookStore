@@ -54,8 +54,6 @@ public class ModelController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Create([Bind("Id,Name")] ModelViewModel ModelViewModel)
     {
-        ModelState.Remove("CreatedAt");
-
         if (ModelState.IsValid)
         {
             await services.Models.Create(mapper.Map<ModelDto>(ModelViewModel));
@@ -83,7 +81,7 @@ public class ModelController : Controller
     // POST: ModelViewModel/Edit/5
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Edit(int id, [Bind("Id,Name,CreatedAt,CreatedBy")] ModelViewModel ModelViewModel)
+    public async Task<IActionResult> Edit(int id, [Bind("Id,Name")] ModelViewModel ModelViewModel)
     {
         if (id != ModelViewModel.Id)
         {
@@ -92,16 +90,9 @@ public class ModelController : Controller
 
         if (ModelState.IsValid)
         {
-            var result = await services.Models.Update(mapper.Map<ModelDto>(ModelViewModel));
+            await services.Models.Update(mapper.Map<ModelDto>(ModelViewModel));
 
-            if (result)
-            {
-                return RedirectToAction(nameof(Index));
-            }
-            else
-            {
-                ModelState.AddModelError(string.Empty, "Update failed. Please try again.");
-            }
+            return RedirectToAction(nameof(Index));
         }
 
         return View(ModelViewModel);
