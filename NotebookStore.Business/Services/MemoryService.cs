@@ -8,13 +8,11 @@ public class MemoryService : IService<MemoryDto>
 {
 	private readonly IUnitOfWork unitOfWork;
 	private readonly IMapper mapper;
-	private readonly IUserService userService;
 
-	public MemoryService(IUnitOfWork unitOfWork, IMapper mapper, IUserService userService)
+	public MemoryService(IUnitOfWork unitOfWork, IMapper mapper)
 	{
 		this.unitOfWork = unitOfWork;
 		this.mapper = mapper;
-		this.userService = userService;
 	}
 
 	public async Task<IEnumerable<MemoryDto>> GetAll()
@@ -39,11 +37,6 @@ public class MemoryService : IService<MemoryDto>
 
 		try
 		{
-			var currentUser = await userService.GetCurrentUser();
-
-			memory.CreatedBy = currentUser.Id;
-			memory.CreatedAt = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
-
 			await unitOfWork.Memories.Create(memory);
 			await unitOfWork.SaveAsync();
 			unitOfWork.CommitTransaction();
@@ -64,25 +57,10 @@ public class MemoryService : IService<MemoryDto>
 
 		try
 		{
-			var currentUser = await userService.GetCurrentUser();
-			currentUser.Role = await userService.IsInRole(currentUser.Id, "Admin") ? "Admin" : "User";
-
-			if (memory.CreatedBy != currentUser.Id && currentUser.Role != "Admin" && memory.CreatedBy != null)
-			{
-				throw new UnauthorizedAccessException("Non sei autorizzato a modificare questa memoria");
-			}
-
 			await unitOfWork.Memories.Update(memory);
 			await unitOfWork.SaveAsync();
-
 			unitOfWork.CommitTransaction();
-			
 			return true;
-		}
-		catch (UnauthorizedAccessException)
-		{
-			unitOfWork.RollbackTransaction();
-			return false;
 		}
 		catch (Exception ex)
 		{
@@ -97,20 +75,9 @@ public class MemoryService : IService<MemoryDto>
 
 		try
 		{
-			var memory = await unitOfWork.Memories.Find(id);
-			var currentUser = await userService.GetCurrentUser();
-			currentUser.Role = await userService.IsInRole(currentUser.Id, "Admin") ? "Admin" : "User";
-
-			if (memory?.CreatedBy != currentUser.Id && currentUser.Role != "Admin" && memory?.CreatedBy != null)
-			{
-				return false;
-			}
-
 			await unitOfWork.Memories.Delete(id);
 			await unitOfWork.SaveAsync();
-
 			unitOfWork.CommitTransaction();
-
 			return true;
 		}
 		catch (Exception ex)

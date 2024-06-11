@@ -54,15 +54,12 @@ public class StorageController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Create([Bind("Id,Capacity,Type")] StorageViewModel StorageViewModel)
     {
-        ModelState.Remove("CreatedAt");
-
         if (ModelState.IsValid)
         {
             await services.Storages.Create(mapper.Map<StorageDto>(StorageViewModel));
 
             return RedirectToAction(nameof(Index));
         }
-
         return View(StorageViewModel);
     }
 
@@ -83,7 +80,7 @@ public class StorageController : Controller
     // POST: StorageViewModel/Edit/5
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Edit(int id, [Bind("Id,Capacity,Type,CreatedBy,CreatedAt")] StorageViewModel StorageViewModel)
+    public async Task<IActionResult> Edit(int id, [Bind("Id,Capacity,Type")] StorageViewModel StorageViewModel)
     {
         if (id != StorageViewModel.Id)
         {
@@ -92,20 +89,13 @@ public class StorageController : Controller
 
         if (ModelState.IsValid)
         {
-            var result = await services.Storages.Update(mapper.Map<StorageDto>(StorageViewModel));
+            await services.Storages.Update(mapper.Map<StorageDto>(StorageViewModel));
 
-            if (result)
-            {
-                return RedirectToAction(nameof(Index));
-            }
-            else
-            {
-                ModelState.AddModelError("", "Unauthorized");
-            }
+            return RedirectToAction(nameof(Index));
         }
-
         return View(StorageViewModel);
     }
+
 
     // GET: StorageViewModel/Delete/5
     [HttpGet]

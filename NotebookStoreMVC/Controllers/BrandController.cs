@@ -54,8 +54,6 @@ public class BrandController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> CreateAsync([Bind("Id,Name")] BrandViewModel BrandViewModel)
     {
-        ModelState.Remove("CreatedAt");
-
         if (ModelState.IsValid)
         {
             await services.Brands.Create(mapper.Map<BrandDto>(BrandViewModel));
@@ -82,7 +80,7 @@ public class BrandController : Controller
     // POST: BrandViewModel/Edit/5
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> EditAsync(int id, [Bind("Id,Name,CreatedBy,CreatedAt")] BrandViewModel BrandViewModel)
+    public async Task<IActionResult> EditAsync(int id, [Bind("Id,Name")] BrandViewModel BrandViewModel)
     {
         if (id != BrandViewModel.Id)
         {
@@ -91,16 +89,9 @@ public class BrandController : Controller
 
         if (ModelState.IsValid)
         {
-            var result = await services.Brands.Update(mapper.Map<BrandDto>(BrandViewModel));
+            await services.Brands.Update(mapper.Map<BrandDto>(BrandViewModel));
 
-            if (result)
-            {
-                return RedirectToAction(nameof(Index));
-            }
-            else
-            {
-                ModelState.AddModelError("", "Unauthorized");
-            }
+            return RedirectToAction(nameof(Index));
         }
 
         return View(BrandViewModel);

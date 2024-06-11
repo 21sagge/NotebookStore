@@ -154,15 +154,15 @@ namespace NotebookStoreContext.Migrations
                         {
                             Id = "1",
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "d7c686e2-9b77-4049-94ed-d4310081b475",
+                            ConcurrencyStamp = "05ba4351-331f-4d38-882f-ab4dfb7dc7c0",
                             Email = "admin@admin.com",
                             EmailConfirmed = true,
                             LockoutEnabled = false,
                             NormalizedEmail = "ADMIN@ADMIN.COM",
                             NormalizedUserName = "ADMIN@ADMIN.COM",
-                            PasswordHash = "AQAAAAIAAYagAAAAEObH4fcXKI5vGEtFuokTLKRAVaGMWqd0Bjd443CDZLo3rdWMQY/u7wSsMMwJGnn8vQ==",
+                            PasswordHash = "AQAAAAIAAYagAAAAEGMFmiSVs0PB1Chdo+uCoHSCH51yylW8mYbH2QbtbcP3ZxBMlae1Lag3h1kx39pNfw==",
                             PhoneNumberConfirmed = false,
-                            SecurityStamp = "e46eb34b-a6af-4393-8b9c-1d01b7d4f89b",
+                            SecurityStamp = "198fc2bf-efda-4222-b0d6-f278d613a068",
                             TwoFactorEnabled = false,
                             UserName = "admin@admin.com"
                         });
@@ -264,13 +264,6 @@ namespace NotebookStoreContext.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("INTEGER");
 
-                    b.Property<string>("CreatedAt")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("CreatedBy")
-                        .HasColumnType("TEXT");
-
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(50)
@@ -287,37 +280,31 @@ namespace NotebookStoreContext.Migrations
                         new
                         {
                             Id = 1,
-                            CreatedAt = "2024-06-06 13:04:34",
                             Name = "Apple"
                         },
                         new
                         {
                             Id = 2,
-                            CreatedAt = "2024-06-06 13:04:34",
                             Name = "Dell"
                         },
                         new
                         {
                             Id = 3,
-                            CreatedAt = "2024-06-06 13:04:34",
                             Name = "HP"
                         },
                         new
                         {
                             Id = 4,
-                            CreatedAt = "2024-06-06 13:04:34",
                             Name = "Lenovo"
                         },
                         new
                         {
                             Id = 5,
-                            CreatedAt = "2024-06-06 13:04:34",
                             Name = "Microsoft"
                         },
                         new
                         {
                             Id = 6,
-                            CreatedAt = "2024-06-06 13:04:34",
                             Name = "Samsung"
                         });
                 });
@@ -331,13 +318,6 @@ namespace NotebookStoreContext.Migrations
                     b.Property<string>("Brand")
                         .IsRequired()
                         .HasMaxLength(50)
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("CreatedAt")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("CreatedBy")
                         .HasColumnType("TEXT");
 
                     b.Property<string>("Model")
@@ -357,42 +337,36 @@ namespace NotebookStoreContext.Migrations
                         {
                             Id = 1,
                             Brand = "Intel",
-                            CreatedAt = "2024-06-06 13:04:34",
                             Model = "Core i5"
                         },
                         new
                         {
                             Id = 2,
                             Brand = "Intel",
-                            CreatedAt = "2024-06-06 13:04:34",
                             Model = "Core i7"
                         },
                         new
                         {
                             Id = 3,
                             Brand = "Intel",
-                            CreatedAt = "2024-06-06 13:04:34",
                             Model = "Core i9"
                         },
                         new
                         {
                             Id = 4,
                             Brand = "AMD",
-                            CreatedAt = "2024-06-06 13:04:34",
                             Model = "Ryzen 5"
                         },
                         new
                         {
                             Id = 5,
                             Brand = "AMD",
-                            CreatedAt = "2024-06-06 13:04:34",
                             Model = "Ryzen 7"
                         },
                         new
                         {
                             Id = 6,
                             Brand = "AMD",
-                            CreatedAt = "2024-06-06 13:04:34",
                             Model = "Ryzen 9"
                         });
                 });
@@ -402,13 +376,6 @@ namespace NotebookStoreContext.Migrations
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("INTEGER");
-
-                    b.Property<string>("CreatedAt")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("CreatedBy")
-                        .HasColumnType("TEXT");
 
                     b.Property<string>("PanelType")
                         .IsRequired()
@@ -435,7 +402,6 @@ namespace NotebookStoreContext.Migrations
                         new
                         {
                             Id = 1,
-                            CreatedAt = "2024-06-06 13:04:34",
                             PanelType = "IPS",
                             ResolutionHeight = 1600,
                             ResolutionWidth = 2560,
@@ -444,7 +410,6 @@ namespace NotebookStoreContext.Migrations
                         new
                         {
                             Id = 2,
-                            CreatedAt = "2024-06-06 13:04:34",
                             PanelType = "IPS",
                             ResolutionHeight = 1080,
                             ResolutionWidth = 1920,
@@ -453,7 +418,6 @@ namespace NotebookStoreContext.Migrations
                         new
                         {
                             Id = 3,
-                            CreatedAt = "2024-06-06 13:04:34",
                             PanelType = "OLED",
                             ResolutionHeight = 1080,
                             ResolutionWidth = 1920,
@@ -462,7 +426,6 @@ namespace NotebookStoreContext.Migrations
                         new
                         {
                             Id = 4,
-                            CreatedAt = "2024-06-06 13:04:34",
                             PanelType = "IPS",
                             ResolutionHeight = 1080,
                             ResolutionWidth = 1920,
@@ -471,7 +434,6 @@ namespace NotebookStoreContext.Migrations
                         new
                         {
                             Id = 5,
-                            CreatedAt = "2024-06-06 13:04:34",
                             PanelType = "IPS",
                             ResolutionHeight = 1824,
                             ResolutionWidth = 2736,
@@ -480,7 +442,6 @@ namespace NotebookStoreContext.Migrations
                         new
                         {
                             Id = 6,
-                            CreatedAt = "2024-06-06 13:04:34",
                             PanelType = "AMOLED",
                             ResolutionHeight = 1440,
                             ResolutionWidth = 2160,
@@ -497,13 +458,6 @@ namespace NotebookStoreContext.Migrations
                     b.Property<int>("Capacity")
                         .HasColumnType("INTEGER");
 
-                    b.Property<string>("CreatedAt")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("CreatedBy")
-                        .HasColumnType("TEXT");
-
                     b.Property<int>("Speed")
                         .HasColumnType("INTEGER");
 
@@ -519,42 +473,36 @@ namespace NotebookStoreContext.Migrations
                         {
                             Id = 1,
                             Capacity = 8,
-                            CreatedAt = "2024-06-06 13:04:34",
                             Speed = 2666
                         },
                         new
                         {
                             Id = 2,
                             Capacity = 16,
-                            CreatedAt = "2024-06-06 13:04:34",
                             Speed = 2666
                         },
                         new
                         {
                             Id = 3,
                             Capacity = 32,
-                            CreatedAt = "2024-06-06 13:04:34",
                             Speed = 2666
                         },
                         new
                         {
                             Id = 4,
                             Capacity = 8,
-                            CreatedAt = "2024-06-06 13:04:34",
                             Speed = 3200
                         },
                         new
                         {
                             Id = 5,
                             Capacity = 16,
-                            CreatedAt = "2024-06-06 13:04:34",
                             Speed = 3200
                         },
                         new
                         {
                             Id = 6,
                             Capacity = 32,
-                            CreatedAt = "2024-06-06 13:04:34",
                             Speed = 3200
                         });
                 });
@@ -564,13 +512,6 @@ namespace NotebookStoreContext.Migrations
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("INTEGER");
-
-                    b.Property<string>("CreatedAt")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("CreatedBy")
-                        .HasColumnType("TEXT");
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -585,37 +526,31 @@ namespace NotebookStoreContext.Migrations
                         new
                         {
                             Id = 1,
-                            CreatedAt = "2024-06-06 13:04:34",
                             Name = "MacBook Pro"
                         },
                         new
                         {
                             Id = 2,
-                            CreatedAt = "2024-06-06 13:04:34",
                             Name = "XPS"
                         },
                         new
                         {
                             Id = 3,
-                            CreatedAt = "2024-06-06 13:04:34",
                             Name = "Spectre"
                         },
                         new
                         {
                             Id = 4,
-                            CreatedAt = "2024-06-06 13:04:34",
                             Name = "ThinkPad"
                         },
                         new
                         {
                             Id = 5,
-                            CreatedAt = "2024-06-06 13:04:34",
                             Name = "Surface"
                         },
                         new
                         {
                             Id = 6,
-                            CreatedAt = "2024-06-06 13:04:34",
                             Name = "Galaxy Book"
                         });
                 });
@@ -636,13 +571,6 @@ namespace NotebookStoreContext.Migrations
 
                     b.Property<int>("CpuId")
                         .HasColumnType("INTEGER");
-
-                    b.Property<string>("CreatedAt")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("CreatedBy")
-                        .HasColumnType("TEXT");
 
                     b.Property<int>("DisplayId")
                         .HasColumnType("INTEGER");
@@ -683,7 +611,6 @@ namespace NotebookStoreContext.Migrations
                             BrandId = 1,
                             Color = "Space Gray",
                             CpuId = 1,
-                            CreatedAt = "2024-06-06 13:04:34",
                             DisplayId = 1,
                             MemoryId = 1,
                             ModelId = 1,
@@ -696,7 +623,6 @@ namespace NotebookStoreContext.Migrations
                             BrandId = 2,
                             Color = "Platinum Silver",
                             CpuId = 2,
-                            CreatedAt = "2024-06-06 13:04:34",
                             DisplayId = 2,
                             MemoryId = 2,
                             ModelId = 2,
@@ -709,7 +635,6 @@ namespace NotebookStoreContext.Migrations
                             BrandId = 3,
                             Color = "Dark Ash Silver",
                             CpuId = 3,
-                            CreatedAt = "2024-06-06 13:04:34",
                             DisplayId = 3,
                             MemoryId = 3,
                             ModelId = 3,
@@ -722,7 +647,6 @@ namespace NotebookStoreContext.Migrations
                             BrandId = 4,
                             Color = "Black",
                             CpuId = 4,
-                            CreatedAt = "2024-06-06 13:04:34",
                             DisplayId = 4,
                             MemoryId = 4,
                             ModelId = 4,
@@ -735,7 +659,6 @@ namespace NotebookStoreContext.Migrations
                             BrandId = 5,
                             Color = "Platinum",
                             CpuId = 5,
-                            CreatedAt = "2024-06-06 13:04:34",
                             DisplayId = 5,
                             MemoryId = 5,
                             ModelId = 5,
@@ -748,7 +671,6 @@ namespace NotebookStoreContext.Migrations
                             BrandId = 6,
                             Color = "Mystic Bronze",
                             CpuId = 6,
-                            CreatedAt = "2024-06-06 13:04:34",
                             DisplayId = 6,
                             MemoryId = 6,
                             ModelId = 6,
@@ -790,42 +712,42 @@ namespace NotebookStoreContext.Migrations
                         {
                             Id = 1,
                             Capacity = 256,
-                            CreatedAt = "2024-06-06 13:04:34",
+                            CreatedAt = "2024-06-05 15:11:48",
                             Type = "SSD"
                         },
                         new
                         {
                             Id = 2,
                             Capacity = 512,
-                            CreatedAt = "2024-06-06 13:04:34",
+                            CreatedAt = "2024-06-05 15:11:48",
                             Type = "SSD"
                         },
                         new
                         {
                             Id = 3,
                             Capacity = 1024,
-                            CreatedAt = "2024-06-06 13:04:34",
+                            CreatedAt = "2024-06-05 15:11:48",
                             Type = "SSD"
                         },
                         new
                         {
                             Id = 4,
                             Capacity = 256,
-                            CreatedAt = "2024-06-06 13:04:34",
+                            CreatedAt = "2024-06-05 15:11:48",
                             Type = "HDD"
                         },
                         new
                         {
                             Id = 5,
                             Capacity = 512,
-                            CreatedAt = "2024-06-06 13:04:34",
+                            CreatedAt = "2024-06-05 15:11:48",
                             Type = "HDD"
                         },
                         new
                         {
                             Id = 6,
                             Capacity = 1024,
-                            CreatedAt = "2024-06-06 13:04:34",
+                            CreatedAt = "2024-06-05 15:11:48",
                             Type = "HDD"
                         });
                 });

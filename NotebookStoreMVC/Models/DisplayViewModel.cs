@@ -29,8 +29,6 @@ public class DisplayViewModel
   /// </summary>
   [MaxLength(10)]
   public required string PanelType { get; set; }
-  public string? CreatedBy { get; set; }
-  public required string CreatedAt { get; set; }
 
   public string Name => $"{Size}\" {ResolutionWidth}x{ResolutionHeight} {PanelType}";
 }
