@@ -9,4 +9,6 @@ public class CpuDto
 	public string? Brand { get; set; }
 	[MaxLength(50)]
 	public string? Model { get; set; }
+	public string? CreatedBy { get; set; }
+	public required string CreatedAt { get; set; }
 }

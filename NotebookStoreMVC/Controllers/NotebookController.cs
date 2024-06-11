@@ -64,6 +64,8 @@ public class NotebookController : Controller
 	[Authorize(Roles = "Admin")]
 	public async Task<IActionResult> Create([Bind("Id,Color,Price,BrandId,ModelId,CpuId,DisplayId,MemoryId,StorageId")] NotebookViewModel notebook)
 	{
+		ModelState.Remove("CreatedAt");
+
 		if (ModelState.IsValid)
 		{
 			await services.Notebooks.Create(mapper.Map<NotebookDto>(notebook));
@@ -100,7 +102,7 @@ public class NotebookController : Controller
 	[HttpPost]
 	[ValidateAntiForgeryToken]
 	[Authorize(Roles = "Admin")]
-	public async Task<IActionResult> Edit(int id, [Bind("Id,Color,Price,BrandId,ModelId,CpuId,DisplayId,MemoryId,StorageId")] NotebookViewModel notebook)
+	public async Task<IActionResult> Edit(int id, [Bind("Id,Color,Price,BrandId,ModelId,CpuId,DisplayId,MemoryId,StorageId,CreatedAt,CreatedBy")] NotebookViewModel notebook)
 	{
 		if (id != notebook.Id)
 		{
@@ -109,9 +111,16 @@ public class NotebookController : Controller
 
 		if (ModelState.IsValid)
 		{
-			await services.Notebooks.Update(mapper.Map<NotebookDto>(notebook));
+			var result = await services.Notebooks.Update(mapper.Map<NotebookDto>(notebook));
 
-			return RedirectToAction(nameof(Index));
+			if (result)
+			{
+				return RedirectToAction(nameof(Index));
+			}
+			else
+			{
+				ModelState.AddModelError(string.Empty, "Update failed.");
+			}
 		}
 
 		return View(notebook);

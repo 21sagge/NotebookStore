@@ -8,11 +8,13 @@ public class DisplayService : IService<DisplayDto>
 {
 	private readonly IUnitOfWork unitOfWork;
 	private readonly IMapper mapper;
+	private readonly IUserService userService;
 
-	public DisplayService(IUnitOfWork unitOfWork, IMapper mapper)
+	public DisplayService(IUnitOfWork unitOfWork, IMapper mapper, IUserService userService)
 	{
 		this.unitOfWork = unitOfWork;
 		this.mapper = mapper;
+		this.userService = userService;
 	}
 
 	public async Task<IEnumerable<DisplayDto>> GetAll()
@@ -37,9 +39,16 @@ public class DisplayService : IService<DisplayDto>
 
 		try
 		{
+			var currentUser = await userService.GetCurrentUser();
+
+			display.CreatedBy = currentUser.Id;
+			display.CreatedAt = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
+
 			await unitOfWork.Displays.Create(display);
 			await unitOfWork.SaveAsync();
+
 			unitOfWork.CommitTransaction();
+
 			return true;
 		}
 		catch (Exception ex)
@@ -57,10 +66,25 @@ public class DisplayService : IService<DisplayDto>
 
 		try
 		{
+			var currentUser = await userService.GetCurrentUser();
+			currentUser.Role = await userService.IsInRole(currentUser.Id, "Admin") ? "Admin" : "User";
+
+			if (display.CreatedBy != currentUser.Id && currentUser.Role != "Admin" && display.CreatedBy != null)
+			{
+				throw new UnauthorizedAccessException("Non sei autorizzato a modificare questo display");
+			}
+
 			await unitOfWork.Displays.Update(display);
 			await unitOfWork.SaveAsync();
+
 			unitOfWork.CommitTransaction();
+
 			return true;
+		}
+		catch (UnauthorizedAccessException)
+		{
+			unitOfWork.RollbackTransaction();
+			return false;
 		}
 		catch (Exception ex)
 		{
@@ -75,9 +99,20 @@ public class DisplayService : IService<DisplayDto>
 
 		try
 		{
+			var display = await unitOfWork.Displays.Find(id);
+			var currentUser = await userService.GetCurrentUser();
+			currentUser.Role = await userService.IsInRole(currentUser.Id, "Admin") ? "Admin" : "User";
+
+			if (display?.CreatedBy != currentUser.Id && currentUser.Role != "Admin" && display?.CreatedBy != null)
+			{
+				return false;
+			}
+
 			await unitOfWork.Displays.Delete(id);
 			await unitOfWork.SaveAsync();
+
 			unitOfWork.CommitTransaction();
+
 			return true;
 		}
 		catch (Exception ex)
