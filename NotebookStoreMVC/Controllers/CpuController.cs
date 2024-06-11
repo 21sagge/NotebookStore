@@ -54,6 +54,8 @@ public class CpuController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Create([Bind("Id,Brand,Model")] CpuViewModel CpuViewModel)
     {
+        ModelState.Remove("CreatedAt");
+
         if (ModelState.IsValid)
         {
             await services.Cpus.Create(mapper.Map<CpuDto>(CpuViewModel));
@@ -81,7 +83,7 @@ public class CpuController : Controller
     // POST: CpuViewModel/Edit/5
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Edit(int id, [Bind("Id,Brand,Model")] CpuViewModel CpuViewModel)
+    public async Task<IActionResult> Edit(int id, [Bind("Id,Brand,Model,CreatedAt, CreatedBy")] CpuViewModel CpuViewModel)
     {
         if (id != CpuViewModel.Id)
         {
@@ -90,16 +92,16 @@ public class CpuController : Controller
 
         if (ModelState.IsValid)
         {
-            try
-            {
-                await services.Cpus.Update(mapper.Map<CpuDto>(CpuViewModel));
-            }
-            catch (Exception ex)
-            {
-                return Problem(ex.Message);
-            }
+            var result = await services.Cpus.Update(mapper.Map<CpuDto>(CpuViewModel));
 
-            return RedirectToAction(nameof(Index));
+            if (result)
+            {
+                return RedirectToAction(nameof(Index));
+            }
+            else
+            {
+                ModelState.AddModelError("", "Update failed.");
+            }
         }
 
         return View(CpuViewModel);

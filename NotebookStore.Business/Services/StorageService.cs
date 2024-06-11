@@ -8,11 +8,13 @@ public class StorageService : IService<StorageDto>
 {
 	private readonly IUnitOfWork unitOfWork;
 	private readonly IMapper mapper;
+	private readonly IUserService userService;
 
-	public StorageService(IUnitOfWork unitOfWork, IMapper mapper)
+	public StorageService(IUnitOfWork unitOfWork, IMapper mapper, IUserService userService)
 	{
 		this.unitOfWork = unitOfWork;
 		this.mapper = mapper;
+		this.userService = userService;
 	}
 
 	public async Task<IEnumerable<StorageDto>> GetAll()
@@ -37,35 +39,61 @@ public class StorageService : IService<StorageDto>
 
 		try
 		{
+			var currentUser = await userService.GetCurrentUser();
+
+			storage.CreatedBy = currentUser.Id;
+			storage.CreatedAt = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
+
 			await unitOfWork.Storages.Create(storage);
 			await unitOfWork.SaveAsync();
+
 			unitOfWork.CommitTransaction();
+
 			return true;
 		}
-		catch (Exception ex)
+		catch (Exception)
 		{
 			unitOfWork.RollbackTransaction();
-			throw new Exception("Errore durante la creazione dello storage", ex);
+			return false;
 		}
 	}
 
 	public async Task<bool> Update(StorageDto storageDto)
 	{
-		var storage = mapper.Map<Storage>(storageDto);
+		var currentStorage = await unitOfWork.Storages.Find(storageDto.Id);
+
+		if (currentStorage == null)
+		{
+			return false;
+		}
 
 		unitOfWork.BeginTransaction();
 
 		try
 		{
-			await unitOfWork.Storages.Update(storage);
+			var currentUser = await userService.GetCurrentUser();
+
+			if (currentStorage.CreatedBy != currentUser.Id
+				&& currentUser.Role != "Admin"
+				&& currentStorage.CreatedBy != null)
+			{
+				return false;
+			}
+
+			currentStorage.Type = storageDto.Type;
+			currentStorage.Capacity = storageDto.Capacity;
+
+			await unitOfWork.Storages.Update(currentStorage);
 			await unitOfWork.SaveAsync();
+
 			unitOfWork.CommitTransaction();
+
 			return true;
 		}
-		catch (Exception ex)
+		catch (Exception)
 		{
 			unitOfWork.RollbackTransaction();
-			throw new Exception("Errore durante l'aggiornamento dello storage", ex);
+			return false;
 		}
 	}
 
@@ -75,15 +103,26 @@ public class StorageService : IService<StorageDto>
 
 		try
 		{
+			var storage = await unitOfWork.Storages.Find(id);
+			var currentUser = await userService.GetCurrentUser();
+			currentUser.Role = await userService.IsInRole(currentUser.Id, "Admin") ? "Admin" : "User";
+
+			if (storage?.CreatedBy != currentUser.Id && currentUser.Role != "Admin" && storage?.CreatedBy != null)
+			{
+				return false;
+			}
+
 			await unitOfWork.Storages.Delete(id);
 			await unitOfWork.SaveAsync();
+
 			unitOfWork.CommitTransaction();
+
 			return true;
 		}
-		catch (Exception ex)
+		catch (Exception)
 		{
 			unitOfWork.RollbackTransaction();
-			throw new Exception("Errore durante l'eliminazione dello storage", ex);
+			return false;
 		}
 	}
 }
