@@ -8,11 +8,13 @@ public class CpuService : IService<CpuDto>
 {
 	private readonly IUnitOfWork unitOfWork;
 	private readonly IMapper mapper;
+	private readonly IUserService userService;
 
-	public CpuService(IUnitOfWork unitOfWork, IMapper mapper)
+	public CpuService(IUnitOfWork unitOfWork, IMapper mapper, IUserService userService)
 	{
 		this.unitOfWork = unitOfWork;
 		this.mapper = mapper;
+		this.userService = userService;
 	}
 
 	public async Task<IEnumerable<CpuDto>> GetAll()
@@ -37,9 +39,16 @@ public class CpuService : IService<CpuDto>
 
 		try
 		{
+			var currentUser = await userService.GetCurrentUser();
+
+			cpu.CreatedBy = currentUser.Id;
+			cpu.CreatedAt = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
+
 			await unitOfWork.Cpus.Create(cpu);
 			await unitOfWork.SaveAsync();
+
 			unitOfWork.CommitTransaction();
+
 			return true;
 		}
 		catch (Exception ex)
@@ -57,10 +66,25 @@ public class CpuService : IService<CpuDto>
 
 		try
 		{
+			var currentUser = await userService.GetCurrentUser();
+			currentUser.Role = await userService.IsInRole(currentUser.Id, "Admin") ? "Admin" : "User";
+
+			if (cpu.CreatedBy != currentUser.Id && currentUser.Role != "Admin" && cpu.CreatedBy != null)
+			{
+				throw new UnauthorizedAccessException("Non sei autorizzato a modificare questo processore");
+			}
+
 			await unitOfWork.Cpus.Update(cpu);
 			await unitOfWork.SaveAsync();
+
 			unitOfWork.CommitTransaction();
+
 			return true;
+		}
+		catch (UnauthorizedAccessException)
+		{
+			unitOfWork.RollbackTransaction();
+			return false;
 		}
 		catch (Exception ex)
 		{
@@ -75,9 +99,20 @@ public class CpuService : IService<CpuDto>
 
 		try
 		{
+			var currentUser = await userService.GetCurrentUser();
+			currentUser.Role = await userService.IsInRole(currentUser.Id, "Admin") ? "Admin" : "User";
+			var cpu = await unitOfWork.Cpus.Find(id);
+
+			if (cpu?.CreatedBy != currentUser.Id && currentUser.Role != "Admin" && cpu?.CreatedBy != null)
+			{
+				return false;
+			}
+
 			await unitOfWork.Cpus.Delete(id);
 			await unitOfWork.SaveAsync();
+
 			unitOfWork.CommitTransaction();
+
 			return true;
 		}
 		catch (Exception ex)

@@ -54,6 +54,8 @@ public class MemoryController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Create([Bind("Id,Capacity,Speed")] MemoryViewModel MemoryViewModel)
     {
+        ModelState.Remove("CreatedAt");
+
         if (ModelState.IsValid)
         {
             await services.Memories.Create(mapper.Map<MemoryDto>(MemoryViewModel));
@@ -81,7 +83,7 @@ public class MemoryController : Controller
     // POST: MemoryViewModel/Edit/5
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Edit(int id, [Bind("Id,Capacity,Speed")] MemoryViewModel MemoryViewModel)
+    public async Task<IActionResult> Edit(int id, [Bind("Id,Capacity,Speed,CreatedAt,CreatedBy")] MemoryViewModel MemoryViewModel)
     {
         if (id != MemoryViewModel.Id)
         {
@@ -90,9 +92,16 @@ public class MemoryController : Controller
 
         if (ModelState.IsValid)
         {
-            await services.Memories.Update(mapper.Map<MemoryDto>(MemoryViewModel));
+            var result = await services.Memories.Update(mapper.Map<MemoryDto>(MemoryViewModel));
 
-            return RedirectToAction(nameof(Index));
+            if (result)
+            {
+                return RedirectToAction(nameof(Index));
+            }
+            else
+            {
+                ModelState.AddModelError(string.Empty, "Update failed. Please try again.");
+            }
         }
 
         return View(MemoryViewModel);

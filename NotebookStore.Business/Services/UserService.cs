@@ -27,10 +27,16 @@ public class UserService : IUserService
 
     public async Task<UserDto> GetCurrentUser()
     {
-        var user = await userManager.GetUserAsync(context.GetCurrentUser()
-            ?? throw new ArgumentNullException(nameof(context.GetCurrentUser)));
+        var user = await userManager.GetUserAsync(context.GetCurrentUser() ?? throw new Exception("User not found"))
+            ?? throw new Exception("User not found");
 
-        return mapper.Map<UserDto>(user);
+        var userDto = mapper.Map<UserDto>(user);
+
+        var userRoles = await userManager.GetRolesAsync(user);
+
+        userDto.Role = userRoles.FirstOrDefault() ?? "";
+
+        return userDto;
     }
 
     public async Task<UserDto> GetUser(string id)
