@@ -6,115 +6,157 @@ using NotebookStore.Entities;
 
 public class BrandService : IService<BrandDto>
 {
-    private readonly IUnitOfWork unitOfWork;
-    private readonly IMapper mapper;
-    private readonly IUserService userService;
+	private readonly IUnitOfWork unitOfWork;
+	private readonly IMapper mapper;
+	private readonly IUserService userService;
 
-    public BrandService(IUnitOfWork unitOfWork, IMapper mapper, IUserService userService)
-    {
-        this.unitOfWork = unitOfWork;
-        this.mapper = mapper;
-        this.userService = userService;
-    }
+	public BrandService(IUnitOfWork unitOfWork, IMapper mapper, IUserService userService)
+	{
+		this.unitOfWork = unitOfWork;
+		this.mapper = mapper;
+		this.userService = userService;
+	}
 
-    public async Task<IEnumerable<BrandDto>> GetAll()
-    {
-        var brands = await unitOfWork.Brands.Read();
+	public async Task<IEnumerable<BrandDto>> GetAll()
+	{
+		var brands = await unitOfWork.Brands.Read();
+		var brandDtos = mapper.Map<IEnumerable<BrandDto>>(brands);
+		var currentUser = await userService.GetCurrentUser();
 
-        return mapper.Map<IEnumerable<BrandDto>>(brands);
-    }
+		foreach (var brandDto in brandDtos)
+		{
+			var brand = await unitOfWork.Brands.Find(brandDto.Id);
 
-    public async Task<BrandDto> Find(int id)
-    {
-        var brand = await unitOfWork.Brands.Find(id);
+			if (brand == null)
+			{
+				continue;
+			}
 
-        return mapper.Map<BrandDto>(brand);
-    }
+			var createdBy = brand.CreatedBy;
 
-    public async Task<bool> Create(BrandDto brandDto)
-    {
-        var brand = mapper.Map<Brand>(brandDto);
+			brandDto.CanUpdate = createdBy == currentUser.Id || currentUser.Role == "Admin" || createdBy == null;
+			brandDto.CanDelete = createdBy == currentUser.Id || currentUser.Role == "Admin" || createdBy == null;
+		}
 
-        unitOfWork.BeginTransaction();
+		return brandDtos;
+	}
 
-        try
-        {
-            var currentUser = await userService.GetCurrentUser();
+	public async Task<BrandDto?> Find(int id)
+	{
+		var brand = await unitOfWork.Brands.Find(id);
 
-            brand.CreatedBy = currentUser.Id;
-            brand.CreatedAt = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
+		if (brand == null)
+		{
+			return null;
+		}
 
-            await unitOfWork.Brands.Create(brand);
-            await unitOfWork.SaveAsync();
+		var brandDto = mapper.Map<BrandDto>(brand);
 
-            unitOfWork.CommitTransaction();
+		var currentUser = await userService.GetCurrentUser();
 
-            return true;
-        }
-        catch (Exception ex)
-        {
-            unitOfWork.RollbackTransaction();
-            throw new Exception("Errore durante la creazione del brand", ex);
-        }
-    }
+		if (brand.CreatedBy == currentUser.Id
+			|| currentUser.Role == "Admin"
+			|| brand.CreatedBy == null)
+		{
+			brandDto.CanUpdate = true;
+			brandDto.CanDelete = true;
+		}
 
-    public async Task<bool> Update(BrandDto brandDto)
-    {
-        var brand = mapper.Map<Brand>(brandDto);
+		return brandDto;
+	}
 
-        unitOfWork.BeginTransaction();
+	public async Task<bool> Create(BrandDto brandDto)
+	{
+		var brand = mapper.Map<Brand>(brandDto);
 
-        try
-        {
-            var currentUser = await userService.GetCurrentUser();
-            currentUser.Role = await userService.IsInRole(currentUser.Id, "admin") ? "admin" : "user";
+		unitOfWork.BeginTransaction();
 
-            if (brand.CreatedBy != currentUser.Id && currentUser.Role != "admin" && brand.CreatedBy != null)
-            {
-                throw new UnauthorizedAccessException("Non sei autorizzato a modificare questo brand");
-            }
+		try
+		{
+			var currentUser = await userService.GetCurrentUser();
 
-            await unitOfWork.Brands.Update(brand);
-            await unitOfWork.SaveAsync();
-            unitOfWork.CommitTransaction();
-            return true;
-        }
-        catch (UnauthorizedAccessException)
-        {
-            unitOfWork.RollbackTransaction();
-            return false;
-        }
-        catch (Exception ex)
-        {
-            unitOfWork.RollbackTransaction();
-            throw new Exception("Errore durante l'aggiornamento del brand", ex);
-        }
-    }
+			brand.CreatedBy = currentUser.Id;
+			brand.CreatedAt = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
 
-    public async Task<bool> Delete(int id)
-    {
-        unitOfWork.BeginTransaction();
+			await unitOfWork.Brands.Create(brand);
+			await unitOfWork.SaveAsync();
 
-        try
-        {
-            var currentUser = await userService.GetCurrentUser();
-            currentUser.Role = await userService.IsInRole(currentUser.Id, "admin") ? "admin" : "user";
-            var brand = await unitOfWork.Brands.Find(id);
+			unitOfWork.CommitTransaction();
 
-            if (brand?.CreatedBy != currentUser.Id && currentUser.Role != "admin" && brand?.CreatedBy != null)
-            {
-                return false;
-            }
+			return true;
+		}
+		catch (Exception)
+		{
+			unitOfWork.RollbackTransaction();
+			return false;
+		}
+	}
 
-            await unitOfWork.Brands.Delete(id);
-            await unitOfWork.SaveAsync();
-            unitOfWork.CommitTransaction();
-            return true;
-        }
-        catch (Exception ex)
-        {
-            unitOfWork.RollbackTransaction();
-            throw new Exception("Errore durante l'eliminazione del brand", ex);
-        }
-    }
+	public async Task<bool> Update(BrandDto brandDto)
+	{
+		var brand = await unitOfWork.Brands.Find(brandDto.Id);
+
+		if (brand == null)
+		{
+			return false;
+		}
+
+		unitOfWork.BeginTransaction();
+
+		try
+		{
+			var currentUser = await userService.GetCurrentUser();
+
+			if (brand.CreatedBy != currentUser.Id
+				&& currentUser.Role != "admin"
+				&& brand.CreatedBy != null)
+			{
+				return false;
+			}
+
+			brand.Name = brandDto.Name;
+
+			await unitOfWork.Brands.Update(brand);
+			await unitOfWork.SaveAsync();
+
+			unitOfWork.CommitTransaction();
+
+			return true;
+		}
+		catch (Exception)
+		{
+			unitOfWork.RollbackTransaction();
+			return false;
+		}
+	}
+
+	public async Task<bool> Delete(int id)
+	{
+		unitOfWork.BeginTransaction();
+
+		try
+		{
+			var brand = await unitOfWork.Brands.Find(id);
+			var currentUser = await userService.GetCurrentUser();
+
+			if (brand?.CreatedBy != currentUser.Id
+				&& currentUser.Role != "admin"
+				&& brand?.CreatedBy != null)
+			{
+				return false;
+			}
+
+			await unitOfWork.Brands.Delete(id);
+			await unitOfWork.SaveAsync();
+
+			unitOfWork.CommitTransaction();
+
+			return true;
+		}
+		catch (Exception)
+		{
+			unitOfWork.RollbackTransaction();
+			return false;
+		}
+	}
 }

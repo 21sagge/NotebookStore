@@ -6,9 +6,9 @@ public class CpuDto
 {
 	public int Id { get; set; }
 	[MaxLength(50)]
-	public string? Brand { get; set; }
+	public required string Brand { get; set; }
 	[MaxLength(50)]
-	public string? Model { get; set; }
-	public string? CreatedBy { get; set; }
-	public required string CreatedAt { get; set; }
+	public required string Model { get; set; }
+	public bool CanUpdate { get; set; }
+	public bool CanDelete { get; set; }
 }

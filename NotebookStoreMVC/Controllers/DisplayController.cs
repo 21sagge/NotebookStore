@@ -1,7 +1,6 @@
 using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 using NotebookStoreMVC.Models;
-using NotebookStore.Entities;
 using NotebookStore.Business;
 using Microsoft.AspNetCore.Authorization;
 
@@ -24,9 +23,19 @@ public class DisplayController : Controller
     public async Task<IActionResult> Index()
     {
         var displays = await services.Displays.GetAll();
-        var mappedDisplays = mapper.Map<IEnumerable<DisplayViewModel>>(displays);
+        var displayViewModels = mapper.Map<IEnumerable<DisplayViewModel>>(displays);
 
-        return View(mappedDisplays);
+        foreach (var display in displays)
+        {
+            var displayViewModel = displayViewModels.FirstOrDefault(d => d.Id == display.Id);
+
+            if (displayViewModel != null)
+            {
+                displayViewModel.CanUpdateAndDelete = display.CanUpdate && display.CanDelete;
+            }
+        }
+
+        return View(displayViewModels);
     }
 
     // GET: DisplayViewModel/Details/5
@@ -40,7 +49,11 @@ public class DisplayController : Controller
             return NotFound();
         }
 
-        return View(mapper.Map<DisplayViewModel>(display));
+        var displayViewModel = mapper.Map<DisplayViewModel>(display);
+
+        displayViewModel.CanUpdateAndDelete = display.CanUpdate && display.CanDelete;
+
+        return View(displayViewModel);
     }
 
     // GET: DisplayViewModel/Create
@@ -55,8 +68,6 @@ public class DisplayController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Create([Bind("Id, Size, ResolutionWidth, ResolutionHeight, PanelType")] DisplayViewModel DisplayViewModel)
     {
-        ModelState.Remove("CreatedAt");
-
         if (ModelState.IsValid)
         {
             await services.Displays.Create(mapper.Map<DisplayDto>(DisplayViewModel));
@@ -84,7 +95,7 @@ public class DisplayController : Controller
     // POST: DisplayViewModel/Edit/5
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Edit(int id, [Bind("Id, Size, ResolutionWidth, ResolutionHeight, PanelType, CreatedAt, CreatedBy")] DisplayViewModel DisplayViewModel)
+    public async Task<IActionResult> Edit(int id, [Bind("Id, Size, ResolutionWidth, ResolutionHeight, PanelType")] DisplayViewModel DisplayViewModel)
     {
         if (id != DisplayViewModel.Id)
         {

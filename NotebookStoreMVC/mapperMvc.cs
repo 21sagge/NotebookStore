@@ -62,15 +62,11 @@ public class MapperMvc : Profile
             .ForMember(dest => dest.Id, act => act.MapFrom(src => src.Id))
             .ForMember(dest => dest.Capacity, act => act.MapFrom(src => src.Capacity))
             .ForMember(dest => dest.Type, act => act.MapFrom(src => src.Type))
-            .ForMember(dest => dest.CreatedBy, act => act.MapFrom(src => src.CreatedBy))
-            .ForMember(dest => dest.CreatedAt, act => act.MapFrom(src => src.CreatedAt))
             .ReverseMap();
         CreateMap<StorageDto, StorageViewModel>()
             .ForMember(dest => dest.Id, act => act.MapFrom(src => src.Id))
             .ForMember(dest => dest.Capacity, act => act.MapFrom(src => src.Capacity))
             .ForMember(dest => dest.Type, act => act.MapFrom(src => src.Type))
-            .ForMember(dest => dest.CreatedBy, act => act.MapFrom(src => src.CreatedBy))
-            .ForMember(dest => dest.CreatedAt, act => act.MapFrom(src => src.CreatedAt))
             .ReverseMap();
         CreateMap<NotebookDto, NotebookViewModel>()
             .ForMember(dest => dest.Id, act => act.MapFrom(src => src.Id))

@@ -4,7 +4,6 @@ using Microsoft.Extensions.Configuration;
 using NotebookStore.Business;
 using NotebookStore.DAL;
 using NotebookStoreMVC;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using NotebookStore.Business.Context;
 
@@ -48,7 +47,21 @@ class Program
 
     private static async void FetchAndPrintAsync(IServices service)
     {
-        var notebooks = await service.Notebooks.GetAll();
+        IEnumerable<NotebookDto>? notebooks = null;
+
+        try
+        {
+            notebooks = await service.Notebooks.GetAll();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex.Message);
+        }
+
+        if (notebooks == null)
+        {
+            return;
+        }
 
         Console.WriteLine("All notebooks:");
 

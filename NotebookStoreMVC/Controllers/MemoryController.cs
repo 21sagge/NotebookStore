@@ -23,9 +23,19 @@ public class MemoryController : Controller
     public async Task<IActionResult> Index()
     {
         var memories = await services.Memories.GetAll();
-        var mappedMemories = mapper.Map<IEnumerable<MemoryViewModel>>(memories);
+        var memoryViewModels = mapper.Map<IEnumerable<MemoryViewModel>>(memories);
 
-        return View(mappedMemories);
+        foreach (var memory in memories)
+        {
+            var memoryViewModel = memoryViewModels.FirstOrDefault(d => d.Id == memory.Id);
+
+            if (memoryViewModel != null)
+            {
+                memoryViewModel.CanUpdateAndDelete = memory.CanUpdate && memory.CanDelete;
+            }
+        }
+
+        return View(memoryViewModels);
     }
 
     // GET: MemoryViewModel/Details/5
@@ -39,7 +49,11 @@ public class MemoryController : Controller
             return NotFound();
         }
 
-        return View(mapper.Map<MemoryViewModel>(memory));
+        var memoryViewModel = mapper.Map<MemoryViewModel>(memory);
+
+        memoryViewModel.CanUpdateAndDelete = memory.CanUpdate && memory.CanDelete;
+
+        return View(memoryViewModel);
     }
 
     // GET: MemoryViewModel/Create
@@ -54,8 +68,6 @@ public class MemoryController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Create([Bind("Id,Capacity,Speed")] MemoryViewModel MemoryViewModel)
     {
-        ModelState.Remove("CreatedAt");
-
         if (ModelState.IsValid)
         {
             await services.Memories.Create(mapper.Map<MemoryDto>(MemoryViewModel));
@@ -83,7 +95,7 @@ public class MemoryController : Controller
     // POST: MemoryViewModel/Edit/5
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Edit(int id, [Bind("Id,Capacity,Speed,CreatedAt,CreatedBy")] MemoryViewModel MemoryViewModel)
+    public async Task<IActionResult> Edit(int id, [Bind("Id,Capacity,Speed")] MemoryViewModel MemoryViewModel)
     {
         if (id != MemoryViewModel.Id)
         {
@@ -100,7 +112,7 @@ public class MemoryController : Controller
             }
             else
             {
-                ModelState.AddModelError(string.Empty, "Update failed. Please try again.");
+                ModelState.AddModelError(string.Empty, "You are not allowed to update this memory");
             }
         }
 

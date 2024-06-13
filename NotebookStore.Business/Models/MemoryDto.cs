@@ -17,6 +17,6 @@ public class MemoryDto
 	/// </summary>
 	[Range(800, 6400)]
 	public required int Speed { get; set; }
-	public string? CreatedBy { get; set; }
-	public required string CreatedAt { get; set; }
+	public bool CanUpdate { get; set; }
+	public bool CanDelete { get; set; }
 }

@@ -22,24 +22,38 @@ public class StorageController : Controller
     [HttpGet]
     public async Task<IActionResult> Index()
     {
-        var storages = await services.Storages.GetAll();
-        var mappedStorages = mapper.Map<IEnumerable<StorageViewModel>>(storages);
+        var storageDtos = await services.Storages.GetAll();
+        var storageViewModels = mapper.Map<IEnumerable<StorageViewModel>>(storageDtos);
 
-        return View(mappedStorages);
+        foreach (var storageDto in storageDtos)
+        {
+            var storageViewModel = storageViewModels.FirstOrDefault(s => s.Id == storageDto.Id);
+
+            if (storageViewModel != null)
+            {
+                storageViewModel.CanUpdateAndDelete = storageDto.CanUpdate && storageDto.CanDelete;
+            }
+        }
+
+        return View(storageViewModels);
     }
 
     // GET: StorageViewModel/Details/5
     [HttpGet]
     public async Task<IActionResult> Details(int id)
     {
-        var storage = await services.Storages.Find(id);
+        var storageDto = await services.Storages.Find(id);
 
-        if (storage == null)
+        if (storageDto == null)
         {
             return NotFound();
         }
 
-        return View(mapper.Map<StorageViewModel>(storage));
+        var storageViewModel = mapper.Map<StorageViewModel>(storageDto);
+
+        storageViewModel.CanUpdateAndDelete = storageDto.CanUpdate && storageDto.CanDelete;
+
+        return View(storageViewModel);
     }
 
     // GET: StorageViewModel/Create
@@ -54,8 +68,6 @@ public class StorageController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Create([Bind("Id,Capacity,Type")] StorageViewModel StorageViewModel)
     {
-        ModelState.Remove("CreatedAt");
-
         if (ModelState.IsValid)
         {
             await services.Storages.Create(mapper.Map<StorageDto>(StorageViewModel));
@@ -83,7 +95,7 @@ public class StorageController : Controller
     // POST: StorageViewModel/Edit/5
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Edit(int id, [Bind("Id,Capacity,Type,CreatedBy,CreatedAt")] StorageViewModel StorageViewModel)
+    public async Task<IActionResult> Edit(int id, [Bind("Id,Capacity,Type")] StorageViewModel StorageViewModel)
     {
         if (id != StorageViewModel.Id)
         {

@@ -13,7 +13,10 @@
     </a>
     <div class="d-flex justify-content-between align-items-center w-100">
         <h1 class="display-4 fs-3 mb-4">Memory Details</h1>
-        <a asp-action="Edit" asp-route-id="@Model?.Id" class="btn btn-success">Edit</a>
+        @if (Model.CanUpdateAndDelete)
+        {
+            <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-success">Edit</a>
+        }
     </div>
 </header>
 <div>

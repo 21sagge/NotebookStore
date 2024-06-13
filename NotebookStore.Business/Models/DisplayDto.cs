@@ -29,6 +29,6 @@ public class DisplayDto
 	/// </summary>
 	[MaxLength(10)]
 	public required string PanelType { get; set; }
-	public string? CreatedBy { get; set; }
-	public required string CreatedAt { get; set; }
+	public bool CanUpdate { get; set; }
+	public bool CanDelete { get; set; }
 }

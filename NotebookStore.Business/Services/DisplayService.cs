@@ -20,15 +20,49 @@ public class DisplayService : IService<DisplayDto>
 	public async Task<IEnumerable<DisplayDto>> GetAll()
 	{
 		var displays = await unitOfWork.Displays.Read();
+		var displayDtos = mapper.Map<IEnumerable<DisplayDto>>(displays);
+		var currentUser = await userService.GetCurrentUser();
 
-		return mapper.Map<IEnumerable<DisplayDto>>(displays);
+		foreach (var displayDto in displayDtos)
+		{
+			var display = await unitOfWork.Displays.Find(displayDto.Id);
+
+			if (display == null)
+			{
+				continue;
+			}
+
+			var createdBy = display.CreatedBy;
+
+			displayDto.CanUpdate = createdBy == currentUser.Id || currentUser.Role == "Admin" || createdBy == null;
+			displayDto.CanDelete = createdBy == currentUser.Id || currentUser.Role == "Admin" || createdBy == null;
+		}
+
+		return displayDtos;
 	}
 
-	public async Task<DisplayDto> Find(int id)
+	public async Task<DisplayDto?> Find(int id)
 	{
 		var display = await unitOfWork.Displays.Find(id);
 
-		return mapper.Map<DisplayDto>(display);
+		if (display == null)
+		{
+			return null;
+		}
+
+		var displayDto = mapper.Map<DisplayDto>(display);
+
+		var currentUser = await userService.GetCurrentUser();
+
+		if (display.CreatedBy == currentUser.Id
+			|| currentUser.Role == "admin"
+			|| display.CreatedBy == null)
+		{
+			displayDto.CanUpdate = true;
+			displayDto.CanDelete = true;
+		}
+
+		return displayDto;
 	}
 
 	public async Task<bool> Create(DisplayDto displayDto)
@@ -51,28 +85,39 @@ public class DisplayService : IService<DisplayDto>
 
 			return true;
 		}
-		catch (Exception ex)
+		catch (Exception)
 		{
 			unitOfWork.RollbackTransaction();
-			throw new Exception("Errore durante la creazione del display", ex);
+			return false;
 		}
 	}
 
 	public async Task<bool> Update(DisplayDto displayDto)
 	{
-		var display = mapper.Map<Display>(displayDto);
+		var display = await unitOfWork.Displays.Find(displayDto.Id);
+
+		if (display == null)
+		{
+			return false;
+		}
 
 		unitOfWork.BeginTransaction();
 
 		try
 		{
 			var currentUser = await userService.GetCurrentUser();
-			currentUser.Role = await userService.IsInRole(currentUser.Id, "Admin") ? "Admin" : "User";
 
-			if (display.CreatedBy != currentUser.Id && currentUser.Role != "Admin" && display.CreatedBy != null)
+			if (display.CreatedBy != currentUser.Id
+				&& currentUser.Role != "Admin"
+				&& display.CreatedBy != null)
 			{
-				throw new UnauthorizedAccessException("Non sei autorizzato a modificare questo display");
+				return false;
 			}
+
+			display.Size = displayDto.Size;
+			display.PanelType = displayDto.PanelType;
+			display.ResolutionWidth = displayDto.ResolutionWidth;
+			display.ResolutionHeight = displayDto.ResolutionHeight;
 
 			await unitOfWork.Displays.Update(display);
 			await unitOfWork.SaveAsync();
@@ -81,15 +126,10 @@ public class DisplayService : IService<DisplayDto>
 
 			return true;
 		}
-		catch (UnauthorizedAccessException)
+		catch (Exception)
 		{
 			unitOfWork.RollbackTransaction();
 			return false;
-		}
-		catch (Exception ex)
-		{
-			unitOfWork.RollbackTransaction();
-			throw new Exception("Errore durante l'aggiornamento del display", ex);
 		}
 	}
 
@@ -101,9 +141,10 @@ public class DisplayService : IService<DisplayDto>
 		{
 			var display = await unitOfWork.Displays.Find(id);
 			var currentUser = await userService.GetCurrentUser();
-			currentUser.Role = await userService.IsInRole(currentUser.Id, "Admin") ? "Admin" : "User";
 
-			if (display?.CreatedBy != currentUser.Id && currentUser.Role != "Admin" && display?.CreatedBy != null)
+			if (display?.CreatedBy != currentUser.Id
+				&& currentUser.Role != "Admin"
+				&& display?.CreatedBy != null)
 			{
 				return false;
 			}
@@ -115,10 +156,10 @@ public class DisplayService : IService<DisplayDto>
 
 			return true;
 		}
-		catch (Exception ex)
+		catch (Exception)
 		{
 			unitOfWork.RollbackTransaction();
-			throw new Exception("Errore durante l'eliminazione del display", ex);
+			return false;
 		}
 	}
 }

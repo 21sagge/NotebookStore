@@ -21,8 +21,7 @@ public class NotebookViewModel
     public MemoryViewModel? Memory { get; set; }
     public int StorageId { get; set; }
     public StorageViewModel? Storage { get; set; }
-    public string? CreatedBy { get; set; }
-    public string? CreatedAt { get; set; }
+    public bool CanUpdateAndDelete { get; set; }
 
     public IEnumerable<BrandViewModel>? Brands { get; set; }
     public IEnumerable<ModelViewModel>? Models { get; set; }
