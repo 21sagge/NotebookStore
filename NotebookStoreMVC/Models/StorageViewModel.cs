@@ -17,8 +17,7 @@ public class StorageViewModel
   /// </summary>
   [Range(128, 4096)]
   public required int Capacity { get; set; }
-  public string? CreatedBy { get; set; }
-  public required string CreatedAt { get; set; }
+  public bool CanUpdateAndDelete { get; set; }
 
   public string TypeAndCapacity => $"{Type} {Capacity}GB";
 }

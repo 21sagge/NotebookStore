@@ -20,15 +20,49 @@ public class StorageService : IService<StorageDto>
 	public async Task<IEnumerable<StorageDto>> GetAll()
 	{
 		var storages = await unitOfWork.Storages.Read();
+		var storageDtos = mapper.Map<IEnumerable<StorageDto>>(storages);
+		var currentUser = await userService.GetCurrentUser();
 
-		return mapper.Map<IEnumerable<StorageDto>>(storages);
+		foreach (var storageDto in storageDtos)
+		{
+			var storage = await unitOfWork.Storages.Find(storageDto.Id);
+
+			if (storage == null)
+			{
+				continue;
+			}
+
+			var createdBy = storage.CreatedBy;
+
+			storageDto.CanUpdate = createdBy == currentUser.Id || currentUser.Role == "Admin" || createdBy == null;
+			storageDto.CanDelete = createdBy == currentUser.Id || currentUser.Role == "Admin" || createdBy == null;
+		}
+
+		return storageDtos;
 	}
 
-	public async Task<StorageDto> Find(int id)
+	public async Task<StorageDto?> Find(int id)
 	{
 		var storage = await unitOfWork.Storages.Find(id);
 
-		return mapper.Map<StorageDto>(storage);
+		if (storage == null)
+		{
+			return null;
+		}
+
+		var storageDto = mapper.Map<StorageDto>(storage);
+
+		var currentUser = await userService.GetCurrentUser();
+
+		if (storage.CreatedBy == currentUser.Id
+			|| currentUser.Role == "Admin"
+			|| storage.CreatedBy == null)
+		{
+			storageDto.CanUpdate = true;
+			storageDto.CanDelete = true;
+		}
+
+		return storageDto;
 	}
 
 	public async Task<bool> Create(StorageDto storageDto)
@@ -60,9 +94,9 @@ public class StorageService : IService<StorageDto>
 
 	public async Task<bool> Update(StorageDto storageDto)
 	{
-		var currentStorage = await unitOfWork.Storages.Find(storageDto.Id);
+		var storage = await unitOfWork.Storages.Find(storageDto.Id);
 
-		if (currentStorage == null)
+		if (storage == null)
 		{
 			return false;
 		}
@@ -73,17 +107,17 @@ public class StorageService : IService<StorageDto>
 		{
 			var currentUser = await userService.GetCurrentUser();
 
-			if (currentStorage.CreatedBy != currentUser.Id
+			if (storage.CreatedBy != currentUser.Id
 				&& currentUser.Role != "Admin"
-				&& currentStorage.CreatedBy != null)
+				&& storage.CreatedBy != null)
 			{
 				return false;
 			}
 
-			currentStorage.Type = storageDto.Type;
-			currentStorage.Capacity = storageDto.Capacity;
+			storage.Type = storageDto.Type;
+			storage.Capacity = storageDto.Capacity;
 
-			await unitOfWork.Storages.Update(currentStorage);
+			await unitOfWork.Storages.Update(storage);
 			await unitOfWork.SaveAsync();
 
 			unitOfWork.CommitTransaction();
@@ -105,7 +139,6 @@ public class StorageService : IService<StorageDto>
 		{
 			var storage = await unitOfWork.Storages.Find(id);
 			var currentUser = await userService.GetCurrentUser();
-			currentUser.Role = await userService.IsInRole(currentUser.Id, "Admin") ? "Admin" : "User";
 
 			if (storage?.CreatedBy != currentUser.Id && currentUser.Role != "Admin" && storage?.CreatedBy != null)
 			{

@@ -20,15 +20,49 @@ public class ModelService : IService<ModelDto>
 	public async Task<IEnumerable<ModelDto>> GetAll()
 	{
 		var models = await unitOfWork.Models.Read();
+		var modelDtos = mapper.Map<IEnumerable<ModelDto>>(models);
+		var currentUser = await userService.GetCurrentUser();
 
-		return mapper.Map<IEnumerable<ModelDto>>(models);
+		foreach (var modelDto in modelDtos)
+		{
+			var model = await unitOfWork.Models.Find(modelDto.Id);
+
+			if (model == null)
+			{
+				continue;
+			}
+
+			var createdBy = model.CreatedBy;
+
+			modelDto.CanUpdate = createdBy == currentUser.Id || currentUser.Role == "Admin" || createdBy == null;
+			modelDto.CanDelete = createdBy == currentUser.Id || currentUser.Role == "Admin" || createdBy == null;
+		}
+
+		return modelDtos;
 	}
 
-	public async Task<ModelDto> Find(int id)
+	public async Task<ModelDto?> Find(int id)
 	{
 		var model = await unitOfWork.Models.Find(id);
 
-		return mapper.Map<ModelDto>(model);
+		if (model == null)
+		{
+			return null;
+		}
+
+		var modelDto = mapper.Map<ModelDto>(model);
+
+		var currentUser = await userService.GetCurrentUser();
+
+		if (model.CreatedBy == currentUser.Id
+			|| currentUser.Role == "Admin"
+			|| model.CreatedBy == null)
+		{
+			modelDto.CanUpdate = true;
+			modelDto.CanDelete = true;
+		}
+
+		return modelDto;
 	}
 
 	public async Task<bool> Create(ModelDto modelDto)
@@ -51,28 +85,36 @@ public class ModelService : IService<ModelDto>
 
 			return true;
 		}
-		catch (Exception ex)
+		catch (Exception)
 		{
 			unitOfWork.RollbackTransaction();
-			throw new Exception("Errore durante la creazione del modello", ex);
+			return false;
 		}
 	}
 
 	public async Task<bool> Update(ModelDto modelDto)
 	{
-		var model = mapper.Map<Model>(modelDto);
+		var model = await unitOfWork.Models.Find(modelDto.Id);
+
+		if (model == null)
+		{
+			return false;
+		}
 
 		unitOfWork.BeginTransaction();
 
 		try
 		{
 			var currentUser = await userService.GetCurrentUser();
-			currentUser.Role = await userService.IsInRole(currentUser.Id, "Admin") ? "Admin" : "User";
 
-			if (model.CreatedBy != currentUser.Id && currentUser.Role != "Admin" && model.CreatedBy != null)
+			if (model.CreatedBy != currentUser.Id
+				&& currentUser.Role != "Admin"
+				&& model.CreatedBy != null)
 			{
-				throw new UnauthorizedAccessException("Non hai i permessi per modificare questo modello");
+				return false;
 			}
+
+			model.Name = modelDto.Name;
 
 			await unitOfWork.Models.Update(model);
 			await unitOfWork.SaveAsync();
@@ -81,15 +123,10 @@ public class ModelService : IService<ModelDto>
 
 			return true;
 		}
-		catch (UnauthorizedAccessException)
+		catch (Exception)
 		{
 			unitOfWork.RollbackTransaction();
 			return false;
-		}
-		catch (Exception ex)
-		{
-			unitOfWork.RollbackTransaction();
-			throw new Exception("Errore durante l'aggiornamento del modello", ex);
 		}
 	}
 
@@ -101,9 +138,10 @@ public class ModelService : IService<ModelDto>
 		{
 			var model = await unitOfWork.Models.Find(id);
 			var currentUser = await userService.GetCurrentUser();
-			currentUser.Role = await userService.IsInRole(currentUser.Id, "Admin") ? "Admin" : "User";
 
-			if (model?.CreatedBy != currentUser.Id && currentUser.Role != "Admin" && model?.CreatedBy != null)
+			if (model?.CreatedBy != currentUser.Id
+				&& currentUser.Role != "Admin"
+				&& model?.CreatedBy != null)
 			{
 				return false;
 			}
@@ -115,10 +153,10 @@ public class ModelService : IService<ModelDto>
 
 			return true;
 		}
-		catch (Exception ex)
+		catch (Exception)
 		{
 			unitOfWork.RollbackTransaction();
-			throw new Exception("Errore durante l'eliminazione del modello", ex);
+			return false;
 		}
 	}
 }

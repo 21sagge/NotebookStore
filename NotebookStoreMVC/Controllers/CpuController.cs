@@ -23,9 +23,19 @@ public class CpuController : Controller
     public async Task<IActionResult> Index()
     {
         var cpus = await services.Cpus.GetAll();
-        var mappedCpus = mapper.Map<IEnumerable<CpuViewModel>>(cpus);
+        var cpuViewModels = mapper.Map<IEnumerable<CpuViewModel>>(cpus);
 
-        return View(mappedCpus);
+        foreach (var cpu in cpus)
+        {
+            var cpuViewModel = cpuViewModels.FirstOrDefault(c => c.Id == cpu.Id);
+
+            if (cpuViewModel != null)
+            {
+                cpuViewModel.CanUpdateAndDelete = cpu.CanUpdate && cpu.CanDelete;
+            }
+        }
+
+        return View(cpuViewModels);
     }
 
     // GET: CpuViewModel/Details/5
@@ -39,7 +49,11 @@ public class CpuController : Controller
             return NotFound();
         }
 
-        return View(mapper.Map<CpuViewModel>(cpu));
+        var cpuViewModel = mapper.Map<CpuViewModel>(cpu);
+
+        cpuViewModel.CanUpdateAndDelete = cpu.CanUpdate && cpu.CanDelete;
+
+        return View(cpuViewModel);
     }
 
     // GET: CpuViewModel/Create
@@ -54,8 +68,6 @@ public class CpuController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Create([Bind("Id,Brand,Model")] CpuViewModel CpuViewModel)
     {
-        ModelState.Remove("CreatedAt");
-
         if (ModelState.IsValid)
         {
             await services.Cpus.Create(mapper.Map<CpuDto>(CpuViewModel));
@@ -83,7 +95,7 @@ public class CpuController : Controller
     // POST: CpuViewModel/Edit/5
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Edit(int id, [Bind("Id,Brand,Model,CreatedAt, CreatedBy")] CpuViewModel CpuViewModel)
+    public async Task<IActionResult> Edit(int id, [Bind("Id,Brand,Model")] CpuViewModel CpuViewModel)
     {
         if (id != CpuViewModel.Id)
         {
@@ -100,7 +112,7 @@ public class CpuController : Controller
             }
             else
             {
-                ModelState.AddModelError("", "Update failed.");
+                ModelState.AddModelError("", "Unauthorized");
             }
         }
 

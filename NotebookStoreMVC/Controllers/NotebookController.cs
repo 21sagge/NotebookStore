@@ -22,10 +22,20 @@ public class NotebookController : Controller
 	[Authorize]
 	public async Task<IActionResult> Index()
 	{
-		var notebooks = await services.Notebooks.GetAll();
-		var mappedNotebooks = mapper.Map<IEnumerable<NotebookViewModel>>(notebooks);
+		var notebookDtos = await services.Notebooks.GetAll();
+		var notebookViewModels = mapper.Map<IEnumerable<NotebookViewModel>>(notebookDtos);
 
-		return View(mappedNotebooks);
+		foreach (var notebook in notebookDtos)
+		{
+			var notebookViewModel = notebookViewModels.FirstOrDefault(n => n.Id == notebook.Id);
+
+			if (notebookViewModel != null)
+			{
+				notebookViewModel.CanUpdateAndDelete = notebook.CanUpdate && notebook.CanDelete;
+			}
+		}
+
+		return View(notebookViewModels);
 	}
 
 	// GET: Notebook/Details/5
@@ -40,7 +50,11 @@ public class NotebookController : Controller
 			return NotFound();
 		}
 
-		return View(mapper.Map<NotebookViewModel>(notebook));
+		var notebookViewModel = mapper.Map<NotebookViewModel>(notebook);
+
+		notebookViewModel.CanUpdateAndDelete = notebook.CanUpdate && notebook.CanDelete;
+
+		return View(notebookViewModel);
 	}
 
 	// GET: Notebook/Create

@@ -18,9 +18,29 @@
 		<div class="d-flex justify-content-between w-100 align-items-center py-2 flex-nowrap">
 			<div class="d-flex col-4 px-3 text-break">@Html.DisplayFor(modelItem => item.Name)</div>
 			<div class="d-flex col-8 column-gap-2 justify-content-end">
-				<a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-outline-success">Edit</a>
-				<a asp-action="Details" asp-route-id="@item.Id" class="btn btn-sm btn-outline-info">Details</a>
-				<a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-sm btn-danger">Delete</a>
+				<a asp-action="Details" asp-route-id="@item.Id" class="btn btn-sm btn-info">Details</a>
+				@if (item.CanUpdateAndDelete)
+				{
+					<a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-success">
+						Edit
+					</a>
+					<a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-sm btn-danger">
+						Delete
+					</a>
+				}
+				else
+				{
+					<span class="btn btn-sm btn-outline-success disabled"
+						title="You can't edit this because it was created by someone else"
+						style="pointer-events: auto; cursor: not-allowed;">
+						Edit
+					</span>
+					<span class="btn btn-sm btn-outline-danger disabled"
+						title="You can't delete this because it was created by someone else"
+						style="pointer-events: auto; cursor: not-allowed;">
+						Delete
+					</span>
+				}
 			</div>
 		</div>
 	}

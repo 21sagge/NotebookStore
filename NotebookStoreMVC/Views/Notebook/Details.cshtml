@@ -1,20 +1,26 @@
 @model NotebookStoreMVC.Models.NotebookViewModel
 
 @{
-    ViewData["Title"] = "Details";
+	ViewData["Title"] = "Details";
 }
 
 <header class="d-flex flex-column align-items-start">
-    <a asp-action="Index" class="mb-4 text-decoration-none text-black">
-        <svg id="icon-arrow_back_ios" viewBox="0 0 24 24" width="24" height="24">
-            <path d="M11.672 3.891l-8.109 8.109 8.109 8.109-1.781 1.781-9.891-9.891 9.891-9.891z"></path>
-        </svg>
-        Back to List
-    </a>
-    <div class="d-flex justify-content-between align-items-center w-100">
-        <h1 class="display-4 fs-3 mb-4">Notebook Details</h1>
-        <a asp-action="Edit" asp-route-id="@Model?.Id" class="btn btn-success">Edit</a>
-    </div>
+	<a asp-action="Index" class="mb-4 text-decoration-none text-black">
+		<svg id="icon-arrow_back_ios" viewBox="0 0 24 24" width="24" height="24">
+			<path d="M11.672 3.891l-8.109 8.109 8.109 8.109-1.781 1.781-9.891-9.891 9.891-9.891z"></path>
+		</svg>
+		Back to List
+	</a>
+	<div class="d-flex justify-content-between align-items-center w-100">
+		<h1 class="display-4 fs-3 mb-4">Notebook Details</h1>
+		@if (Model.CanUpdateAndDelete)
+		{
+			<div class="d-flex">
+				<a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-success me-2">Edit</a>
+				<a asp-action="Delete" asp-route-id="@Model.Id" class="btn btn-danger">Delete</a>
+			</div>
+		}
+	</div>
 </header>
 <div>
 	<dl class="row">

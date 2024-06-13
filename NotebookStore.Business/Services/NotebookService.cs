@@ -20,8 +20,25 @@ public class NotebookService : IService<NotebookDto>
 	public async Task<IEnumerable<NotebookDto>> GetAll()
 	{
 		var notebooks = await unitOfWork.Notebooks.Read();
+		var notebookDtos = mapper.Map<IEnumerable<NotebookDto>>(notebooks);
+		var currentUser = await userService.GetCurrentUser();
 
-		return mapper.Map<IEnumerable<NotebookDto>>(notebooks);
+		foreach (var notebookDto in notebookDtos)
+		{
+			var notebook = await unitOfWork.Notebooks.Find(notebookDto.Id);
+
+			if (notebook == null)
+			{
+				continue;
+			}
+
+			var createdBy = notebook.CreatedBy;
+
+			notebookDto.CanUpdate = createdBy == currentUser.Id || currentUser.Role == "Admin" || createdBy == null;
+			notebookDto.CanDelete = createdBy == currentUser.Id || currentUser.Role == "Admin" || createdBy == null;
+		}
+
+		return notebookDtos;
 	}
 
 	public async Task<IEnumerable<BrandDto>> GetBrands()
@@ -66,11 +83,28 @@ public class NotebookService : IService<NotebookDto>
 		return mapper.Map<IEnumerable<StorageDto>>(storages);
 	}
 
-	public async Task<NotebookDto> Find(int id)
+	public async Task<NotebookDto?> Find(int id)
 	{
 		var notebook = await unitOfWork.Notebooks.Find(id);
 
-		return mapper.Map<NotebookDto>(notebook);
+		if (notebook == null)
+		{
+			return null;
+		}
+
+		var notebookDto = mapper.Map<NotebookDto>(notebook);
+
+		var currentUser = await userService.GetCurrentUser();
+
+		if (notebook.CreatedBy == currentUser.Id
+			|| currentUser.Role == "Admin"
+			|| notebook.CreatedBy == null)
+		{
+			notebookDto.CanUpdate = true;
+			notebookDto.CanDelete = true;
+		}
+
+		return notebookDto;
 	}
 
 	public async Task<bool> Create(NotebookDto notebookDto)
@@ -93,28 +127,43 @@ public class NotebookService : IService<NotebookDto>
 
 			return true;
 		}
-		catch (Exception ex)
+		catch (Exception)
 		{
 			unitOfWork.RollbackTransaction();
-			throw new Exception("Errore durante la creazione del notebook", ex);
+			return false;
 		}
 	}
 
 	public async Task<bool> Update(NotebookDto notebookDto)
 	{
-		var notebook = mapper.Map<Notebook>(notebookDto);
+		var notebook = await unitOfWork.Notebooks.Find(notebookDto.Id);
+
+		if (notebook == null)
+		{
+			return false;
+		}
 
 		unitOfWork.BeginTransaction();
 
 		try
 		{
 			var currentUser = await userService.GetCurrentUser();
-			currentUser.Role = await userService.IsInRole(currentUser.Id, "admin") ? "admin" : "user";
 
-			if (notebook.CreatedBy != currentUser.Id && currentUser.Role != "admin" && notebook.CreatedBy != null)
+			if (notebook.CreatedBy != currentUser.Id
+				&& currentUser.Role != "Admin"
+				&& notebook.CreatedBy != null)
 			{
-				throw new UnauthorizedAccessException("Non sei autorizzato a modificare questo notebook");
+				return false;
 			}
+
+			notebook.Color = notebookDto.Color;
+			notebook.Price = notebookDto.Price;
+			notebook.BrandId = notebookDto.BrandId;
+			notebook.ModelId = notebookDto.ModelId;
+			notebook.CpuId = notebookDto.CpuId;
+			notebook.DisplayId = notebookDto.DisplayId;
+			notebook.MemoryId = notebookDto.MemoryId;
+			notebook.StorageId = notebookDto.StorageId;
 
 			await unitOfWork.Notebooks.Update(notebook);
 			await unitOfWork.SaveAsync();
@@ -123,10 +172,10 @@ public class NotebookService : IService<NotebookDto>
 
 			return true;
 		}
-		catch (Exception ex)
+		catch (Exception)
 		{
 			unitOfWork.RollbackTransaction();
-			throw new Exception("Errore durante l'aggiornamento del notebook", ex);
+			return false;
 		}
 	}
 
@@ -138,9 +187,10 @@ public class NotebookService : IService<NotebookDto>
 		{
 			var notebook = await unitOfWork.Notebooks.Find(id);
 			var currentUser = await userService.GetCurrentUser();
-			currentUser.Role = await userService.IsInRole(currentUser.Id, "admin") ? "admin" : "user";
 
-			if (notebook?.CreatedBy != currentUser.Id && currentUser.Role != "admin" && notebook?.CreatedBy != null)
+			if (notebook?.CreatedBy != currentUser.Id
+				&& currentUser.Role != "admin"
+				&& notebook?.CreatedBy != null)
 			{
 				return false;
 			}
@@ -152,10 +202,10 @@ public class NotebookService : IService<NotebookDto>
 
 			return true;
 		}
-		catch (Exception ex)
+		catch (Exception)
 		{
 			unitOfWork.RollbackTransaction();
-			throw new Exception("Errore durante l'eliminazione del notebook", ex);
+			return false;
 		}
 	}
 }

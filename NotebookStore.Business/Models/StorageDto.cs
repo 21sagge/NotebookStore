@@ -17,6 +17,6 @@ public class StorageDto
 	/// </summary>
 	[Range(128, 4096)]
 	public required int Capacity { get; set; }
-	public string? CreatedBy { get; set; }
-	public required string CreatedAt { get; set; }
+	public bool CanUpdate { get; set; }
+	public bool CanDelete { get; set; }
 }

@@ -23,9 +23,19 @@ public class ModelController : Controller
     public async Task<IActionResult> Index()
     {
         var models = await services.Models.GetAll();
-        var mappedModels = mapper.Map<IEnumerable<ModelViewModel>>(models);
+        var modelViewModels = mapper.Map<IEnumerable<ModelViewModel>>(models);
 
-        return View(mappedModels);
+        foreach (var model in models)
+        {
+            var modelViewModel = modelViewModels.FirstOrDefault(d => d.Id == model.Id);
+
+            if (modelViewModel != null)
+            {
+                modelViewModel.CanUpdateAndDelete = model.CanUpdate && model.CanDelete;
+            }
+        }
+
+        return View(modelViewModels);
     }
 
     // GET: ModelViewModel/Details/5
@@ -39,7 +49,11 @@ public class ModelController : Controller
             return NotFound();
         }
 
-        return View(mapper.Map<ModelViewModel>(model));
+        var modelViewModel = mapper.Map<ModelViewModel>(model);
+
+        modelViewModel.CanUpdateAndDelete = model.CanUpdate && model.CanDelete;
+
+        return View(modelViewModel);
     }
 
     // GET: ModelViewModel/Create
@@ -54,8 +68,6 @@ public class ModelController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Create([Bind("Id,Name")] ModelViewModel ModelViewModel)
     {
-        ModelState.Remove("CreatedAt");
-
         if (ModelState.IsValid)
         {
             await services.Models.Create(mapper.Map<ModelDto>(ModelViewModel));
@@ -83,7 +95,7 @@ public class ModelController : Controller
     // POST: ModelViewModel/Edit/5
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Edit(int id, [Bind("Id,Name,CreatedAt,CreatedBy")] ModelViewModel ModelViewModel)
+    public async Task<IActionResult> Edit(int id, [Bind("Id,Name")] ModelViewModel ModelViewModel)
     {
         if (id != ModelViewModel.Id)
         {
@@ -100,7 +112,7 @@ public class ModelController : Controller
             }
             else
             {
-                ModelState.AddModelError(string.Empty, "Update failed. Please try again.");
+                ModelState.AddModelError(string.Empty, "You can't update this model");
             }
         }
 

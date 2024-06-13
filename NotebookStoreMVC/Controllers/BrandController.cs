@@ -22,24 +22,38 @@ public class BrandController : Controller
     [HttpGet]
     public async Task<IActionResult> Index()
     {
-        var brands = await services.Brands.GetAll();
-        var mappedBrands = mapper.Map<IEnumerable<BrandViewModel>>(brands);
+        var brandDtos = await services.Brands.GetAll();
+        var brandViewModels = mapper.Map<IEnumerable<BrandViewModel>>(brandDtos);
 
-        return View(mappedBrands);
+        foreach (var brandDto in brandDtos)
+        {
+            var brandViewModel = brandViewModels.FirstOrDefault(b => b.Id == brandDto.Id);
+
+            if (brandViewModel != null)
+            {
+                brandViewModel.CanUpdateAndDelete = brandDto.CanUpdate && brandDto.CanDelete;
+            }
+        }
+
+        return View(brandViewModels);
     }
 
     // GET: BrandViewModel/Details/5
     [HttpGet]
     public async Task<IActionResult> Details(int id)
     {
-        var brand = await services.Brands.Find(id);
+        var brandDto = await services.Brands.Find(id);
 
-        if (brand == null)
+        if (brandDto == null)
         {
             return NotFound();
         }
 
-        return View(mapper.Map<BrandViewModel>(brand));
+        var brandViewModel = mapper.Map<BrandViewModel>(brandDto);
+
+        brandViewModel.CanUpdateAndDelete = brandDto.CanUpdate && brandDto.CanDelete;
+
+        return View(brandViewModel);
     }
 
     // GET: BrandViewModel/Create
@@ -52,10 +66,8 @@ public class BrandController : Controller
     // POST: BrandViewModel/Create
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> CreateAsync([Bind("Id,Name")] BrandViewModel BrandViewModel)
+    public async Task<IActionResult> Create([Bind("Id,Name")] BrandViewModel BrandViewModel)
     {
-        ModelState.Remove("CreatedAt");
-
         if (ModelState.IsValid)
         {
             await services.Brands.Create(mapper.Map<BrandDto>(BrandViewModel));
@@ -82,7 +94,7 @@ public class BrandController : Controller
     // POST: BrandViewModel/Edit/5
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> EditAsync(int id, [Bind("Id,Name,CreatedBy,CreatedAt")] BrandViewModel BrandViewModel)
+    public async Task<IActionResult> EditAsync(int id, [Bind("Id,Name")] BrandViewModel BrandViewModel)
     {
         if (id != BrandViewModel.Id)
         {
@@ -108,14 +120,8 @@ public class BrandController : Controller
 
     // GET: BrandViewModel/Delete/5
     [HttpGet]
-    [Authorize(Roles = "Admin")]
     public async Task<IActionResult> Delete(int id)
     {
-        if (services.Brands.GetAll() == null)
-        {
-            return NotFound();
-        }
-
         var brand = await services.Brands.Find(id);
 
         if (brand == null)
