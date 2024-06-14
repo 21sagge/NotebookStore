@@ -6,156 +6,185 @@ using NotebookStore.Entities;
 
 public class StorageService : IService<StorageDto>
 {
-	private readonly IUnitOfWork unitOfWork;
-	private readonly IMapper mapper;
-	private readonly IUserService userService;
+    private readonly IUnitOfWork unitOfWork;
+    private readonly IMapper mapper;
+    private readonly IUserService userService;
 
-	public StorageService(IUnitOfWork unitOfWork, IMapper mapper, IUserService userService)
-	{
-		this.unitOfWork = unitOfWork;
-		this.mapper = mapper;
-		this.userService = userService;
-	}
+    //public AssignPermission Handler { get; set; }
 
-	public async Task<IEnumerable<StorageDto>> GetAll()
-	{
-		var storages = await unitOfWork.Storages.Read();
-		var storageDtos = mapper.Map<IEnumerable<StorageDto>>(storages);
-		var currentUser = await userService.GetCurrentUser();
+    public StorageService(IUnitOfWork unitOfWork, IMapper mapper, IUserService userService)
+    {
+        this.unitOfWork = unitOfWork;
+        this.mapper = mapper;
+        this.userService = userService;
 
-		foreach (var storageDto in storageDtos)
-		{
-			var storage = await unitOfWork.Storages.Find(storageDto.Id);
+        //this.Handler = (a, b, c) => a;
+        //this.Handler = AssignPermission;
+    }
 
-			if (storage == null)
-			{
-				continue;
-			}
+    public async Task<IEnumerable<StorageDto>> GetAll()
+    {
+        var storages = await unitOfWork.Storages.Read();
+        var currentUser = await userService.GetCurrentUser();
 
-			var createdBy = storage.CreatedBy;
+        IEnumerable<StorageDto> result = storages.Select<Storage, StorageDto>(storage =>
+            AssignPermission(storage, currentUser, mapper)
+        );
 
-			storageDto.CanUpdate = createdBy == currentUser.Id || currentUser.Role == "Admin" || createdBy == null;
-			storageDto.CanDelete = createdBy == currentUser.Id || currentUser.Role == "Admin" || createdBy == null;
-		}
+        return result;
 
-		return storageDtos;
-	}
+        //foreach (var storageDto in storageDtos)
+        //{
+        //    var storage = await unitOfWork.Storages.Find(storageDto.Id);
 
-	public async Task<StorageDto?> Find(int id)
-	{
-		var storage = await unitOfWork.Storages.Find(id);
+        //    if (storage == null)
+        //    {
+        //        continue;
+        //    }
 
-		if (storage == null)
-		{
-			return null;
-		}
+        //    var createdBy = storage.CreatedBy;
 
-		var storageDto = mapper.Map<StorageDto>(storage);
+        //    storageDto.CanUpdate = createdBy == currentUser.Id || currentUser.Role == "Admin" || createdBy == null;
+        //    storageDto.CanDelete = createdBy == currentUser.Id || currentUser.Role == "Admin" || createdBy == null;
+        //}
 
-		var currentUser = await userService.GetCurrentUser();
+        //return storageDtos;
+    }
 
-		if (storage.CreatedBy == currentUser.Id
-			|| currentUser.Role == "Admin"
-			|| storage.CreatedBy == null)
-		{
-			storageDto.CanUpdate = true;
-			storageDto.CanDelete = true;
-		}
+    public async Task<StorageDto?> Find(int id)
+    {
+        var storage = await unitOfWork.Storages.Find(id);
 
-		return storageDto;
-	}
+        if (storage == null)
+        {
+            return null;
+        }
 
-	public async Task<bool> Create(StorageDto storageDto)
-	{
-		var storage = mapper.Map<Storage>(storageDto);
+        var currentUser = await userService.GetCurrentUser();
 
-		unitOfWork.BeginTransaction();
+        var result = AssignPermission(storage, currentUser, mapper);
 
-		try
-		{
-			var currentUser = await userService.GetCurrentUser();
+        return result;
 
-			storage.CreatedBy = currentUser.Id;
-			storage.CreatedAt = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
+        //if (storage.CreatedBy == currentUser.Id
+        //    || currentUser.Role == "Admin"
+        //    || storage.CreatedBy == null)
+        //{
+        //    storageDto.CanUpdate = true;
+        //    storageDto.CanDelete = true;
+        //}
 
-			await unitOfWork.Storages.Create(storage);
-			await unitOfWork.SaveAsync();
+        //return storageDto;
+    }
 
-			unitOfWork.CommitTransaction();
+    public async Task<bool> Create(StorageDto storageDto)
+    {
+        var storage = mapper.Map<Storage>(storageDto);
 
-			return true;
-		}
-		catch (Exception)
-		{
-			unitOfWork.RollbackTransaction();
-			return false;
-		}
-	}
+        unitOfWork.BeginTransaction();
 
-	public async Task<bool> Update(StorageDto storageDto)
-	{
-		var storage = await unitOfWork.Storages.Find(storageDto.Id);
+        try
+        {
+            var currentUser = await userService.GetCurrentUser();
 
-		if (storage == null)
-		{
-			return false;
-		}
+            storage.CreatedBy = currentUser.Id;
+            storage.CreatedAt = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
 
-		unitOfWork.BeginTransaction();
+            await unitOfWork.Storages.Create(storage);
+            await unitOfWork.SaveAsync();
 
-		try
-		{
-			var currentUser = await userService.GetCurrentUser();
+            unitOfWork.CommitTransaction();
 
-			if (storage.CreatedBy != currentUser.Id
-				&& currentUser.Role != "Admin"
-				&& storage.CreatedBy != null)
-			{
-				return false;
-			}
+            return true;
+        }
+        catch (Exception)
+        {
+            unitOfWork.RollbackTransaction();
+            return false;
+        }
+    }
 
-			storage.Type = storageDto.Type;
-			storage.Capacity = storageDto.Capacity;
+    public async Task<bool> Update(StorageDto storageDto)
+    {
+        //AssignPermission(storageDto,)
 
-			await unitOfWork.Storages.Update(storage);
-			await unitOfWork.SaveAsync();
+        var storage = await unitOfWork.Storages.Find(storageDto.Id);
 
-			unitOfWork.CommitTransaction();
+        if (storage == null)
+        {
+            return false;
+        }
 
-			return true;
-		}
-		catch (Exception)
-		{
-			unitOfWork.RollbackTransaction();
-			return false;
-		}
-	}
+        unitOfWork.BeginTransaction();
 
-	public async Task<bool> Delete(int id)
-	{
-		unitOfWork.BeginTransaction();
+        try
+        {
+            var currentUser = await userService.GetCurrentUser();
 
-		try
-		{
-			var storage = await unitOfWork.Storages.Find(id);
-			var currentUser = await userService.GetCurrentUser();
+            if (storage.CreatedBy != currentUser.Id
+                && currentUser.Role != "Admin"
+                && storage.CreatedBy != null)
+            {
+                return false;
+            }
 
-			if (storage?.CreatedBy != currentUser.Id && currentUser.Role != "Admin" && storage?.CreatedBy != null)
-			{
-				return false;
-			}
+            storage.Type = storageDto.Type;
+            storage.Capacity = storageDto.Capacity;
 
-			await unitOfWork.Storages.Delete(id);
-			await unitOfWork.SaveAsync();
+            await unitOfWork.Storages.Update(storage);
+            await unitOfWork.SaveAsync();
 
-			unitOfWork.CommitTransaction();
+            unitOfWork.CommitTransaction();
 
-			return true;
-		}
-		catch (Exception)
-		{
-			unitOfWork.RollbackTransaction();
-			return false;
-		}
-	}
+            return true;
+        }
+        catch (Exception)
+        {
+            unitOfWork.RollbackTransaction();
+            return false;
+        }
+    }
+
+    public async Task<bool> Delete(int id)
+    {
+        unitOfWork.BeginTransaction();
+
+        try
+        {
+            var storage = await unitOfWork.Storages.Find(id);
+            var currentUser = await userService.GetCurrentUser();
+
+            if (storage?.CreatedBy != currentUser.Id && currentUser.Role != "Admin" && storage?.CreatedBy != null)
+            {
+                return false;
+            }
+
+            await unitOfWork.Storages.Delete(id);
+            await unitOfWork.SaveAsync();
+
+            unitOfWork.CommitTransaction();
+
+            return true;
+        }
+        catch (Exception)
+        {
+            unitOfWork.RollbackTransaction();
+            return false;
+        }
+    }
+
+    #region private function
+    private Func<Storage, UserDto, IMapper, StorageDto> AssignPermission =
+        (Storage storage, UserDto currentUser, IMapper mapper) =>
+        {
+            var result = mapper.Map<StorageDto>(storage);
+
+            var createdBy = storage?.CreatedBy;
+
+            result.CanUpdate = createdBy == currentUser.Id || currentUser.Role == "Admin" || createdBy == null;
+            result.CanDelete = createdBy == currentUser.Id || currentUser.Role == "Admin" || createdBy == null;
+
+            return result;
+        };
+    #endregion
 }
