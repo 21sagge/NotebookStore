@@ -121,9 +121,9 @@ public class StorageService : IService<StorageDto>
         {
             var currentUser = await userService.GetCurrentUser();
 
-            if (storage.CreatedBy != currentUser.Id
-                && currentUser.Role != "Admin"
-                && storage.CreatedBy != null)
+            var result = AssignPermission(storage, currentUser, mapper);
+
+            if (!result.CanUpdate || !result.CanDelete)
             {
                 return false;
             }
@@ -154,7 +154,9 @@ public class StorageService : IService<StorageDto>
             var storage = await unitOfWork.Storages.Find(id);
             var currentUser = await userService.GetCurrentUser();
 
-            if (storage?.CreatedBy != currentUser.Id && currentUser.Role != "Admin" && storage?.CreatedBy != null)
+            if (storage?.CreatedBy != currentUser.Id
+                && currentUser.Role != "Admin"
+                && storage?.CreatedBy != null)
             {
                 return false;
             }
@@ -173,18 +175,18 @@ public class StorageService : IService<StorageDto>
         }
     }
 
-    #region private function
-    private Func<Storage, UserDto, IMapper, StorageDto> AssignPermission =
+    #region private functions
+    private readonly Func<Storage, UserDto, IMapper, StorageDto> AssignPermission =
         (Storage storage, UserDto currentUser, IMapper mapper) =>
         {
-            var result = mapper.Map<StorageDto>(storage);
+            var storageDto = mapper.Map<StorageDto>(storage);
 
             var createdBy = storage?.CreatedBy;
 
-            result.CanUpdate = createdBy == currentUser.Id || currentUser.Role == "Admin" || createdBy == null;
-            result.CanDelete = createdBy == currentUser.Id || currentUser.Role == "Admin" || createdBy == null;
+            storageDto.CanUpdate = createdBy == currentUser.Id || currentUser.Role == "Admin" || createdBy == null;
+            storageDto.CanDelete = createdBy == currentUser.Id || currentUser.Role == "Admin" || createdBy == null;
 
-            return result;
+            return storageDto;
         };
     #endregion
 }
