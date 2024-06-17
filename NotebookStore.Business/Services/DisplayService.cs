@@ -4,41 +4,30 @@ using AutoMapper;
 using NotebookStore.DAL;
 using NotebookStore.Entities;
 
-public class DisplayService : IService<DisplayDto>
+public class DisplayService : BaseService, IService<DisplayDto>
 {
 	private readonly IUnitOfWork unitOfWork;
-	private readonly IMapper mapper;
-	private readonly IUserService userService;
+	// private readonly IMapper mapper;
+	// private readonly IUserService userService;
 
 	public DisplayService(IUnitOfWork unitOfWork, IMapper mapper, IUserService userService)
+	: base(mapper, userService)
 	{
 		this.unitOfWork = unitOfWork;
-		this.mapper = mapper;
-		this.userService = userService;
+		// this.mapper = mapper;
+		// this.userService = userService;
 	}
 
 	public async Task<IEnumerable<DisplayDto>> GetAll()
 	{
 		var displays = await unitOfWork.Displays.Read();
-		var displayDtos = mapper.Map<IEnumerable<DisplayDto>>(displays);
 		var currentUser = await userService.GetCurrentUser();
 
-		foreach (var displayDto in displayDtos)
-		{
-			var display = await unitOfWork.Displays.Find(displayDto.Id);
+		IEnumerable<DisplayDto> result = displays.Select(display =>
+			AssignPermission<Display, DisplayDto>(display, currentUser)
+		);
 
-			if (display == null)
-			{
-				continue;
-			}
-
-			var createdBy = display.CreatedBy;
-
-			displayDto.CanUpdate = createdBy == currentUser.Id || currentUser.Role == "Admin" || createdBy == null;
-			displayDto.CanDelete = createdBy == currentUser.Id || currentUser.Role == "Admin" || createdBy == null;
-		}
-
-		return displayDtos;
+		return result;
 	}
 
 	public async Task<DisplayDto?> Find(int id)
@@ -50,19 +39,9 @@ public class DisplayService : IService<DisplayDto>
 			return null;
 		}
 
-		var displayDto = mapper.Map<DisplayDto>(display);
-
 		var currentUser = await userService.GetCurrentUser();
 
-		if (display.CreatedBy == currentUser.Id
-			|| currentUser.Role == "admin"
-			|| display.CreatedBy == null)
-		{
-			displayDto.CanUpdate = true;
-			displayDto.CanDelete = true;
-		}
-
-		return displayDto;
+		return AssignPermission<Display, DisplayDto>(display, currentUser);
 	}
 
 	public async Task<bool> Create(DisplayDto displayDto)
@@ -85,8 +64,9 @@ public class DisplayService : IService<DisplayDto>
 
 			return true;
 		}
-		catch (Exception)
+		catch (Exception e)
 		{
+			Console.WriteLine(e.Message);
 			unitOfWork.RollbackTransaction();
 			return false;
 		}
@@ -107,27 +87,23 @@ public class DisplayService : IService<DisplayDto>
 		{
 			var currentUser = await userService.GetCurrentUser();
 
-			if (display.CreatedBy != currentUser.Id
-				&& currentUser.Role != "Admin"
-				&& display.CreatedBy != null)
+			var result = AssignPermission<Display, DisplayDto>(display, currentUser);
+
+			if (!result.CanUpdate || !result.CanDelete)
 			{
-				return false;
+				throw new Exception("Permission denied");
 			}
 
-			display.Size = displayDto.Size;
-			display.PanelType = displayDto.PanelType;
-			display.ResolutionWidth = displayDto.ResolutionWidth;
-			display.ResolutionHeight = displayDto.ResolutionHeight;
-
-			await unitOfWork.Displays.Update(display);
+			await unitOfWork.Displays.Update(mapper.Map(displayDto, display));
 			await unitOfWork.SaveAsync();
 
 			unitOfWork.CommitTransaction();
 
 			return true;
 		}
-		catch (Exception)
+		catch (Exception e)
 		{
+			Console.WriteLine(e.Message);
 			unitOfWork.RollbackTransaction();
 			return false;
 		}
@@ -135,18 +111,24 @@ public class DisplayService : IService<DisplayDto>
 
 	public async Task<bool> Delete(int id)
 	{
+		var display = await unitOfWork.Displays.Find(id);
+
+		if (display == null)
+		{
+			return false;
+		}
+
 		unitOfWork.BeginTransaction();
 
 		try
 		{
-			var display = await unitOfWork.Displays.Find(id);
 			var currentUser = await userService.GetCurrentUser();
 
-			if (display?.CreatedBy != currentUser.Id
-				&& currentUser.Role != "Admin"
-				&& display?.CreatedBy != null)
+			var result = AssignPermission<Display, DisplayDto>(display, currentUser);
+
+			if (!result.CanUpdate || !result.CanDelete)
 			{
-				return false;
+				throw new Exception("Permission denied");
 			}
 
 			await unitOfWork.Displays.Delete(id);

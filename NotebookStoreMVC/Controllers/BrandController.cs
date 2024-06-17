@@ -111,7 +111,7 @@ public class BrandController : Controller
             }
             else
             {
-                ModelState.AddModelError("", "Unauthorized");
+                ModelState.AddModelError(string.Empty, "Unauthorized");
             }
         }
 

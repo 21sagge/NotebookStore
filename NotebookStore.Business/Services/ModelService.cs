@@ -4,41 +4,30 @@ using AutoMapper;
 using NotebookStore.DAL;
 using NotebookStore.Entities;
 
-public class ModelService : IService<ModelDto>
+public class ModelService : BaseService, IService<ModelDto>
 {
 	private readonly IUnitOfWork unitOfWork;
-	private readonly IMapper mapper;
-	private readonly IUserService userService;
+	// private readonly IMapper mapper;
+	// private readonly IUserService userService;
 
 	public ModelService(IUnitOfWork unitOfWork, IMapper mapper, IUserService userService)
+	: base(mapper, userService)
 	{
 		this.unitOfWork = unitOfWork;
-		this.mapper = mapper;
-		this.userService = userService;
+		// this.mapper = mapper;
+		// this.userService = userService;
 	}
 
 	public async Task<IEnumerable<ModelDto>> GetAll()
 	{
 		var models = await unitOfWork.Models.Read();
-		var modelDtos = mapper.Map<IEnumerable<ModelDto>>(models);
 		var currentUser = await userService.GetCurrentUser();
 
-		foreach (var modelDto in modelDtos)
-		{
-			var model = await unitOfWork.Models.Find(modelDto.Id);
+		IEnumerable<ModelDto> result = models.Select(model =>
+			AssignPermission<Model, ModelDto>(model, currentUser)
+		);
 
-			if (model == null)
-			{
-				continue;
-			}
-
-			var createdBy = model.CreatedBy;
-
-			modelDto.CanUpdate = createdBy == currentUser.Id || currentUser.Role == "Admin" || createdBy == null;
-			modelDto.CanDelete = createdBy == currentUser.Id || currentUser.Role == "Admin" || createdBy == null;
-		}
-
-		return modelDtos;
+		return result;
 	}
 
 	public async Task<ModelDto?> Find(int id)
@@ -50,19 +39,9 @@ public class ModelService : IService<ModelDto>
 			return null;
 		}
 
-		var modelDto = mapper.Map<ModelDto>(model);
-
 		var currentUser = await userService.GetCurrentUser();
 
-		if (model.CreatedBy == currentUser.Id
-			|| currentUser.Role == "Admin"
-			|| model.CreatedBy == null)
-		{
-			modelDto.CanUpdate = true;
-			modelDto.CanDelete = true;
-		}
-
-		return modelDto;
+		return AssignPermission<Model, ModelDto>(model, currentUser);
 	}
 
 	public async Task<bool> Create(ModelDto modelDto)
@@ -85,8 +64,9 @@ public class ModelService : IService<ModelDto>
 
 			return true;
 		}
-		catch (Exception)
+		catch (Exception e)
 		{
+			Console.WriteLine(e.Message);
 			unitOfWork.RollbackTransaction();
 			return false;
 		}
@@ -107,24 +87,23 @@ public class ModelService : IService<ModelDto>
 		{
 			var currentUser = await userService.GetCurrentUser();
 
-			if (model.CreatedBy != currentUser.Id
-				&& currentUser.Role != "Admin"
-				&& model.CreatedBy != null)
+			var result = AssignPermission<Model, ModelDto>(model, currentUser);
+
+			if (!result.CanDelete || !result.CanUpdate)
 			{
-				return false;
+				throw new Exception("Permission denied");
 			}
 
-			model.Name = modelDto.Name;
-
-			await unitOfWork.Models.Update(model);
+			await unitOfWork.Models.Update(mapper.Map(modelDto, model));
 			await unitOfWork.SaveAsync();
 
 			unitOfWork.CommitTransaction();
 
 			return true;
 		}
-		catch (Exception)
+		catch (Exception e)
 		{
+			Console.WriteLine(e.Message);
 			unitOfWork.RollbackTransaction();
 			return false;
 		}
@@ -132,18 +111,24 @@ public class ModelService : IService<ModelDto>
 
 	public async Task<bool> Delete(int id)
 	{
+		var model = await unitOfWork.Models.Find(id);
+
+		if (model == null)
+		{
+			return false;
+		}
+
 		unitOfWork.BeginTransaction();
 
 		try
 		{
-			var model = await unitOfWork.Models.Find(id);
 			var currentUser = await userService.GetCurrentUser();
 
-			if (model?.CreatedBy != currentUser.Id
-				&& currentUser.Role != "Admin"
-				&& model?.CreatedBy != null)
+			var result = AssignPermission<Model, ModelDto>(model, currentUser);
+
+			if (!result.CanDelete || !result.CanUpdate)
 			{
-				return false;
+				throw new Exception("Permission denied");
 			}
 
 			await unitOfWork.Models.Delete(id);
@@ -153,8 +138,9 @@ public class ModelService : IService<ModelDto>
 
 			return true;
 		}
-		catch (Exception)
+		catch (Exception e)
 		{
+			Console.WriteLine(e.Message);
 			unitOfWork.RollbackTransaction();
 			return false;
 		}

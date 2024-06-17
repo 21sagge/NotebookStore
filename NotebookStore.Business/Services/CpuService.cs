@@ -4,41 +4,30 @@ using AutoMapper;
 using NotebookStore.DAL;
 using NotebookStore.Entities;
 
-public class CpuService : IService<CpuDto>
+public class CpuService : BaseService, IService<CpuDto>
 {
 	private readonly IUnitOfWork unitOfWork;
-	private readonly IMapper mapper;
-	private readonly IUserService userService;
+	// private readonly IMapper mapper;
+	// private readonly IUserService userService;
 
 	public CpuService(IUnitOfWork unitOfWork, IMapper mapper, IUserService userService)
+	: base(mapper, userService)
 	{
 		this.unitOfWork = unitOfWork;
-		this.mapper = mapper;
-		this.userService = userService;
+		// this.mapper = mapper;
+		// this.userService = userService;
 	}
 
 	public async Task<IEnumerable<CpuDto>> GetAll()
 	{
 		var cpus = await unitOfWork.Cpus.Read();
-		var cpuDtos = mapper.Map<IEnumerable<CpuDto>>(cpus);
 		var currentUser = await userService.GetCurrentUser();
 
-		foreach (var cpuDto in cpuDtos)
-		{
-			var cpu = await unitOfWork.Cpus.Find(cpuDto.Id);
+		IEnumerable<CpuDto> result = cpus.Select(cpu =>
+			AssignPermission<Cpu, CpuDto>(cpu, currentUser)
+		);
 
-			if (cpu == null)
-			{
-				continue;
-			}
-
-			var createdBy = cpu.CreatedBy;
-
-			cpuDto.CanUpdate = createdBy == currentUser.Id || currentUser.Role == "Admin" || createdBy == null;
-			cpuDto.CanDelete = createdBy == currentUser.Id || currentUser.Role == "Admin" || createdBy == null;
-		}
-
-		return cpuDtos;
+		return result;
 	}
 
 	public async Task<CpuDto?> Find(int id)
@@ -50,19 +39,9 @@ public class CpuService : IService<CpuDto>
 			return null;
 		}
 
-		var cpuDto = mapper.Map<CpuDto>(cpu);
-
 		var currentUser = await userService.GetCurrentUser();
 
-		if (cpu.CreatedBy == currentUser.Id
-			|| currentUser.Role == "Admin"
-			|| cpu.CreatedBy == null)
-		{
-			cpuDto.CanUpdate = true;
-			cpuDto.CanDelete = true;
-		}
-
-		return cpuDto;
+		return AssignPermission<Cpu, CpuDto>(cpu, currentUser);
 	}
 
 	public async Task<bool> Create(CpuDto cpuDto)
@@ -107,17 +86,14 @@ public class CpuService : IService<CpuDto>
 		{
 			var currentUser = await userService.GetCurrentUser();
 
-			if (cpu.CreatedBy != currentUser.Id
-				&& currentUser.Role != "Admin"
-				&& cpu.CreatedBy != null)
+			var result = AssignPermission<Cpu, CpuDto>(cpu, currentUser);
+
+			if (!result.CanUpdate || !result.CanDelete)
 			{
-				return false;
+				throw new Exception("Permission denied");
 			}
 
-			cpu.Brand = cpuDto.Brand;
-			cpu.Model = cpuDto.Model;
-
-			await unitOfWork.Cpus.Update(cpu);
+			await unitOfWork.Cpus.Update(mapper.Map(cpuDto, cpu));
 			await unitOfWork.SaveAsync();
 
 			unitOfWork.CommitTransaction();
@@ -133,18 +109,24 @@ public class CpuService : IService<CpuDto>
 
 	public async Task<bool> Delete(int id)
 	{
+		var cpu = await unitOfWork.Cpus.Find(id);
+
+		if (cpu == null)
+		{
+			return false;
+		}
+
 		unitOfWork.BeginTransaction();
 
 		try
 		{
-			var cpu = await unitOfWork.Cpus.Find(id);
 			var currentUser = await userService.GetCurrentUser();
 
-			if (cpu?.CreatedBy != currentUser.Id
-								&& currentUser.Role != "Admin"
-								&& cpu?.CreatedBy != null)
+			var result = AssignPermission<Cpu, CpuDto>(cpu, currentUser);
+
+			if (!result.CanUpdate || !result.CanDelete)
 			{
-				return false;
+				throw new Exception("Permission denied");
 			}
 
 			await unitOfWork.Cpus.Delete(id);

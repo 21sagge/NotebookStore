@@ -4,41 +4,30 @@ using AutoMapper;
 using NotebookStore.DAL;
 using NotebookStore.Entities;
 
-public class MemoryService : IService<MemoryDto>
+public class MemoryService : BaseService, IService<MemoryDto>
 {
 	private readonly IUnitOfWork unitOfWork;
-	private readonly IMapper mapper;
-	private readonly IUserService userService;
+	// private readonly IMapper mapper;
+	// private readonly IUserService userService;
 
 	public MemoryService(IUnitOfWork unitOfWork, IMapper mapper, IUserService userService)
+	: base(mapper, userService)
 	{
 		this.unitOfWork = unitOfWork;
-		this.mapper = mapper;
-		this.userService = userService;
+		// this.mapper = mapper;
+		// this.userService = userService;
 	}
 
 	public async Task<IEnumerable<MemoryDto>> GetAll()
 	{
 		var memories = await unitOfWork.Memories.Read();
-		var memoryDtos = mapper.Map<IEnumerable<MemoryDto>>(memories);
 		var currentUser = await userService.GetCurrentUser();
 
-		foreach (var memoryDto in memoryDtos)
-		{
-			var memory = await unitOfWork.Memories.Find(memoryDto.Id);
+		IEnumerable<MemoryDto> result = memories.Select(memory =>
+			AssignPermission<Memory, MemoryDto>(memory, currentUser)
+		);
 
-			if (memory == null)
-			{
-				continue;
-			}
-
-			var createdBy = memory.CreatedBy;
-
-			memoryDto.CanUpdate = createdBy == currentUser.Id || currentUser.Role == "Admin" || createdBy == null;
-			memoryDto.CanDelete = createdBy == currentUser.Id || currentUser.Role == "Admin" || createdBy == null;
-		}
-
-		return memoryDtos;
+		return result;
 	}
 
 	public async Task<MemoryDto?> Find(int id)
@@ -50,19 +39,9 @@ public class MemoryService : IService<MemoryDto>
 			return null;
 		}
 
-		var memoryDto = mapper.Map<MemoryDto>(memory);
-
 		var currentUser = await userService.GetCurrentUser();
 
-		if (memory.CreatedBy == currentUser.Id
-			|| currentUser.Role == "Admin"
-			|| memory.CreatedBy == null)
-		{
-			memoryDto.CanUpdate = true;
-			memoryDto.CanDelete = true;
-		}
-
-		return memoryDto;
+		return AssignPermission<Memory, MemoryDto>(memory, currentUser);
 	}
 
 	public async Task<bool> Create(MemoryDto memoryDto)
@@ -85,8 +64,9 @@ public class MemoryService : IService<MemoryDto>
 
 			return true;
 		}
-		catch (Exception)
+		catch (Exception e)
 		{
+			Console.WriteLine(e.Message);
 			unitOfWork.RollbackTransaction();
 			return false;
 		}
@@ -94,7 +74,7 @@ public class MemoryService : IService<MemoryDto>
 
 	public async Task<bool> Update(MemoryDto memoryDto)
 	{
-		var memory = mapper.Map<Memory>(memoryDto);
+		var memory = await unitOfWork.Memories.Find(memoryDto.Id);
 
 		if (memory == null)
 		{
@@ -107,25 +87,23 @@ public class MemoryService : IService<MemoryDto>
 		{
 			var currentUser = await userService.GetCurrentUser();
 
-			if (memory.CreatedBy != currentUser.Id
-				&& currentUser.Role != "Admin"
-				&& memory.CreatedBy != null)
+			var result = AssignPermission<Memory, MemoryDto>(memory, currentUser);
+
+			if (!result.CanUpdate || !result.CanDelete)
 			{
-				return false;
+				throw new Exception("Permission denied");
 			}
 
-			memory.Capacity = memoryDto.Capacity;
-			memory.Speed = memoryDto.Speed;
-
-			await unitOfWork.Memories.Update(memory);
+			await unitOfWork.Memories.Update(mapper.Map(memoryDto, memory));
 			await unitOfWork.SaveAsync();
 
 			unitOfWork.CommitTransaction();
 
 			return true;
 		}
-		catch (Exception)
+		catch (Exception e)
 		{
+			Console.WriteLine(e.Message);
 			unitOfWork.RollbackTransaction();
 			return false;
 		}
@@ -133,18 +111,24 @@ public class MemoryService : IService<MemoryDto>
 
 	public async Task<bool> Delete(int id)
 	{
+		var memory = await unitOfWork.Memories.Find(id);
+
+		if (memory == null)
+		{
+			return false;
+		}
+
 		unitOfWork.BeginTransaction();
 
 		try
 		{
-			var memory = await unitOfWork.Memories.Find(id);
 			var currentUser = await userService.GetCurrentUser();
 
-			if (memory?.CreatedBy != currentUser.Id
-				&& currentUser.Role != "Admin"
-				&& memory?.CreatedBy != null)
+			var result = AssignPermission<Memory, MemoryDto>(memory, currentUser);
+
+			if (!result.CanUpdate || !result.CanDelete)
 			{
-				return false;
+				throw new Exception("Permission denied");
 			}
 
 			await unitOfWork.Memories.Delete(id);
@@ -154,8 +138,9 @@ public class MemoryService : IService<MemoryDto>
 
 			return true;
 		}
-		catch (Exception)
+		catch (Exception e)
 		{
+			Console.WriteLine(e.Message);
 			unitOfWork.RollbackTransaction();
 			return false;
 		}

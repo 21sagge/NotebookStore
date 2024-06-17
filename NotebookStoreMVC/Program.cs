@@ -30,6 +30,7 @@ builder.Services.AddDbContext<NotebookStoreContext.NotebookStoreContext>(options
     {
         b.MigrationsAssembly("NotebookStoreContext");
     });
+    options.EnableSensitiveDataLogging();
 });
 
 // Default Identity
