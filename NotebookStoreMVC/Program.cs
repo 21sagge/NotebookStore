@@ -26,11 +26,9 @@ builder.Services.AddScoped<ISerializer, XmlHandler>();
 
 builder.Services.AddDbContext<NotebookStoreContext.NotebookStoreContext>(options =>
 {
-    options.UseSqlite(builder.Configuration.GetConnectionString("SqlLite"), b =>
-    {
-        b.MigrationsAssembly("NotebookStoreContext");
-    });
-    options.EnableSensitiveDataLogging();
+    options.UseSqlite(builder.Configuration.GetConnectionString("SqlLite"),
+        b => b.MigrationsAssembly("NotebookStoreContext"));
+    options.EnableDetailedErrors();
 });
 
 // Default Identity
@@ -69,6 +67,9 @@ builder.Services.ConfigureApplicationCookie(options =>
     options.AccessDeniedPath = "/Identity/Account/AccessDenied";
     options.SlidingExpiration = true;
 });
+
+builder.Logging.AddConsole();
+
 
 var app = builder.Build();
 

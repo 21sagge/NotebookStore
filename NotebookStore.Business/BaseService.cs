@@ -30,9 +30,9 @@ public abstract class BaseService
 		var canDeleteProperty = typeof(TDto).GetProperty("CanDelete");
 
 		bool canUpdateDelete =
-			createdBy == currentUser.Id
-			|| currentUser.Role == "Admin"
-			|| createdBy == null;
+			createdBy == currentUser.Id ||
+			currentUser.Role == "Admin" ||
+			createdBy == null;
 
 		canUpdateProperty?.SetValue(dto, canUpdateDelete);
 		canDeleteProperty?.SetValue(dto, canUpdateDelete);
