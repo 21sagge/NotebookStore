@@ -4,6 +4,7 @@ using NotebookStoreMVC;
 using NotebookStore.DAL;
 using NotebookStore.Business;
 using NotebookStore.Business.Context;
+using AutoMapper;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -16,10 +17,12 @@ builder.Services.AddScoped<IUserService, UserService>();
 
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 
-builder.Services.AddAutoMapper(configure =>
-{
-    configure.AddProfile(new MapperMvc());
-});
+builder.Services.AddAutoMapper(typeof(MapperMvc));
+
+// builder.Services.AddAutoMapper((serviceProvider, config) =>
+// {
+//     config.AddProfile(new PermissionMapper(serviceProvider.GetRequiredService<IUserService>()));
+// }, typeof(PermissionMapper));
 
 builder.Services.AddScoped<ISerializer, JsonHandler>();
 builder.Services.AddScoped<ISerializer, XmlHandler>();
@@ -69,7 +72,6 @@ builder.Services.ConfigureApplicationCookie(options =>
 });
 
 builder.Logging.AddConsole();
-
 
 var app = builder.Build();
 

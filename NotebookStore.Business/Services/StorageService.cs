@@ -63,6 +63,8 @@ public class StorageService : BaseService, IService<StorageDto>
 
         return AssignPermission<Storage, StorageDto>(storage, currentUser);
 
+        // return mapper.Map<StorageDto>(storage);
+
         //if (storage.CreatedBy == currentUser.Id
         //    || currentUser.Role == "Admin"
         //    || storage.CreatedBy == null)
