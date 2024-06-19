@@ -4,7 +4,6 @@ using NotebookStoreMVC;
 using NotebookStore.DAL;
 using NotebookStore.Business;
 using NotebookStore.Business.Context;
-using AutoMapper;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -70,6 +69,14 @@ builder.Services.ConfigureApplicationCookie(options =>
     options.AccessDeniedPath = "/Identity/Account/AccessDenied";
     options.SlidingExpiration = true;
 });
+
+// builder.Services.AddAuthorization(options =>
+// {
+//     options.AddPolicy("Admin", policy => policy.RequireClaim("Role", "Admin"));
+//     options.AddPolicy("Editor", policy => policy.RequireClaim("Role", "Editor"));
+//     options.AddPolicy("User", policy => policy.RequireClaim("Role", "User"));
+//     options.AddPolicy("All", policy => policy.RequireClaim("Role", "Admin", "Editor", "User"));
+// });
 
 builder.Logging.AddConsole();
 
