@@ -2,7 +2,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace NotebookStore.Entities;
 
-public class Notebook
+public class Notebook : IAuditable
 {
   public int Id { get; set; }
   [MaxLength(50)]

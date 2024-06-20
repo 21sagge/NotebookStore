@@ -2,7 +2,7 @@
 
 namespace NotebookStore.Business;
 
-public class ModelDto
+public class ModelDto : IAuditableDto
 {
 	public int Id { get; set; }
 	[MaxLength(50)]

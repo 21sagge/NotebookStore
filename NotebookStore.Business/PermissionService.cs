@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using NotebookStore.Entities;
 
 namespace NotebookStore.Business;
 
@@ -12,24 +13,18 @@ public class PermissionService : IPermissionService
 	}
 
 	public TDto AssignPermission<T, TDto>(T entity, UserDto currentUser)
-		where T : class
-		where TDto : class
+		where T : IAuditable
+		where TDto : IAuditableDto
 	{
 		var dto = mapper.Map<TDto>(entity);
 
-		var createdByProperty = typeof(T).GetProperty("CreatedBy");
-		string? createdBy = (string?)(createdByProperty?.GetValue(entity));
-
-		var canUpdateProperty = typeof(TDto).GetProperty("CanUpdate");
-		var canDeleteProperty = typeof(TDto).GetProperty("CanDelete");
-
 		bool canUpdateDelete =
-			createdBy == currentUser.Id ||
 			currentUser.Role == "Admin" ||
-			createdBy == null;
+			currentUser.Id == entity.CreatedBy ||
+			entity.CreatedBy == null;
 
-		canUpdateProperty?.SetValue(dto, canUpdateDelete);
-		canDeleteProperty?.SetValue(dto, canUpdateDelete);
+		dto.CanUpdate = canUpdateDelete;
+		dto.CanDelete = canUpdateDelete;
 
 		return dto;
 	}

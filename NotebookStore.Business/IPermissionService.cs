@@ -1,4 +1,6 @@
-﻿namespace NotebookStore.Business;
+﻿using NotebookStore.Entities;
+
+namespace NotebookStore.Business;
 
 public interface IPermissionService
 {
@@ -11,6 +13,6 @@ public interface IPermissionService
 	/// <typeparam name="TDto"> The type of the DTO. </typeparam>
 	/// <returns> The DTO with the permission assigned. </returns>
 	public TDto AssignPermission<T, TDto>(T entity, UserDto currentUser)
-		where T : class
-		where TDto : class;
+		where T : IAuditable
+		where TDto : IAuditableDto;
 }
