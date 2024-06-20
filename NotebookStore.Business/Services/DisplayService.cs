@@ -4,7 +4,7 @@ using AutoMapper;
 using NotebookStore.DAL;
 using NotebookStore.Entities;
 
-public class DisplayService : BaseService, IService<DisplayDto>
+public class DisplayService : PermissionService, IService<DisplayDto>
 {
 	private readonly IUnitOfWork unitOfWork;
 	// private readonly IMapper mapper;

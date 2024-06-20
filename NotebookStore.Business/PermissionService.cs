@@ -2,12 +2,12 @@
 
 namespace NotebookStore.Business;
 
-public abstract class BaseService
+public class PermissionService
 {
 	protected readonly IMapper mapper;
 	protected readonly IUserService userService;
 
-	public BaseService(IMapper mapper, IUserService userService)
+	public PermissionService(IMapper mapper, IUserService userService)
 	{
 		this.mapper = mapper;
 		this.userService = userService;

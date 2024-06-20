@@ -4,7 +4,7 @@ using AutoMapper;
 using NotebookStore.DAL;
 using NotebookStore.Entities;
 
-public class CpuService : BaseService, IService<CpuDto>
+public class CpuService : PermissionService, IService<CpuDto>
 {
 	private readonly IUnitOfWork unitOfWork;
 	// private readonly IMapper mapper;

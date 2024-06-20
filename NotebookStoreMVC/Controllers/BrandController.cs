@@ -23,19 +23,8 @@ public class BrandController : Controller
     public async Task<IActionResult> Index()
     {
         var brandDtos = await services.Brands.GetAll();
-        var brandViewModels = mapper.Map<IEnumerable<BrandViewModel>>(brandDtos);
 
-        foreach (var brandDto in brandDtos)
-        {
-            var brandViewModel = brandViewModels.FirstOrDefault(b => b.Id == brandDto.Id);
-
-            if (brandViewModel != null)
-            {
-                brandViewModel.CanUpdateAndDelete = brandDto.CanUpdate && brandDto.CanDelete;
-            }
-        }
-
-        return View(brandViewModels);
+        return View(mapper.Map<IEnumerable<BrandViewModel>>(brandDtos));
     }
 
     // GET: BrandViewModel/Details/5
@@ -49,11 +38,7 @@ public class BrandController : Controller
             return NotFound();
         }
 
-        var brandViewModel = mapper.Map<BrandViewModel>(brandDto);
-
-        brandViewModel.CanUpdateAndDelete = brandDto.CanUpdate && brandDto.CanDelete;
-
-        return View(brandViewModel);
+        return View(mapper.Map<BrandViewModel>(brandDto));
     }
 
     // GET: BrandViewModel/Create

@@ -25,16 +25,6 @@ public class NotebookController : Controller
 		var notebookDtos = await services.Notebooks.GetAll();
 		var notebookViewModels = mapper.Map<IEnumerable<NotebookViewModel>>(notebookDtos);
 
-		foreach (var notebook in notebookDtos)
-		{
-			var notebookViewModel = notebookViewModels.FirstOrDefault(n => n.Id == notebook.Id);
-
-			if (notebookViewModel != null)
-			{
-				notebookViewModel.CanUpdateAndDelete = notebook.CanUpdate && notebook.CanDelete;
-			}
-		}
-
 		return View(notebookViewModels);
 	}
 
@@ -52,8 +42,6 @@ public class NotebookController : Controller
 
 		var notebookViewModel = mapper.Map<NotebookViewModel>(notebook);
 
-		notebookViewModel.CanUpdateAndDelete = notebook.CanUpdate && notebook.CanDelete;
-
 		return View(notebookViewModel);
 	}
 
@@ -63,89 +51,18 @@ public class NotebookController : Controller
 	public async Task<IActionResult> Create()
 	{
 		var brandDtos = await services.Brands.GetAll();
-		var brandViewModels = mapper.Map<IEnumerable<BrandViewModel>>(brandDtos);
-
-		foreach (var brandDto in brandDtos)
-		{
-			var brandViewModel = brandViewModels.FirstOrDefault(b => b.Id == brandDto.Id);
-
-			if (brandViewModel != null)
-			{
-				brandViewModel.CanUpdateAndDelete = brandDto.CanUpdate && brandDto.CanDelete;
-			}
-		}
-
 		var cpuDtos = await services.Cpus.GetAll();
-		var cpuViewModels = mapper.Map<IEnumerable<CpuViewModel>>(cpuDtos);
-
-		foreach (var cpuDto in cpuDtos)
-		{
-			var cpuViewModel = cpuViewModels.FirstOrDefault(c => c.Id == cpuDto.Id);
-
-			if (cpuViewModel != null)
-			{
-				cpuViewModel.CanUpdateAndDelete = cpuDto.CanUpdate && cpuDto.CanDelete;
-			}
-		}
-
 		var displayDtos = await services.Displays.GetAll();
-		var displayViewModels = mapper.Map<IEnumerable<DisplayViewModel>>(displayDtos);
-
-		foreach (var displayDto in displayDtos)
-		{
-			var displayViewModel = displayViewModels.FirstOrDefault(d => d.Id == displayDto.Id);
-
-			if (displayViewModel != null)
-			{
-				displayViewModel.CanUpdateAndDelete = displayDto.CanUpdate && displayDto.CanDelete;
-			}
-		}
-
 		var memoryDtos = await services.Memories.GetAll();
-		var memoryViewModels = mapper.Map<IEnumerable<MemoryViewModel>>(memoryDtos);
-
-		foreach (var memoryDto in memoryDtos)
-		{
-			var memoryViewModel = memoryViewModels.FirstOrDefault(m => m.Id == memoryDto.Id);
-
-			if (memoryViewModel != null)
-			{
-				memoryViewModel.CanUpdateAndDelete = memoryDto.CanUpdate && memoryDto.CanDelete;
-			}
-		}
-
 		var modelDtos = await services.Models.GetAll();
-		var modelViewModels = mapper.Map<IEnumerable<ModelViewModel>>(modelDtos);
-
-		foreach (var modelDto in modelDtos)
-		{
-			var modelViewModel = modelViewModels.FirstOrDefault(m => m.Id == modelDto.Id);
-
-			if (modelViewModel != null)
-			{
-				modelViewModel.CanUpdateAndDelete = modelDto.CanUpdate && modelDto.CanDelete;
-			}
-		}
-
 		var storageDtos = await services.Storages.GetAll();
-		var storageViewModels = mapper.Map<IEnumerable<StorageViewModel>>(storageDtos);
 
-		foreach (var storageDto in storageDtos)
-		{
-			var storageViewModel = storageViewModels.FirstOrDefault(s => s.Id == storageDto.Id);
-
-			if (storageViewModel != null)
-			{
-				storageViewModel.CanUpdateAndDelete = storageDto.CanUpdate && storageDto.CanDelete;
-			}
-		}
-
-		ViewBag.Brands = brandViewModels;
-		ViewBag.Cpus = cpuViewModels;
-		ViewBag.Displays = displayViewModels;
-		ViewBag.Memories = memoryViewModels;
-		ViewBag.Models = modelViewModels;
-		ViewBag.Storages = storageViewModels;
+		ViewBag.Brands = mapper.Map<IEnumerable<BrandViewModel>>(brandDtos);
+		ViewBag.Cpus = mapper.Map<IEnumerable<CpuViewModel>>(cpuDtos);
+		ViewBag.Displays = mapper.Map<IEnumerable<DisplayViewModel>>(displayDtos);
+		ViewBag.Memories = mapper.Map<IEnumerable<MemoryViewModel>>(memoryDtos);
+		ViewBag.Models = mapper.Map<IEnumerable<ModelViewModel>>(modelDtos);
+		ViewBag.Storages = mapper.Map<IEnumerable<StorageViewModel>>(storageDtos);
 
 		return View();
 	}
@@ -179,89 +96,18 @@ public class NotebookController : Controller
 		}
 
 		var brandDtos = await services.Brands.GetAll();
-		var brandViewModels = mapper.Map<IEnumerable<BrandViewModel>>(brandDtos);
-
-		foreach (var brandDto in brandDtos)
-		{
-			var brandViewModel = brandViewModels.FirstOrDefault(b => b.Id == brandDto.Id);
-
-			if (brandViewModel != null)
-			{
-				brandViewModel.CanUpdateAndDelete = brandDto.CanUpdate && brandDto.CanDelete;
-			}
-		}
-
 		var cpuDtos = await services.Cpus.GetAll();
-		var cpuViewModels = mapper.Map<IEnumerable<CpuViewModel>>(cpuDtos);
-
-		foreach (var cpuDto in cpuDtos)
-		{
-			var cpuViewModel = cpuViewModels.FirstOrDefault(c => c.Id == cpuDto.Id);
-
-			if (cpuViewModel != null)
-			{
-				cpuViewModel.CanUpdateAndDelete = cpuDto.CanUpdate && cpuDto.CanDelete;
-			}
-		}
-
 		var displayDtos = await services.Displays.GetAll();
-		var displayViewModels = mapper.Map<IEnumerable<DisplayViewModel>>(displayDtos);
-
-		foreach (var displayDto in displayDtos)
-		{
-			var displayViewModel = displayViewModels.FirstOrDefault(d => d.Id == displayDto.Id);
-
-			if (displayViewModel != null)
-			{
-				displayViewModel.CanUpdateAndDelete = displayDto.CanUpdate && displayDto.CanDelete;
-			}
-		}
-
 		var memoryDtos = await services.Memories.GetAll();
-		var memoryViewModels = mapper.Map<IEnumerable<MemoryViewModel>>(memoryDtos);
-
-		foreach (var memoryDto in memoryDtos)
-		{
-			var memoryViewModel = memoryViewModels.FirstOrDefault(m => m.Id == memoryDto.Id);
-
-			if (memoryViewModel != null)
-			{
-				memoryViewModel.CanUpdateAndDelete = memoryDto.CanUpdate && memoryDto.CanDelete;
-			}
-		}
-
 		var modelDtos = await services.Models.GetAll();
-		var modelViewModels = mapper.Map<IEnumerable<ModelViewModel>>(modelDtos);
-
-		foreach (var modelDto in modelDtos)
-		{
-			var modelViewModel = modelViewModels.FirstOrDefault(m => m.Id == modelDto.Id);
-
-			if (modelViewModel != null)
-			{
-				modelViewModel.CanUpdateAndDelete = modelDto.CanUpdate && modelDto.CanDelete;
-			}
-		}
-
 		var storageDtos = await services.Storages.GetAll();
-		var storageViewModels = mapper.Map<IEnumerable<StorageViewModel>>(storageDtos);
 
-		foreach (var storageDto in storageDtos)
-		{
-			var storageViewModel = storageViewModels.FirstOrDefault(s => s.Id == storageDto.Id);
-
-			if (storageViewModel != null)
-			{
-				storageViewModel.CanUpdateAndDelete = storageDto.CanUpdate && storageDto.CanDelete;
-			}
-		}
-
-		ViewBag.Brands = brandViewModels;
-		ViewBag.Cpus = cpuViewModels;
-		ViewBag.Displays = displayViewModels;
-		ViewBag.Memories = memoryViewModels;
-		ViewBag.Models = modelViewModels;
-		ViewBag.Storages = storageViewModels;
+		ViewBag.Brands = mapper.Map<IEnumerable<BrandViewModel>>(brandDtos);
+		ViewBag.Cpus = mapper.Map<IEnumerable<CpuViewModel>>(cpuDtos);
+		ViewBag.Displays = mapper.Map<IEnumerable<DisplayViewModel>>(displayDtos);
+		ViewBag.Memories = mapper.Map<IEnumerable<MemoryViewModel>>(memoryDtos);
+		ViewBag.Models = mapper.Map<IEnumerable<ModelViewModel>>(modelDtos);
+		ViewBag.Storages = mapper.Map<IEnumerable<StorageViewModel>>(storageDtos);
 
 		return View(mapper.Map<NotebookViewModel>(notebook));
 	}
