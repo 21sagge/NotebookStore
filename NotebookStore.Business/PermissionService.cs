@@ -2,22 +2,16 @@
 
 namespace NotebookStore.Business;
 
-public class PermissionService
+public class PermissionService : IPermissionService
 {
-	protected readonly IMapper mapper;
-	protected readonly IUserService userService;
+	private readonly IMapper mapper;
 
-	public PermissionService(IMapper mapper, IUserService userService)
+	public PermissionService(IMapper mapper)
 	{
 		this.mapper = mapper;
-		this.userService = userService;
 	}
 
-	/// <summary>
-	/// Assigns permission to the entity.
-	/// </summary>
-	/// <returns>The DTO with the permission assigned.</returns>
-	protected TDto AssignPermission<T, TDto>(T entity, UserDto currentUser)
+	public TDto AssignPermission<T, TDto>(T entity, UserDto currentUser)
 		where T : class
 		where TDto : class
 	{

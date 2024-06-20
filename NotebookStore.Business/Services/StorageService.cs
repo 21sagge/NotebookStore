@@ -7,15 +7,17 @@ using NotebookStore.Entities;
 public class StorageService : PermissionService, IService<StorageDto>
 {
     private readonly IUnitOfWork unitOfWork;
-    // private readonly IMapper mapper;
-    // private readonly IUserService userService;
+    private readonly IMapper mapper;
+    private readonly IUserService userService;
 
     //public AssignPermission Handler { get; set; }
 
     public StorageService(IUnitOfWork unitOfWork, IMapper mapper, IUserService userService)
-    : base(mapper, userService)
+    : base(mapper)
     {
         this.unitOfWork = unitOfWork;
+        this.mapper = mapper;
+        this.userService = userService;
 
         //this.Handler = (a, b, c) => a;
         //this.Handler = AssignPermission;

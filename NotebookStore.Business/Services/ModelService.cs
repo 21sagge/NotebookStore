@@ -7,15 +7,15 @@ using NotebookStore.Entities;
 public class ModelService : PermissionService, IService<ModelDto>
 {
 	private readonly IUnitOfWork unitOfWork;
-	// private readonly IMapper mapper;
-	// private readonly IUserService userService;
+	private readonly IMapper mapper;
+	private readonly IUserService userService;
 
 	public ModelService(IUnitOfWork unitOfWork, IMapper mapper, IUserService userService)
-	: base(mapper, userService)
+	: base(mapper)
 	{
 		this.unitOfWork = unitOfWork;
-		// this.mapper = mapper;
-		// this.userService = userService;
+		this.mapper = mapper;
+		this.userService = userService;
 	}
 
 	public async Task<IEnumerable<ModelDto>> GetAll()
