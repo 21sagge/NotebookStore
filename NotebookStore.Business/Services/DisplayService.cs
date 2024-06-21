@@ -4,19 +4,20 @@ using AutoMapper;
 using NotebookStore.DAL;
 using NotebookStore.Entities;
 
-public class DisplayService : PermissionService, IService<DisplayDto>
+public class DisplayService : IService<DisplayDto>
 {
 	private readonly IUnitOfWork unitOfWork;
 	private readonly IMapper mapper;
 	private readonly IUserService userService;
+    private readonly IPermissionService permissionService;
 
-	public DisplayService(IUnitOfWork unitOfWork, IMapper mapper, IUserService userService)
-	: base(mapper)
+    public DisplayService(IUnitOfWork unitOfWork, IMapper mapper, IUserService userService, IPermissionService permissionService)
 	{
 		this.unitOfWork = unitOfWork;
 		this.mapper = mapper;
 		this.userService = userService;
-	}
+        this.permissionService = permissionService;
+    }
 
 	public async Task<IEnumerable<DisplayDto>> GetAll()
 	{
@@ -24,7 +25,7 @@ public class DisplayService : PermissionService, IService<DisplayDto>
 		var currentUser = await userService.GetCurrentUser();
 
 		IEnumerable<DisplayDto> result = displays.Select(display =>
-			AssignPermission<Display, DisplayDto>(display, currentUser)
+			permissionService.AssignPermission<Display, DisplayDto>(display, currentUser)
 		);
 
 		return result;
@@ -41,7 +42,7 @@ public class DisplayService : PermissionService, IService<DisplayDto>
 
 		var currentUser = await userService.GetCurrentUser();
 
-		return AssignPermission<Display, DisplayDto>(display, currentUser);
+		return permissionService.AssignPermission<Display, DisplayDto>(display, currentUser);
 	}
 
 	public async Task<bool> Create(DisplayDto displayDto)
@@ -87,7 +88,7 @@ public class DisplayService : PermissionService, IService<DisplayDto>
 		{
 			var currentUser = await userService.GetCurrentUser();
 
-			var result = AssignPermission<Display, DisplayDto>(display, currentUser);
+			var result = permissionService.AssignPermission<Display, DisplayDto>(display, currentUser);
 
 			if (!result.CanUpdate || !result.CanDelete)
 			{
@@ -124,7 +125,7 @@ public class DisplayService : PermissionService, IService<DisplayDto>
 		{
 			var currentUser = await userService.GetCurrentUser();
 
-			var result = AssignPermission<Display, DisplayDto>(display, currentUser);
+			var result = permissionService.AssignPermission<Display, DisplayDto>(display, currentUser);
 
 			if (!result.CanUpdate || !result.CanDelete)
 			{

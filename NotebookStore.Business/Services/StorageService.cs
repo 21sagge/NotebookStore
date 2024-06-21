@@ -4,20 +4,21 @@ using AutoMapper;
 using NotebookStore.DAL;
 using NotebookStore.Entities;
 
-public class StorageService : PermissionService, IService<StorageDto>
+public class StorageService : IService<StorageDto>
 {
     private readonly IUnitOfWork unitOfWork;
     private readonly IMapper mapper;
     private readonly IUserService userService;
+    private readonly IPermissionService permissionService;
 
     //public AssignPermission Handler { get; set; }
 
-    public StorageService(IUnitOfWork unitOfWork, IMapper mapper, IUserService userService)
-    : base(mapper)
+    public StorageService(IUnitOfWork unitOfWork, IMapper mapper, IUserService userService, IPermissionService permissionService)
     {
         this.unitOfWork = unitOfWork;
         this.mapper = mapper;
         this.userService = userService;
+        this.permissionService = permissionService;
 
         //this.Handler = (a, b, c) => a;
         //this.Handler = AssignPermission;
@@ -29,7 +30,7 @@ public class StorageService : PermissionService, IService<StorageDto>
         var currentUser = await userService.GetCurrentUser();
 
         IEnumerable<StorageDto> result = storages.Select(storage =>
-            AssignPermission<Storage, StorageDto>(storage, currentUser)
+            permissionService.AssignPermission<Storage, StorageDto>(storage, currentUser)
         );
 
         return result;
@@ -63,7 +64,7 @@ public class StorageService : PermissionService, IService<StorageDto>
 
         var currentUser = await userService.GetCurrentUser();
 
-        return AssignPermission<Storage, StorageDto>(storage, currentUser);
+        return permissionService.AssignPermission<Storage, StorageDto>(storage, currentUser);
 
         // return mapper.Map<StorageDto>(storage);
 
@@ -120,7 +121,7 @@ public class StorageService : PermissionService, IService<StorageDto>
         {
             var currentUser = await userService.GetCurrentUser();
 
-            var result = AssignPermission<Storage, StorageDto>(storage, currentUser);
+            var result = permissionService.AssignPermission<Storage, StorageDto>(storage, currentUser);
 
             if (!result.CanUpdate || !result.CanDelete)
             {
@@ -157,7 +158,7 @@ public class StorageService : PermissionService, IService<StorageDto>
         {
             var currentUser = await userService.GetCurrentUser();
 
-            var result = AssignPermission<Storage, StorageDto>(storage, currentUser);
+            var result = permissionService.AssignPermission<Storage, StorageDto>(storage, currentUser);
 
             if (!result.CanUpdate || !result.CanDelete)
             {

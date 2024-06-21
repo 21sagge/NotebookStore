@@ -4,19 +4,20 @@ using AutoMapper;
 using NotebookStore.DAL;
 using NotebookStore.Entities;
 
-public class ModelService : PermissionService, IService<ModelDto>
+public class ModelService : IService<ModelDto>
 {
 	private readonly IUnitOfWork unitOfWork;
 	private readonly IMapper mapper;
 	private readonly IUserService userService;
+    private readonly IPermissionService permissionService;
 
-	public ModelService(IUnitOfWork unitOfWork, IMapper mapper, IUserService userService)
-	: base(mapper)
+    public ModelService(IUnitOfWork unitOfWork, IMapper mapper, IUserService userService, IPermissionService permissionService)
 	{
 		this.unitOfWork = unitOfWork;
 		this.mapper = mapper;
 		this.userService = userService;
-	}
+        this.permissionService = permissionService;
+    }
 
 	public async Task<IEnumerable<ModelDto>> GetAll()
 	{
@@ -24,7 +25,7 @@ public class ModelService : PermissionService, IService<ModelDto>
 		var currentUser = await userService.GetCurrentUser();
 
 		IEnumerable<ModelDto> result = models.Select(model =>
-			AssignPermission<Model, ModelDto>(model, currentUser)
+			permissionService.AssignPermission<Model, ModelDto>(model, currentUser)
 		);
 
 		return result;
@@ -41,7 +42,7 @@ public class ModelService : PermissionService, IService<ModelDto>
 
 		var currentUser = await userService.GetCurrentUser();
 
-		return AssignPermission<Model, ModelDto>(model, currentUser);
+		return permissionService.AssignPermission<Model, ModelDto>(model, currentUser);
 	}
 
 	public async Task<bool> Create(ModelDto modelDto)
@@ -87,7 +88,7 @@ public class ModelService : PermissionService, IService<ModelDto>
 		{
 			var currentUser = await userService.GetCurrentUser();
 
-			var result = AssignPermission<Model, ModelDto>(model, currentUser);
+			var result = permissionService.AssignPermission<Model, ModelDto>(model, currentUser);
 
 			if (!result.CanDelete || !result.CanUpdate)
 			{
@@ -124,7 +125,7 @@ public class ModelService : PermissionService, IService<ModelDto>
 		{
 			var currentUser = await userService.GetCurrentUser();
 
-			var result = AssignPermission<Model, ModelDto>(model, currentUser);
+			var result = permissionService.AssignPermission<Model, ModelDto>(model, currentUser);
 
 			if (!result.CanDelete || !result.CanUpdate)
 			{

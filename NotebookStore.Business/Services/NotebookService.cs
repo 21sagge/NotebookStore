@@ -4,19 +4,20 @@ using AutoMapper;
 using NotebookStore.DAL;
 using NotebookStore.Entities;
 
-public class NotebookService : PermissionService, IService<NotebookDto>
+public class NotebookService : IService<NotebookDto>
 {
 	private readonly IUnitOfWork unitOfWork;
 	private readonly IMapper mapper;
 	private readonly IUserService userService;
+    private readonly IPermissionService permissionService;
 
-	public NotebookService(IUnitOfWork unitOfWork, IMapper mapper, IUserService userService)
-	: base(mapper)
+    public NotebookService(IUnitOfWork unitOfWork, IMapper mapper, IUserService userService, IPermissionService permissionService)
 	{
 		this.unitOfWork = unitOfWork;
 		this.mapper = mapper;
 		this.userService = userService;
-	}
+        this.permissionService = permissionService;
+    }
 
 	public async Task<IEnumerable<NotebookDto>> GetAll()
 	{
@@ -24,7 +25,7 @@ public class NotebookService : PermissionService, IService<NotebookDto>
 		var currentUser = await userService.GetCurrentUser();
 
 		IEnumerable<NotebookDto> result = notebooks.Select(notebook =>
-			AssignPermission<Notebook, NotebookDto>(notebook, currentUser)
+			permissionService.AssignPermission<Notebook, NotebookDto>(notebook, currentUser)
 		);
 
 		return result;
@@ -41,7 +42,7 @@ public class NotebookService : PermissionService, IService<NotebookDto>
 
 		var currentUser = await userService.GetCurrentUser();
 
-		var result = AssignPermission<Notebook, NotebookDto>(notebook, currentUser);
+		var result = permissionService.AssignPermission<Notebook, NotebookDto>(notebook, currentUser);
 
 		return result;
 	}
@@ -89,7 +90,7 @@ public class NotebookService : PermissionService, IService<NotebookDto>
 		{
 			var currentUser = await userService.GetCurrentUser();
 
-			var result = AssignPermission<Notebook, NotebookDto>(notebook, currentUser);
+			var result = permissionService.AssignPermission<Notebook, NotebookDto>(notebook, currentUser);
 
 			if (!result.CanUpdate || !result.CanDelete)
 			{
@@ -135,7 +136,7 @@ public class NotebookService : PermissionService, IService<NotebookDto>
 		{
 			var currentUser = await userService.GetCurrentUser();
 
-			var result = AssignPermission<Notebook, NotebookDto>(notebook, currentUser);
+			var result = permissionService.AssignPermission<Notebook, NotebookDto>(notebook, currentUser);
 
 			if (!result.CanUpdate || !result.CanDelete)
 			{

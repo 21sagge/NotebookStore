@@ -4,19 +4,20 @@ using AutoMapper;
 using NotebookStore.DAL;
 using NotebookStore.Entities;
 
-public class CpuService : PermissionService, IService<CpuDto>
+public class CpuService : IService<CpuDto>
 {
 	private readonly IUnitOfWork unitOfWork;
 	private readonly IMapper mapper;
 	private readonly IUserService userService;
+    private readonly IPermissionService permissionService;
 
-	public CpuService(IUnitOfWork unitOfWork, IMapper mapper, IUserService userService)
-	: base(mapper)
+    public CpuService(IUnitOfWork unitOfWork, IMapper mapper, IUserService userService, IPermissionService permissionService)
 	{
 		this.unitOfWork = unitOfWork;
 		this.mapper = mapper;
 		this.userService = userService;
-	}
+        this.permissionService = permissionService;
+    }
 
 	public async Task<IEnumerable<CpuDto>> GetAll()
 	{
@@ -24,7 +25,7 @@ public class CpuService : PermissionService, IService<CpuDto>
 		var currentUser = await userService.GetCurrentUser();
 
 		IEnumerable<CpuDto> result = cpus.Select(cpu =>
-			AssignPermission<Cpu, CpuDto>(cpu, currentUser)
+			permissionService.AssignPermission<Cpu, CpuDto>(cpu, currentUser)
 		);
 
 		return result;
@@ -41,7 +42,7 @@ public class CpuService : PermissionService, IService<CpuDto>
 
 		var currentUser = await userService.GetCurrentUser();
 
-		return AssignPermission<Cpu, CpuDto>(cpu, currentUser);
+		return permissionService.AssignPermission<Cpu, CpuDto>(cpu, currentUser);
 	}
 
 	public async Task<bool> Create(CpuDto cpuDto)
@@ -86,7 +87,7 @@ public class CpuService : PermissionService, IService<CpuDto>
 		{
 			var currentUser = await userService.GetCurrentUser();
 
-			var result = AssignPermission<Cpu, CpuDto>(cpu, currentUser);
+			var result = permissionService.AssignPermission<Cpu, CpuDto>(cpu, currentUser);
 
 			if (!result.CanUpdate || !result.CanDelete)
 			{
@@ -122,7 +123,7 @@ public class CpuService : PermissionService, IService<CpuDto>
 		{
 			var currentUser = await userService.GetCurrentUser();
 
-			var result = AssignPermission<Cpu, CpuDto>(cpu, currentUser);
+			var result = permissionService.AssignPermission<Cpu, CpuDto>(cpu, currentUser);
 
 			if (!result.CanUpdate || !result.CanDelete)
 			{

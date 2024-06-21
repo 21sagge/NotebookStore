@@ -4,19 +4,20 @@ using AutoMapper;
 using NotebookStore.DAL;
 using NotebookStore.Entities;
 
-public class BrandService : PermissionService, IService<BrandDto>
+public class BrandService : IService<BrandDto>
 {
 	private readonly IUnitOfWork unitOfWork;
 	private readonly IMapper mapper;
 	private readonly IUserService userService;
+    private readonly IPermissionService permissionService;
 
-	public BrandService(IUnitOfWork unitOfWork, IMapper mapper, IUserService userService)
-	: base(mapper)
+    public BrandService(IUnitOfWork unitOfWork, IMapper mapper, IUserService userService, IPermissionService permissionService)	
 	{
 		this.unitOfWork = unitOfWork;
 		this.mapper = mapper;
 		this.userService = userService;
-	}
+        this.permissionService = permissionService;
+    }
 
 	public async Task<IEnumerable<BrandDto>> GetAll()
 	{
@@ -24,7 +25,7 @@ public class BrandService : PermissionService, IService<BrandDto>
 		var currentUser = await userService.GetCurrentUser();
 
 		IEnumerable<BrandDto> result = brands.Select(brand =>
-			AssignPermission<Brand, BrandDto>(brand, currentUser)
+			permissionService.AssignPermission<Brand, BrandDto>(brand, currentUser)
 		);
 
 		return result;
@@ -41,7 +42,7 @@ public class BrandService : PermissionService, IService<BrandDto>
 
 		var currentUser = await userService.GetCurrentUser();
 
-		return AssignPermission<Brand, BrandDto>(brand, currentUser);
+		return permissionService.AssignPermission<Brand, BrandDto>(brand, currentUser);
 	}
 
 	public async Task<bool> Create(BrandDto brandDto)
@@ -86,7 +87,7 @@ public class BrandService : PermissionService, IService<BrandDto>
 		{
 			var currentUser = await userService.GetCurrentUser();
 
-			var result = AssignPermission<Brand, BrandDto>(brand, currentUser);
+			var result = permissionService.AssignPermission<Brand, BrandDto>(brand, currentUser);
 
 			if (!result.CanUpdate || !result.CanDelete)
 			{
@@ -122,7 +123,7 @@ public class BrandService : PermissionService, IService<BrandDto>
 		{
 			var currentUser = await userService.GetCurrentUser();
 
-			var result = AssignPermission<Brand, BrandDto>(brand, currentUser);
+			var result = permissionService.AssignPermission<Brand, BrandDto>(brand, currentUser);
 
 			if (!result.CanUpdate || !result.CanDelete)
 			{

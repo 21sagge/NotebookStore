@@ -4,18 +4,19 @@ using AutoMapper;
 using NotebookStore.DAL;
 using NotebookStore.Entities;
 
-public class MemoryService : PermissionService, IService<MemoryDto>
+public class MemoryService : IService<MemoryDto>
 {
 	private readonly IUnitOfWork unitOfWork;
 	private readonly IMapper mapper;
 	private readonly IUserService userService;
+	private readonly IPermissionService permissionService;
 
-	public MemoryService(IUnitOfWork unitOfWork, IMapper mapper, IUserService userService)
-	: base(mapper)
+	public MemoryService(IUnitOfWork unitOfWork, IMapper mapper, IUserService userService, IPermissionService permissionService)
 	{
 		this.unitOfWork = unitOfWork;
 		this.mapper = mapper;
 		this.userService = userService;
+		this.permissionService = permissionService;
 	}
 
 	public async Task<IEnumerable<MemoryDto>> GetAll()
@@ -24,7 +25,7 @@ public class MemoryService : PermissionService, IService<MemoryDto>
 		var currentUser = await userService.GetCurrentUser();
 
 		IEnumerable<MemoryDto> result = memories.Select(memory =>
-			AssignPermission<Memory, MemoryDto>(memory, currentUser)
+			permissionService.AssignPermission<Memory, MemoryDto>(memory, currentUser)
 		);
 
 		return result;
@@ -41,7 +42,7 @@ public class MemoryService : PermissionService, IService<MemoryDto>
 
 		var currentUser = await userService.GetCurrentUser();
 
-		return AssignPermission<Memory, MemoryDto>(memory, currentUser);
+		return permissionService.AssignPermission<Memory, MemoryDto>(memory, currentUser);
 	}
 
 	public async Task<bool> Create(MemoryDto memoryDto)
@@ -87,7 +88,7 @@ public class MemoryService : PermissionService, IService<MemoryDto>
 		{
 			var currentUser = await userService.GetCurrentUser();
 
-			var result = AssignPermission<Memory, MemoryDto>(memory, currentUser);
+			var result = permissionService.AssignPermission<Memory, MemoryDto>(memory, currentUser);
 
 			if (!result.CanUpdate || !result.CanDelete)
 			{
@@ -124,7 +125,7 @@ public class MemoryService : PermissionService, IService<MemoryDto>
 		{
 			var currentUser = await userService.GetCurrentUser();
 
-			var result = AssignPermission<Memory, MemoryDto>(memory, currentUser);
+			var result = permissionService.AssignPermission<Memory, MemoryDto>(memory, currentUser);
 
 			if (!result.CanUpdate || !result.CanDelete)
 			{
