@@ -6,155 +6,161 @@ using NotebookStore.Entities;
 
 public class NotebookService : IService<NotebookDto>
 {
-	private readonly IUnitOfWork unitOfWork;
-	private readonly IMapper mapper;
-	private readonly IUserService userService;
+    private readonly IUnitOfWork unitOfWork;
+    private readonly IMapper mapper;
+    private readonly IUserService userService;
     private readonly IPermissionService permissionService;
 
     public NotebookService(IUnitOfWork unitOfWork, IMapper mapper, IUserService userService, IPermissionService permissionService)
-	{
-		this.unitOfWork = unitOfWork;
-		this.mapper = mapper;
-		this.userService = userService;
+    {
+        this.unitOfWork = unitOfWork;
+        this.mapper = mapper;
+        this.userService = userService;
         this.permissionService = permissionService;
     }
 
-	public async Task<IEnumerable<NotebookDto>> GetAll()
-	{
-		var notebooks = await unitOfWork.Notebooks.Read();
-		var currentUser = await userService.GetCurrentUser();
+    public async Task<IEnumerable<NotebookDto>> GetAll()
+    {
+        var notebooks = await unitOfWork.Notebooks.Read();
+        var currentUser = await userService.GetCurrentUser();
 
-		IEnumerable<NotebookDto> result = notebooks.Select(notebook =>
-			permissionService.AssignPermission<Notebook, NotebookDto>(notebook, currentUser)
-		);
+        IEnumerable<NotebookDto> result = notebooks.Select(notebook =>
+        {
+            var can = permissionService.CanUpdateNotebook(notebook, currentUser);
 
-		return result;
-	}
+            var notebookDto = mapper.Map<NotebookDto>(notebook);
 
-	public async Task<NotebookDto?> Find(int id)
-	{
-		var notebook = await unitOfWork.Notebooks.Find(id);
+            notebookDto.CanUpdate = can;
+            notebookDto.CanDelete = can;
 
-		if (notebook == null)
-		{
-			return null;
-		}
+            return notebookDto;
+        });
 
-		var currentUser = await userService.GetCurrentUser();
+        return result;
+    }
 
-		var result = permissionService.AssignPermission<Notebook, NotebookDto>(notebook, currentUser);
+    public async Task<NotebookDto?> Find(int id)
+    {
+        var notebook = await unitOfWork.Notebooks.Find(id);
 
-		return result;
-	}
+        if (notebook == null)
+        {
+            return null;
+        }
 
-	public async Task<bool> Create(NotebookDto notebookDto)
-	{
-		var notebook = mapper.Map<Notebook>(notebookDto);
+        var currentUser = await userService.GetCurrentUser();
 
-		unitOfWork.BeginTransaction();
+        var result = permissionService.AssignPermission<Notebook, NotebookDto>(notebook, currentUser);
 
-		try
-		{
-			var currentUser = await userService.GetCurrentUser();
+        return result;
+    }
 
-			notebook.CreatedBy = currentUser.Id;
-			notebook.CreatedAt = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
+    public async Task<bool> Create(NotebookDto notebookDto)
+    {
+        var notebook = mapper.Map<Notebook>(notebookDto);
 
-			await unitOfWork.Notebooks.Create(notebook);
-			await unitOfWork.SaveAsync();
+        unitOfWork.BeginTransaction();
 
-			unitOfWork.CommitTransaction();
+        try
+        {
+            var currentUser = await userService.GetCurrentUser();
 
-			return true;
-		}
-		catch (Exception e)
-		{
-			Console.WriteLine(e.Message);
-			unitOfWork.RollbackTransaction();
-			return false;
-		}
-	}
+            notebook.CreatedBy = currentUser.Id;
+            notebook.CreatedAt = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
 
-	public async Task<bool> Update(NotebookDto notebookDto)
-	{
-		var notebook = await unitOfWork.Notebooks.Find(notebookDto.Id);
+            await unitOfWork.Notebooks.Create(notebook);
+            await unitOfWork.SaveAsync();
 
-		if (notebook == null)
-		{
-			return false;
-		}
+            unitOfWork.CommitTransaction();
 
-		unitOfWork.BeginTransaction();
+            return true;
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e.Message);
+            unitOfWork.RollbackTransaction();
+            return false;
+        }
+    }
 
-		try
-		{
-			var currentUser = await userService.GetCurrentUser();
+    public async Task<bool> Update(NotebookDto notebookDto)
+    {
+        var notebook = await unitOfWork.Notebooks.Find(notebookDto.Id);
 
-			var result = permissionService.AssignPermission<Notebook, NotebookDto>(notebook, currentUser);
+        if (notebook == null)
+        {
+            return false;
+        }
 
-			if (!result.CanUpdate || !result.CanDelete)
-			{
-				throw new Exception("Permission denied");
-			}
+        notebook.BrandId = notebookDto.BrandId;
+        notebook.ModelId = notebookDto.ModelId;
+        notebook.CpuId = notebookDto.CpuId;
+        notebook.DisplayId = notebookDto.DisplayId;
+        notebook.MemoryId = notebookDto.MemoryId;
+        notebook.StorageId = notebookDto.StorageId;
+        notebook.Color = notebookDto.Color;
+        notebook.Price = notebookDto.Price;
 
-			notebook.BrandId = notebookDto.BrandId;
-			notebook.ModelId = notebookDto.ModelId;
-			notebook.CpuId = notebookDto.CpuId;
-			notebook.DisplayId = notebookDto.DisplayId;
-			notebook.MemoryId = notebookDto.MemoryId;
-			notebook.StorageId = notebookDto.StorageId;
-			notebook.Color = notebookDto.Color;
-			notebook.Price = notebookDto.Price;
+        var currentUser = await userService.GetCurrentUser();
 
-			await unitOfWork.Notebooks.Update(notebook);
-			await unitOfWork.SaveAsync();
+        if (!permissionService.CanUpdateNotebook(notebook, currentUser))
+        {
+            return false;
+        }
 
-			unitOfWork.CommitTransaction();
+        unitOfWork.BeginTransaction();
 
-			return true;
-		}
-		catch (Exception e)
-		{
-			Console.WriteLine(e.Message);
-			unitOfWork.RollbackTransaction();
-			return false;
-		}
-	}
+        try
+        {
+            await unitOfWork.Notebooks.Update(notebook);
+            await unitOfWork.SaveAsync();
 
-	public async Task<bool> Delete(int id)
-	{
-		var notebook = await unitOfWork.Notebooks.Find(id);
+            unitOfWork.CommitTransaction();
 
-		if (notebook == null)
-		{
-			return false;
-		}
+            return true;
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e.Message);
+            unitOfWork.RollbackTransaction();
+            return false;
+        }
+    }
 
-		unitOfWork.BeginTransaction();
+    public async Task<bool> Delete(int id)
+    {
+        var notebook = await unitOfWork.Notebooks.Find(id);
 
-		try
-		{
-			var currentUser = await userService.GetCurrentUser();
+        if (notebook == null)
+        {
+            return false;
+        }
 
-			var result = permissionService.AssignPermission<Notebook, NotebookDto>(notebook, currentUser);
+        unitOfWork.BeginTransaction();
 
-			if (!result.CanUpdate || !result.CanDelete)
-			{
-				throw new Exception("Permission denied");
-			}
+        try
+        {
+            var currentUser = await userService.GetCurrentUser();
 
-			await unitOfWork.Notebooks.Delete(id);
-			await unitOfWork.SaveAsync();
+            var result = permissionService.AssignPermission<Notebook, NotebookDto>(notebook, currentUser);
 
-			unitOfWork.CommitTransaction();
+            if (!result.CanUpdate || !result.CanDelete)
+            {
+                throw new Exception("Permission denied");
+            }
 
-			return true;
-		}
-		catch (Exception e)
-		{
-			Console.WriteLine(e.Message);
-			unitOfWork.RollbackTransaction();
-			return false;
-		}
-	}
+            await unitOfWork.Notebooks.Delete(id);
+            await unitOfWork.SaveAsync();
+
+            unitOfWork.CommitTransaction();
+
+            return true;
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e.Message);
+            unitOfWork.RollbackTransaction();
+            return false;
+        }
+    }
 }

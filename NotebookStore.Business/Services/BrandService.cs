@@ -6,141 +6,148 @@ using NotebookStore.Entities;
 
 public class BrandService : IService<BrandDto>
 {
-	private readonly IUnitOfWork unitOfWork;
-	private readonly IMapper mapper;
-	private readonly IUserService userService;
+    private readonly IUnitOfWork unitOfWork;
+    private readonly IMapper mapper;
+    private readonly IUserService userService;
     private readonly IPermissionService permissionService;
 
-    public BrandService(IUnitOfWork unitOfWork, IMapper mapper, IUserService userService, IPermissionService permissionService)	
-	{
-		this.unitOfWork = unitOfWork;
-		this.mapper = mapper;
-		this.userService = userService;
+    public BrandService(IUnitOfWork unitOfWork, IMapper mapper, IUserService userService, IPermissionService permissionService)
+    {
+        this.unitOfWork = unitOfWork;
+        this.mapper = mapper;
+        this.userService = userService;
         this.permissionService = permissionService;
     }
 
-	public async Task<IEnumerable<BrandDto>> GetAll()
-	{
-		var brands = await unitOfWork.Brands.Read();
-		var currentUser = await userService.GetCurrentUser();
+    public async Task<IEnumerable<BrandDto>> GetAll()
+    {
+        var brands = await unitOfWork.Brands.Read();
+        var currentUser = await userService.GetCurrentUser();
 
-		IEnumerable<BrandDto> result = brands.Select(brand =>
-			permissionService.AssignPermission<Brand, BrandDto>(brand, currentUser)
-		);
+        IEnumerable<BrandDto> result = brands.Select(brand =>
+            permissionService.AssignPermission<Brand, BrandDto>(brand, currentUser)
+        );
 
-		return result;
-	}
+        return result;
+    }
 
-	public async Task<BrandDto?> Find(int id)
-	{
-		var brand = await unitOfWork.Brands.Find(id);
+    public async Task<BrandDto?> Find(int id)
+    {
+        var brand = await unitOfWork.Brands.Find(id);
 
-		if (brand == null)
-		{
-			return null;
-		}
+        if (brand == null)
+        {
+            return null;
+        }
 
-		var currentUser = await userService.GetCurrentUser();
+        var currentUser = await userService.GetCurrentUser();
 
-		return permissionService.AssignPermission<Brand, BrandDto>(brand, currentUser);
-	}
+        bool a = permissionService.CanUpdateBrand(brand, currentUser);
 
-	public async Task<bool> Create(BrandDto brandDto)
-	{
-		var brand = mapper.Map<Brand>(brandDto);
+        var brandDto = mapper.Map<BrandDto>(brand);
 
-		unitOfWork.BeginTransaction();
+        brandDto.CanUpdate = a;
+        brandDto.CanDelete = a;
 
-		try
-		{
-			var currentUser = await userService.GetCurrentUser();
+        return brandDto;
+    }
 
-			brand.CreatedBy = currentUser.Id;
-			brand.CreatedAt = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
+    public async Task<bool> Create(BrandDto brandDto)
+    {
+        var brand = mapper.Map<Brand>(brandDto);
 
-			await unitOfWork.Brands.Create(brand);
-			await unitOfWork.SaveAsync();
+        unitOfWork.BeginTransaction();
 
-			unitOfWork.CommitTransaction();
+        try
+        {
+            var currentUser = await userService.GetCurrentUser();
 
-			return true;
-		}
-		catch (Exception)
-		{
-			unitOfWork.RollbackTransaction();
-			return false;
-		}
-	}
+            brand.CreatedBy = currentUser.Id;
+            brand.CreatedAt = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
 
-	public async Task<bool> Update(BrandDto brandDto)
-	{
-		var brand = await unitOfWork.Brands.Find(brandDto.Id);
+            await unitOfWork.Brands.Create(brand);
+            await unitOfWork.SaveAsync();
 
-		if (brand == null)
-		{
-			return false;
-		}
+            unitOfWork.CommitTransaction();
 
-		unitOfWork.BeginTransaction();
+            return true;
+        }
+        catch (Exception)
+        {
+            unitOfWork.RollbackTransaction();
+            return false;
+        }
+    }
 
-		try
-		{
-			var currentUser = await userService.GetCurrentUser();
+    public async Task<bool> Update(BrandDto brandDto)
+    {
+        var brand = await unitOfWork.Brands.Find(brandDto.Id);
 
-			var result = permissionService.AssignPermission<Brand, BrandDto>(brand, currentUser);
+        if (brand == null)
+        {
+            return false;
+        }
 
-			if (!result.CanUpdate || !result.CanDelete)
-			{
-				throw new Exception("Permission denied");
-			}
+        unitOfWork.BeginTransaction();
 
-			await unitOfWork.Brands.Update(mapper.Map(brandDto, brand));
-			await unitOfWork.SaveAsync();
+        try
+        {
+            var currentUser = await userService.GetCurrentUser();
 
-			unitOfWork.CommitTransaction();
+            var result = permissionService.AssignPermission<Brand, BrandDto>(brand, currentUser);
 
-			return true;
-		}
-		catch (Exception)
-		{
-			unitOfWork.RollbackTransaction();
-			return false;
-		}
-	}
+            if (!result.CanUpdate || !result.CanDelete)
+            {
+                throw new Exception("Permission denied");
+            }
 
-	public async Task<bool> Delete(int id)
-	{
-		var brand = await unitOfWork.Brands.Find(id);
+            await unitOfWork.Brands.Update(mapper.Map(brandDto, brand));
+            await unitOfWork.SaveAsync();
 
-		if (brand == null)
-		{
-			return false;
-		}
+            unitOfWork.CommitTransaction();
 
-		unitOfWork.BeginTransaction();
+            return true;
+        }
+        catch (Exception)
+        {
+            unitOfWork.RollbackTransaction();
+            return false;
+        }
+    }
 
-		try
-		{
-			var currentUser = await userService.GetCurrentUser();
+    public async Task<bool> Delete(int id)
+    {
+        var brand = await unitOfWork.Brands.Find(id);
 
-			var result = permissionService.AssignPermission<Brand, BrandDto>(brand, currentUser);
+        if (brand == null)
+        {
+            return false;
+        }
 
-			if (!result.CanUpdate || !result.CanDelete)
-			{
-				throw new Exception("Permission denied");
-			}
+        unitOfWork.BeginTransaction();
 
-			await unitOfWork.Brands.Delete(id);
-			await unitOfWork.SaveAsync();
+        try
+        {
+            var currentUser = await userService.GetCurrentUser();
 
-			unitOfWork.CommitTransaction();
+            var result = permissionService.AssignPermission<Brand, BrandDto>(brand, currentUser);
 
-			return true;
-		}
-		catch (Exception)
-		{
-			unitOfWork.RollbackTransaction();
-			return false;
-		}
-	}
+            if (!result.CanUpdate || !result.CanDelete)
+            {
+                throw new Exception("Permission denied");
+            }
+
+            await unitOfWork.Brands.Delete(id);
+            await unitOfWork.SaveAsync();
+
+            unitOfWork.CommitTransaction();
+
+            return true;
+        }
+        catch (Exception)
+        {
+            unitOfWork.RollbackTransaction();
+            return false;
+        }
+    }
 }
