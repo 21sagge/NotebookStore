@@ -26,5 +26,9 @@ public interface IPermissionService
 
     bool CanUpdateBrand(Brand brand, UserDto currentUser);
     bool CanUpdateModel(Model model, UserDto currentUser);
+    bool CanUpdateCpu(Cpu cpu, UserDto currentUser);
+    bool CanUpdateMemory(Memory memory, UserDto currentUser);
+    bool CanUpdateDisplay(Display display, UserDto currentUser);
+    bool CanUpdateStorage(Storage storage, UserDto currentUser);
     bool CanUpdateNotebook(Notebook notebook, UserDto currentUser);
 }

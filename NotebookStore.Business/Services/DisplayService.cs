@@ -9,26 +9,32 @@ public class DisplayService : IService<DisplayDto>
 	private readonly IUnitOfWork unitOfWork;
 	private readonly IMapper mapper;
 	private readonly IUserService userService;
-    private readonly IPermissionService permissionService;
+	private readonly IPermissionService permissionService;
 
-    public DisplayService(IUnitOfWork unitOfWork, IMapper mapper, IUserService userService, IPermissionService permissionService)
+	public DisplayService(IUnitOfWork unitOfWork, IMapper mapper, IUserService userService, IPermissionService permissionService)
 	{
 		this.unitOfWork = unitOfWork;
 		this.mapper = mapper;
 		this.userService = userService;
-        this.permissionService = permissionService;
-    }
+		this.permissionService = permissionService;
+	}
 
 	public async Task<IEnumerable<DisplayDto>> GetAll()
 	{
 		var displays = await unitOfWork.Displays.Read();
 		var currentUser = await userService.GetCurrentUser();
 
-		IEnumerable<DisplayDto> result = displays.Select(display =>
-			permissionService.AssignPermission<Display, DisplayDto>(display, currentUser)
-		);
+		return displays.Select(display =>
+		{
+			var displayDto = mapper.Map<DisplayDto>(display);
 
-		return result;
+			var canUpdateDisplay = permissionService.CanUpdateDisplay(display, currentUser);
+
+			displayDto.CanUpdate = canUpdateDisplay;
+			displayDto.CanDelete = canUpdateDisplay;
+
+			return displayDto;
+		});
 	}
 
 	public async Task<DisplayDto?> Find(int id)
@@ -42,7 +48,14 @@ public class DisplayService : IService<DisplayDto>
 
 		var currentUser = await userService.GetCurrentUser();
 
-		return permissionService.AssignPermission<Display, DisplayDto>(display, currentUser);
+		bool canUpdateDisplay = permissionService.CanUpdateDisplay(display, currentUser);
+
+		var displayDto = mapper.Map<DisplayDto>(display);
+
+		displayDto.CanUpdate = canUpdateDisplay;
+		displayDto.CanDelete = canUpdateDisplay;
+
+		return displayDto;
 	}
 
 	public async Task<bool> Create(DisplayDto displayDto)
@@ -51,13 +64,13 @@ public class DisplayService : IService<DisplayDto>
 
 		unitOfWork.BeginTransaction();
 
+		var currentUser = await userService.GetCurrentUser();
+
+		display.CreatedBy = currentUser.Id;
+		display.CreatedAt = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
+
 		try
 		{
-			var currentUser = await userService.GetCurrentUser();
-
-			display.CreatedBy = currentUser.Id;
-			display.CreatedAt = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
-
 			await unitOfWork.Displays.Create(display);
 			await unitOfWork.SaveAsync();
 
@@ -84,17 +97,20 @@ public class DisplayService : IService<DisplayDto>
 
 		unitOfWork.BeginTransaction();
 
+		var currentUser = await userService.GetCurrentUser();
+
+		var canUpdateDisplay = permissionService.CanUpdateDisplay(display, currentUser);
+
+		if (!canUpdateDisplay)
+		{
+			return false;
+		}
+
+		displayDto.CanUpdate = canUpdateDisplay;
+		displayDto.CanDelete = canUpdateDisplay;
+
 		try
 		{
-			var currentUser = await userService.GetCurrentUser();
-
-			var result = permissionService.AssignPermission<Display, DisplayDto>(display, currentUser);
-
-			if (!result.CanUpdate || !result.CanDelete)
-			{
-				throw new Exception("Permission denied");
-			}
-
 			await unitOfWork.Displays.Update(mapper.Map(displayDto, display));
 			await unitOfWork.SaveAsync();
 
@@ -121,17 +137,15 @@ public class DisplayService : IService<DisplayDto>
 
 		unitOfWork.BeginTransaction();
 
+		var currentUser = await userService.GetCurrentUser();
+
+		if (!permissionService.CanUpdateDisplay(display, currentUser))
+		{
+			return false;
+		}
+
 		try
 		{
-			var currentUser = await userService.GetCurrentUser();
-
-			var result = permissionService.AssignPermission<Display, DisplayDto>(display, currentUser);
-
-			if (!result.CanUpdate || !result.CanDelete)
-			{
-				throw new Exception("Permission denied");
-			}
-
 			await unitOfWork.Displays.Delete(id);
 			await unitOfWork.SaveAsync();
 

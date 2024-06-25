@@ -9,26 +9,32 @@ public class ModelService : IService<ModelDto>
 	private readonly IUnitOfWork unitOfWork;
 	private readonly IMapper mapper;
 	private readonly IUserService userService;
-    private readonly IPermissionService permissionService;
+	private readonly IPermissionService permissionService;
 
-    public ModelService(IUnitOfWork unitOfWork, IMapper mapper, IUserService userService, IPermissionService permissionService)
+	public ModelService(IUnitOfWork unitOfWork, IMapper mapper, IUserService userService, IPermissionService permissionService)
 	{
 		this.unitOfWork = unitOfWork;
 		this.mapper = mapper;
 		this.userService = userService;
-        this.permissionService = permissionService;
-    }
+		this.permissionService = permissionService;
+	}
 
 	public async Task<IEnumerable<ModelDto>> GetAll()
 	{
 		var models = await unitOfWork.Models.Read();
 		var currentUser = await userService.GetCurrentUser();
 
-		IEnumerable<ModelDto> result = models.Select(model =>
-			permissionService.AssignPermission<Model, ModelDto>(model, currentUser)
-		);
+		return models.Select(model =>
+		{
+			var modelDto = mapper.Map<ModelDto>(model);
 
-		return result;
+			var canUpdateModel = permissionService.CanUpdateModel(model, currentUser);
+
+			modelDto.CanUpdate = canUpdateModel;
+			modelDto.CanDelete = canUpdateModel;
+
+			return modelDto;
+		});
 	}
 
 	public async Task<ModelDto?> Find(int id)
@@ -42,7 +48,14 @@ public class ModelService : IService<ModelDto>
 
 		var currentUser = await userService.GetCurrentUser();
 
-		return permissionService.AssignPermission<Model, ModelDto>(model, currentUser);
+		bool canUpdateModel = permissionService.CanUpdateModel(model, currentUser);
+
+		var modelDto = mapper.Map<ModelDto>(model);
+
+		modelDto.CanUpdate = canUpdateModel;
+		modelDto.CanDelete = canUpdateModel;
+
+		return modelDto;
 	}
 
 	public async Task<bool> Create(ModelDto modelDto)
@@ -51,13 +64,13 @@ public class ModelService : IService<ModelDto>
 
 		unitOfWork.BeginTransaction();
 
+		var currentUser = await userService.GetCurrentUser();
+
+		model.CreatedBy = currentUser.Id;
+		model.CreatedAt = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
+
 		try
 		{
-			var currentUser = await userService.GetCurrentUser();
-
-			model.CreatedBy = currentUser.Id;
-			model.CreatedAt = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
-
 			await unitOfWork.Models.Create(model);
 			await unitOfWork.SaveAsync();
 
@@ -84,17 +97,20 @@ public class ModelService : IService<ModelDto>
 
 		unitOfWork.BeginTransaction();
 
+		var currentUser = await userService.GetCurrentUser();
+
+		var canUpdateModel = permissionService.CanUpdateModel(model, currentUser);
+
+		if (!canUpdateModel)
+		{
+			return false;
+		}
+
+		modelDto.CanUpdate = canUpdateModel;
+		modelDto.CanDelete = canUpdateModel;
+
 		try
 		{
-			var currentUser = await userService.GetCurrentUser();
-
-			var result = permissionService.AssignPermission<Model, ModelDto>(model, currentUser);
-
-			if (!result.CanDelete || !result.CanUpdate)
-			{
-				throw new Exception("Permission denied");
-			}
-
 			await unitOfWork.Models.Update(mapper.Map(modelDto, model));
 			await unitOfWork.SaveAsync();
 
@@ -121,17 +137,15 @@ public class ModelService : IService<ModelDto>
 
 		unitOfWork.BeginTransaction();
 
+		var currentUser = await userService.GetCurrentUser();
+
+		if (!permissionService.CanUpdateModel(model, currentUser))
+		{
+			return false;
+		}
+
 		try
 		{
-			var currentUser = await userService.GetCurrentUser();
-
-			var result = permissionService.AssignPermission<Model, ModelDto>(model, currentUser);
-
-			if (!result.CanDelete || !result.CanUpdate)
-			{
-				throw new Exception("Permission denied");
-			}
-
 			await unitOfWork.Models.Delete(id);
 			await unitOfWork.SaveAsync();
 

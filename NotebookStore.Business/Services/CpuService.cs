@@ -9,26 +9,32 @@ public class CpuService : IService<CpuDto>
 	private readonly IUnitOfWork unitOfWork;
 	private readonly IMapper mapper;
 	private readonly IUserService userService;
-    private readonly IPermissionService permissionService;
+	private readonly IPermissionService permissionService;
 
-    public CpuService(IUnitOfWork unitOfWork, IMapper mapper, IUserService userService, IPermissionService permissionService)
+	public CpuService(IUnitOfWork unitOfWork, IMapper mapper, IUserService userService, IPermissionService permissionService)
 	{
 		this.unitOfWork = unitOfWork;
 		this.mapper = mapper;
 		this.userService = userService;
-        this.permissionService = permissionService;
-    }
+		this.permissionService = permissionService;
+	}
 
 	public async Task<IEnumerable<CpuDto>> GetAll()
 	{
 		var cpus = await unitOfWork.Cpus.Read();
 		var currentUser = await userService.GetCurrentUser();
 
-		IEnumerable<CpuDto> result = cpus.Select(cpu =>
-			permissionService.AssignPermission<Cpu, CpuDto>(cpu, currentUser)
-		);
+		return cpus.Select(cpu =>
+		{
+			var cpuDto = mapper.Map<CpuDto>(cpu);
 
-		return result;
+			var canUpdateCpu = permissionService.CanUpdateCpu(cpu, currentUser);
+
+			cpuDto.CanUpdate = canUpdateCpu;
+			cpuDto.CanDelete = canUpdateCpu;
+
+			return cpuDto;
+		});
 	}
 
 	public async Task<CpuDto?> Find(int id)
@@ -42,7 +48,14 @@ public class CpuService : IService<CpuDto>
 
 		var currentUser = await userService.GetCurrentUser();
 
-		return permissionService.AssignPermission<Cpu, CpuDto>(cpu, currentUser);
+		bool canUpdateCpu = permissionService.CanUpdateCpu(cpu, currentUser);
+
+		var cpuDto = mapper.Map<CpuDto>(cpu);
+
+		cpuDto.CanUpdate = canUpdateCpu;
+		cpuDto.CanDelete = canUpdateCpu;
+
+		return cpuDto;
 	}
 
 	public async Task<bool> Create(CpuDto cpuDto)
@@ -51,13 +64,13 @@ public class CpuService : IService<CpuDto>
 
 		unitOfWork.BeginTransaction();
 
+		var currentUser = await userService.GetCurrentUser();
+
+		cpu.CreatedBy = currentUser.Id;
+		cpu.CreatedAt = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
+
 		try
 		{
-			var currentUser = await userService.GetCurrentUser();
-
-			cpu.CreatedBy = currentUser.Id;
-			cpu.CreatedAt = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
-
 			await unitOfWork.Cpus.Create(cpu);
 			await unitOfWork.SaveAsync();
 
@@ -83,17 +96,20 @@ public class CpuService : IService<CpuDto>
 
 		unitOfWork.BeginTransaction();
 
+		var currentUser = await userService.GetCurrentUser();
+
+		var canUpdateCpu = permissionService.CanUpdateCpu(cpu, currentUser);
+
+		if (!canUpdateCpu)
+		{
+			return false;
+		}
+
+		cpuDto.CanUpdate = canUpdateCpu;
+		cpuDto.CanDelete = canUpdateCpu;
+
 		try
 		{
-			var currentUser = await userService.GetCurrentUser();
-
-			var result = permissionService.AssignPermission<Cpu, CpuDto>(cpu, currentUser);
-
-			if (!result.CanUpdate || !result.CanDelete)
-			{
-				throw new Exception("Permission denied");
-			}
-
 			await unitOfWork.Cpus.Update(mapper.Map(cpuDto, cpu));
 			await unitOfWork.SaveAsync();
 
@@ -119,17 +135,15 @@ public class CpuService : IService<CpuDto>
 
 		unitOfWork.BeginTransaction();
 
+		var currentUser = await userService.GetCurrentUser();
+
+		if (!permissionService.CanUpdateCpu(cpu, currentUser))
+		{
+			return false;
+		}
+
 		try
 		{
-			var currentUser = await userService.GetCurrentUser();
-
-			var result = permissionService.AssignPermission<Cpu, CpuDto>(cpu, currentUser);
-
-			if (!result.CanUpdate || !result.CanDelete)
-			{
-				throw new Exception("Permission denied");
-			}
-
 			await unitOfWork.Cpus.Delete(id);
 			await unitOfWork.SaveAsync();
 

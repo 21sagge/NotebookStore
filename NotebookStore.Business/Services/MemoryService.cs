@@ -24,11 +24,17 @@ public class MemoryService : IService<MemoryDto>
 		var memories = await unitOfWork.Memories.Read();
 		var currentUser = await userService.GetCurrentUser();
 
-		IEnumerable<MemoryDto> result = memories.Select(memory =>
-			permissionService.AssignPermission<Memory, MemoryDto>(memory, currentUser)
-		);
+		return memories.Select(memory =>
+		{
+			var memoryDto = mapper.Map<MemoryDto>(memory);
 
-		return result;
+			var canUpdateMemory = permissionService.CanUpdateMemory(memory, currentUser);
+
+			memoryDto.CanUpdate = canUpdateMemory;
+			memoryDto.CanDelete = canUpdateMemory;
+
+			return memoryDto;
+		});
 	}
 
 	public async Task<MemoryDto?> Find(int id)
@@ -42,7 +48,14 @@ public class MemoryService : IService<MemoryDto>
 
 		var currentUser = await userService.GetCurrentUser();
 
-		return permissionService.AssignPermission<Memory, MemoryDto>(memory, currentUser);
+		bool canUpdateMemory = permissionService.CanUpdateMemory(memory, currentUser);
+
+		var memoryDto = mapper.Map<MemoryDto>(memory);
+
+		memoryDto.CanUpdate = canUpdateMemory;
+		memoryDto.CanDelete = canUpdateMemory;
+
+		return memoryDto;
 	}
 
 	public async Task<bool> Create(MemoryDto memoryDto)
@@ -51,13 +64,13 @@ public class MemoryService : IService<MemoryDto>
 
 		unitOfWork.BeginTransaction();
 
+		var currentUser = await userService.GetCurrentUser();
+
+		memory.CreatedBy = currentUser.Id;
+		memory.CreatedAt = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
+
 		try
 		{
-			var currentUser = await userService.GetCurrentUser();
-
-			memory.CreatedBy = currentUser.Id;
-			memory.CreatedAt = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
-
 			await unitOfWork.Memories.Create(memory);
 			await unitOfWork.SaveAsync();
 
@@ -84,17 +97,20 @@ public class MemoryService : IService<MemoryDto>
 
 		unitOfWork.BeginTransaction();
 
+		var currentUser = await userService.GetCurrentUser();
+
+		var canUpdateMemory = permissionService.CanUpdateMemory(memory, currentUser);
+
+		if (!canUpdateMemory)
+		{
+			return false;
+		}
+
+		memoryDto.CanUpdate = canUpdateMemory;
+		memoryDto.CanDelete = canUpdateMemory;
+
 		try
 		{
-			var currentUser = await userService.GetCurrentUser();
-
-			var result = permissionService.AssignPermission<Memory, MemoryDto>(memory, currentUser);
-
-			if (!result.CanUpdate || !result.CanDelete)
-			{
-				throw new Exception("Permission denied");
-			}
-
 			await unitOfWork.Memories.Update(mapper.Map(memoryDto, memory));
 			await unitOfWork.SaveAsync();
 
@@ -121,17 +137,15 @@ public class MemoryService : IService<MemoryDto>
 
 		unitOfWork.BeginTransaction();
 
+		var currentUser = await userService.GetCurrentUser();
+
+		if (!permissionService.CanUpdateMemory(memory, currentUser))
+		{
+			return false;
+		}
+
 		try
 		{
-			var currentUser = await userService.GetCurrentUser();
-
-			var result = permissionService.AssignPermission<Memory, MemoryDto>(memory, currentUser);
-
-			if (!result.CanUpdate || !result.CanDelete)
-			{
-				throw new Exception("Permission denied");
-			}
-
 			await unitOfWork.Memories.Delete(id);
 			await unitOfWork.SaveAsync();
 

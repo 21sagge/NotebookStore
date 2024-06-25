@@ -24,11 +24,17 @@ public class BrandService : IService<BrandDto>
         var brands = await unitOfWork.Brands.Read();
         var currentUser = await userService.GetCurrentUser();
 
-        IEnumerable<BrandDto> result = brands.Select(brand =>
-            permissionService.AssignPermission<Brand, BrandDto>(brand, currentUser)
-        );
+        return brands.Select(brand =>
+        {
+            var brandDto = mapper.Map<BrandDto>(brand);
 
-        return result;
+            var canUpdateBrand = permissionService.CanUpdateBrand(brand, currentUser);
+
+            brandDto.CanUpdate = canUpdateBrand;
+            brandDto.CanDelete = canUpdateBrand;
+
+            return brandDto;
+        });
     }
 
     public async Task<BrandDto?> Find(int id)
@@ -42,12 +48,12 @@ public class BrandService : IService<BrandDto>
 
         var currentUser = await userService.GetCurrentUser();
 
-        bool a = permissionService.CanUpdateBrand(brand, currentUser);
+        bool canUpdateBrand = permissionService.CanUpdateBrand(brand, currentUser);
 
         var brandDto = mapper.Map<BrandDto>(brand);
 
-        brandDto.CanUpdate = a;
-        brandDto.CanDelete = a;
+        brandDto.CanUpdate = canUpdateBrand;
+        brandDto.CanDelete = canUpdateBrand;
 
         return brandDto;
     }
@@ -58,13 +64,13 @@ public class BrandService : IService<BrandDto>
 
         unitOfWork.BeginTransaction();
 
+        var currentUser = await userService.GetCurrentUser();
+
+        brand.CreatedBy = currentUser.Id;
+        brand.CreatedAt = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
+
         try
         {
-            var currentUser = await userService.GetCurrentUser();
-
-            brand.CreatedBy = currentUser.Id;
-            brand.CreatedAt = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
-
             await unitOfWork.Brands.Create(brand);
             await unitOfWork.SaveAsync();
 
@@ -90,17 +96,20 @@ public class BrandService : IService<BrandDto>
 
         unitOfWork.BeginTransaction();
 
+        var currentUser = await userService.GetCurrentUser();
+
+        var canUpdateBrand = permissionService.CanUpdateBrand(brand, currentUser);
+
+        if (!canUpdateBrand)
+        {
+            return false;
+        }
+
+        brandDto.CanUpdate = canUpdateBrand;
+        brandDto.CanDelete = canUpdateBrand;
+
         try
         {
-            var currentUser = await userService.GetCurrentUser();
-
-            var result = permissionService.AssignPermission<Brand, BrandDto>(brand, currentUser);
-
-            if (!result.CanUpdate || !result.CanDelete)
-            {
-                throw new Exception("Permission denied");
-            }
-
             await unitOfWork.Brands.Update(mapper.Map(brandDto, brand));
             await unitOfWork.SaveAsync();
 
@@ -126,17 +135,15 @@ public class BrandService : IService<BrandDto>
 
         unitOfWork.BeginTransaction();
 
+        var currentUser = await userService.GetCurrentUser();
+
+        if (!permissionService.CanUpdateBrand(brand, currentUser))
+        {
+            return false;
+        }
+
         try
         {
-            var currentUser = await userService.GetCurrentUser();
-
-            var result = permissionService.AssignPermission<Brand, BrandDto>(brand, currentUser);
-
-            if (!result.CanUpdate || !result.CanDelete)
-            {
-                throw new Exception("Permission denied");
-            }
-
             await unitOfWork.Brands.Delete(id);
             await unitOfWork.SaveAsync();
 

@@ -6,12 +6,12 @@ namespace NotebookStore.Business;
 
 public class PermissionService : IPermissionService
 {
-    private readonly IMapper mapper;
+    // private readonly IMapper mapper;
 
-    public PermissionService(IMapper mapper)
-    {
-        this.mapper = mapper;
-    }
+    // public PermissionService(IMapper mapper)
+    // {
+    //     this.mapper = mapper;
+    // }
 
     //public TDto AssignPermission<T, TDto>(T entity, UserDto currentUser)
     //    where T : IAuditable
@@ -62,27 +62,41 @@ public class PermissionService : IPermissionService
     //        );
     //}
 
-    public bool CanUpdateBrand(Brand entity, UserDto currentUser)
-    {
-        return
-            currentUser.Role == "Admin" ||
-            currentUser.Id == entity.CreatedBy ||
-            entity.CreatedBy == null;
-    }
+    public bool CanUpdateBrand(Brand entity, UserDto currentUser) =>
+        currentUser.Role == "Admin" ||
+        currentUser.Id == entity.CreatedBy ||
+        entity.CreatedBy == null;
 
-    public bool CanUpdateModel(Model entity, UserDto currentUser)
-    {
-        return
-            currentUser.Role == "Admin" ||
-            currentUser.Id == entity.CreatedBy ||
-            entity.CreatedBy == null;
-    }
+    public bool CanUpdateModel(Model entity, UserDto currentUser) =>
+        currentUser.Role == "Admin" ||
+        currentUser.Id == entity.CreatedBy ||
+        entity.CreatedBy == null;
 
-    public bool CanUpdateNotebook(Notebook notebook, UserDto currentUser)
-    {
-        bool canUpdateBrand = CanUpdateBrand(notebook.Brand, currentUser);
-        bool canUpdateModel = CanUpdateModel(notebook.Model, currentUser);
+    public bool CanUpdateCpu(Cpu entity, UserDto currentUser) =>
+        currentUser.Role == "Admin" ||
+        currentUser.Id == entity.CreatedBy ||
+        entity.CreatedBy == null;
 
-        return canUpdateBrand && canUpdateModel;
-    }
+    public bool CanUpdateStorage(Storage entity, UserDto currentUser) =>
+        currentUser.Role == "Admin" ||
+        currentUser.Id == entity.CreatedBy ||
+        entity.CreatedBy == null;
+
+    public bool CanUpdateMemory(Memory entity, UserDto currentUser) =>
+        currentUser.Role == "Admin" ||
+        currentUser.Id == entity.CreatedBy ||
+        entity.CreatedBy == null;
+
+    public bool CanUpdateDisplay(Display entity, UserDto currentUser) =>
+        currentUser.Role == "Admin" ||
+        currentUser.Id == entity.CreatedBy ||
+        entity.CreatedBy == null;
+
+    public bool CanUpdateNotebook(Notebook notebook, UserDto currentUser) =>
+        CanUpdateBrand(notebook.Brand, currentUser) &&
+        CanUpdateModel(notebook.Model, currentUser) &&
+        CanUpdateCpu(notebook.Cpu, currentUser) &&
+        CanUpdateStorage(notebook.Storage, currentUser) &&
+        CanUpdateMemory(notebook.Memory, currentUser) &&
+        CanUpdateDisplay(notebook.Display, currentUser);
 }
