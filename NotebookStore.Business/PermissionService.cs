@@ -1,6 +1,4 @@
-﻿using System.Drawing.Drawing2D;
-using AutoMapper;
-using NotebookStore.Entities;
+﻿using NotebookStore.Entities;
 
 namespace NotebookStore.Business;
 
@@ -12,6 +10,8 @@ public class PermissionService : IPermissionService
     // {
     //     this.mapper = mapper;
     // }
+
+    public PermissionService() { }
 
     //public TDto AssignPermission<T, TDto>(T entity, UserDto currentUser)
     //    where T : IAuditable

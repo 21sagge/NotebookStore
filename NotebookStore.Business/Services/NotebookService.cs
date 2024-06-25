@@ -24,19 +24,17 @@ public class NotebookService : IService<NotebookDto>
         var notebooks = await unitOfWork.Notebooks.Read();
         var currentUser = await userService.GetCurrentUser();
 
-        IEnumerable<NotebookDto> result = notebooks.Select(notebook =>
+        return notebooks.Select(notebook =>
         {
-            var can = permissionService.CanUpdateNotebook(notebook, currentUser);
-
             var notebookDto = mapper.Map<NotebookDto>(notebook);
 
-            notebookDto.CanUpdate = can;
-            notebookDto.CanDelete = can;
+            var canUpdateNotebook = permissionService.CanUpdateNotebook(notebook, currentUser);
+
+            notebookDto.CanUpdate = canUpdateNotebook;
+            notebookDto.CanDelete = canUpdateNotebook;
 
             return notebookDto;
         });
-
-        return result;
     }
 
     public async Task<NotebookDto?> Find(int id)
@@ -50,9 +48,14 @@ public class NotebookService : IService<NotebookDto>
 
         var currentUser = await userService.GetCurrentUser();
 
-        var result = permissionService.AssignPermission<Notebook, NotebookDto>(notebook, currentUser);
+        var canUpdateNotebook = permissionService.CanUpdateNotebook(notebook, currentUser);
 
-        return result;
+        var notebookDto = mapper.Map<NotebookDto>(notebook);
+
+        notebookDto.CanUpdate = canUpdateNotebook;
+        notebookDto.CanDelete = canUpdateNotebook;
+
+        return notebookDto;
     }
 
     public async Task<bool> Create(NotebookDto notebookDto)
@@ -92,6 +95,19 @@ public class NotebookService : IService<NotebookDto>
             return false;
         }
 
+        var currentUser = await userService.GetCurrentUser();
+
+        if (!permissionService.CanUpdateNotebook(notebook, currentUser) ||
+            !permissionService.CanUpdateBrand(notebook.Brand, currentUser) ||
+            !permissionService.CanUpdateModel(notebook.Model, currentUser) ||
+            !permissionService.CanUpdateCpu(notebook.Cpu, currentUser) ||
+            !permissionService.CanUpdateDisplay(notebook.Display, currentUser) ||
+            !permissionService.CanUpdateMemory(notebook.Memory, currentUser) ||
+            !permissionService.CanUpdateStorage(notebook.Storage, currentUser))
+        {
+            return false;
+        }
+
         notebook.BrandId = notebookDto.BrandId;
         notebook.ModelId = notebookDto.ModelId;
         notebook.CpuId = notebookDto.CpuId;
@@ -100,13 +116,6 @@ public class NotebookService : IService<NotebookDto>
         notebook.StorageId = notebookDto.StorageId;
         notebook.Color = notebookDto.Color;
         notebook.Price = notebookDto.Price;
-
-        var currentUser = await userService.GetCurrentUser();
-
-        if (!permissionService.CanUpdateNotebook(notebook, currentUser))
-        {
-            return false;
-        }
 
         unitOfWork.BeginTransaction();
 
@@ -142,11 +151,15 @@ public class NotebookService : IService<NotebookDto>
         {
             var currentUser = await userService.GetCurrentUser();
 
-            var result = permissionService.AssignPermission<Notebook, NotebookDto>(notebook, currentUser);
-
-            if (!result.CanUpdate || !result.CanDelete)
+            if (!permissionService.CanUpdateNotebook(notebook, currentUser) ||
+                !permissionService.CanUpdateBrand(notebook.Brand, currentUser) ||
+                !permissionService.CanUpdateModel(notebook.Model, currentUser) ||
+                !permissionService.CanUpdateCpu(notebook.Cpu, currentUser) ||
+                !permissionService.CanUpdateDisplay(notebook.Display, currentUser) ||
+                !permissionService.CanUpdateMemory(notebook.Memory, currentUser) ||
+                !permissionService.CanUpdateStorage(notebook.Storage, currentUser))
             {
-                throw new Exception("Permission denied");
+                return false;
             }
 
             await unitOfWork.Notebooks.Delete(id);

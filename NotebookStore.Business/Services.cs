@@ -21,7 +21,7 @@ public class Services : IServices
     }
 
     public IUserService Users => new UserService(_mapper, _context, _userManager);
-    public IPermissionService Permissions => new PermissionService(_mapper);
+    public IPermissionService Permissions => new PermissionService();
     public IService<BrandDto> Brands => new BrandService(_unitOfWork, _mapper, Users, Permissions);
     public IService<CpuDto> Cpus => new CpuService(_unitOfWork, _mapper, Users, Permissions);
     public IService<DisplayDto> Displays => new DisplayService(_unitOfWork, _mapper, Users, Permissions);
