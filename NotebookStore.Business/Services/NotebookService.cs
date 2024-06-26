@@ -64,13 +64,25 @@ public class NotebookService : IService<NotebookDto>
 
         unitOfWork.BeginTransaction();
 
+        var currentUser = await userService.GetCurrentUser();
+
+        notebook.Brand = await unitOfWork.Brands.Find(notebook.BrandId);
+        notebook.Model = await unitOfWork.Models.Find(notebook.ModelId);
+        notebook.Cpu = await unitOfWork.Cpus.Find(notebook.CpuId);
+        notebook.Display = await unitOfWork.Displays.Find(notebook.DisplayId);
+        notebook.Memory = await unitOfWork.Memories.Find(notebook.MemoryId);
+        notebook.Storage = await unitOfWork.Storages.Find(notebook.StorageId);
+
+        notebook.CreatedBy = currentUser.Id;
+        notebook.CreatedAt = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
+
+        if (!permissionService.CanUpdateNotebook(notebook, currentUser))
+        {
+            return false;
+        }
+
         try
         {
-            var currentUser = await userService.GetCurrentUser();
-
-            notebook.CreatedBy = currentUser.Id;
-            notebook.CreatedAt = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
-
             await unitOfWork.Notebooks.Create(notebook);
             await unitOfWork.SaveAsync();
 
@@ -97,28 +109,19 @@ public class NotebookService : IService<NotebookDto>
 
         var currentUser = await userService.GetCurrentUser();
 
-        if (!permissionService.CanUpdateNotebook(notebook, currentUser) ||
-            !permissionService.CanUpdateBrand(notebook.Brand, currentUser) ||
-            !permissionService.CanUpdateModel(notebook.Model, currentUser) ||
-            !permissionService.CanUpdateCpu(notebook.Cpu, currentUser) ||
-            !permissionService.CanUpdateDisplay(notebook.Display, currentUser) ||
-            !permissionService.CanUpdateMemory(notebook.Memory, currentUser) ||
-            !permissionService.CanUpdateStorage(notebook.Storage, currentUser))
+        unitOfWork.BeginTransaction();
+
+        notebook.Brand = await unitOfWork.Brands.Find(notebookDto.BrandId);
+        notebook.Model = await unitOfWork.Models.Find(notebookDto.ModelId);
+        notebook.Cpu = await unitOfWork.Cpus.Find(notebookDto.CpuId);
+        notebook.Display = await unitOfWork.Displays.Find(notebookDto.DisplayId);
+        notebook.Memory = await unitOfWork.Memories.Find(notebookDto.MemoryId);
+        notebook.Storage = await unitOfWork.Storages.Find(notebookDto.StorageId);
+
+        if (!permissionService.CanUpdateNotebook(notebook, currentUser))
         {
             return false;
         }
-
-        notebook.BrandId = notebookDto.BrandId;
-        notebook.ModelId = notebookDto.ModelId;
-        notebook.CpuId = notebookDto.CpuId;
-        notebook.DisplayId = notebookDto.DisplayId;
-        notebook.MemoryId = notebookDto.MemoryId;
-        notebook.StorageId = notebookDto.StorageId;
-        notebook.Color = notebookDto.Color;
-        notebook.Price = notebookDto.Price;
-
-        unitOfWork.BeginTransaction();
-
         try
         {
             await unitOfWork.Notebooks.Update(notebook);
@@ -147,21 +150,15 @@ public class NotebookService : IService<NotebookDto>
 
         unitOfWork.BeginTransaction();
 
+        var currentUser = await userService.GetCurrentUser();
+
+        if (!permissionService.CanUpdateNotebook(notebook, currentUser))
+        {
+            return false;
+        }
+
         try
         {
-            var currentUser = await userService.GetCurrentUser();
-
-            if (!permissionService.CanUpdateNotebook(notebook, currentUser) ||
-                !permissionService.CanUpdateBrand(notebook.Brand, currentUser) ||
-                !permissionService.CanUpdateModel(notebook.Model, currentUser) ||
-                !permissionService.CanUpdateCpu(notebook.Cpu, currentUser) ||
-                !permissionService.CanUpdateDisplay(notebook.Display, currentUser) ||
-                !permissionService.CanUpdateMemory(notebook.Memory, currentUser) ||
-                !permissionService.CanUpdateStorage(notebook.Storage, currentUser))
-            {
-                return false;
-            }
-
             await unitOfWork.Notebooks.Delete(id);
             await unitOfWork.SaveAsync();
 
