@@ -26,5 +26,6 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\NotebookStore.Business\NotebookStore.Business.csproj" />
+    <ProjectReference Include="..\NotebookStoreMVC\NotebookStoreMVC.csproj" />
   </ItemGroup>
 </Project>
