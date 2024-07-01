@@ -25,6 +25,7 @@ public class BrandServiceTests
 
         var context = new NotebookStoreContext.NotebookStoreContext(options);
 
+        context.Database.EnsureDeleted();
         context.Database.EnsureCreated();
 
         unitOfWork = new UnitOfWork(context);
@@ -82,13 +83,6 @@ public class BrandServiceTests
 
         mockPermissionService.Setup(x => x.CanUpdateBrand(It.IsAny<Brand>(), It.IsAny<UserDto>())).Returns(true);
 
-        // Delete all brands from the database
-        var allBrands = await unitOfWork.Brands.Read();
-        foreach (var brand in allBrands)
-        {
-            await unitOfWork.Brands.Delete(brand.Id);
-        }
-
         // Add brands to the database
         await unitOfWork.Brands.Create(brands[0]);
         await unitOfWork.Brands.Create(brands[1]);
@@ -143,13 +137,6 @@ public class BrandServiceTests
 
         mockPermissionService.Setup(x => x.CanUpdateBrand(It.IsAny<Brand>(), It.IsAny<UserDto>())).Returns(true);
 
-        // Delete all brands from the database
-        var allBrands = await unitOfWork.Brands.Read();
-        foreach (var b in allBrands)
-        {
-            await unitOfWork.Brands.Delete(b.Id);
-        }
-
         // Add brand to the database
         await unitOfWork.Brands.Create(brand);
 
@@ -196,13 +183,6 @@ public class BrandServiceTests
         });
 
         mockPermissionService.Setup(x => x.CanUpdateBrand(It.IsAny<Brand>(), It.IsAny<UserDto>())).Returns(true);
-
-        // Delete all brands from the database
-        var allBrands = await unitOfWork.Brands.Read();
-        foreach (var b in allBrands)
-        {
-            await unitOfWork.Brands.Delete(b.Id);
-        }
 
         // Act
         await unitOfWork.Brands.Create(brand);

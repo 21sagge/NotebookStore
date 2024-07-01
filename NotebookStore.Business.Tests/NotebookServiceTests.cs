@@ -24,6 +24,7 @@ public class NotebookServiceTests
 
 		var context = new NotebookStoreContext.NotebookStoreContext(options);
 
+		context.Database.EnsureDeleted();
 		context.Database.EnsureCreated();
 
 		unitOfWork = new UnitOfWork(context);
@@ -177,58 +178,10 @@ public class NotebookServiceTests
 			}
 		);
 
-		// Delete all notebooks from the database
-		var allNotebooks = await unitOfWork.Notebooks.Read();
-		foreach (var notebook in allNotebooks)
+		foreach (var notebook in notebooks)
 		{
-			await unitOfWork.Notebooks.Delete(notebook.Id);
+			await unitOfWork.Notebooks.Create(notebook);
 		}
-
-		// Delete all brands from the database
-		var allBrands = await unitOfWork.Brands.Read();
-		foreach (var brand in allBrands)
-		{
-			await unitOfWork.Brands.Delete(brand.Id);
-		}
-
-		// Delete all models from the database
-		var allModels = await unitOfWork.Models.Read();
-		foreach (var model in allModels)
-		{
-			await unitOfWork.Models.Delete(model.Id);
-		}
-
-		// Delete all cpus from the database
-		var allCpus = await unitOfWork.Cpus.Read();
-		foreach (var cpu in allCpus)
-		{
-			await unitOfWork.Cpus.Delete(cpu.Id);
-		}
-
-		// Delete all displays from the database
-		var allDisplays = await unitOfWork.Displays.Read();
-		foreach (var display in allDisplays)
-		{
-			await unitOfWork.Displays.Delete(display.Id);
-		}
-
-		// Delete all memories from the database
-		var allMemories = await unitOfWork.Memories.Read();
-		foreach (var memory in allMemories)
-		{
-			await unitOfWork.Memories.Delete(memory.Id);
-		}
-
-		// Delete all storages from the database
-		var allStorages = await unitOfWork.Storages.Read();
-		foreach (var storage in allStorages)
-		{
-			await unitOfWork.Storages.Delete(storage.Id);
-		}
-
-		// Add brands to the database
-		await unitOfWork.Notebooks.Create(notebooks[0]);
-		await unitOfWork.Notebooks.Create(notebooks[1]);
 
 		// Act
 		var result = await notebookService.GetAll();
@@ -322,55 +275,6 @@ public class NotebookServiceTests
 				It.IsAny<Notebook>(),
 				It.IsAny<UserDto>()))
 			.Returns(true);
-
-		// Delete all notebooks from the database
-		var allNotebooks = await unitOfWork.Notebooks.Read();
-		foreach (var n in allNotebooks)
-		{
-			await unitOfWork.Notebooks.Delete(n.Id);
-		}
-
-		// Delete all brands from the database
-		var allBrands = await unitOfWork.Brands.Read();
-		foreach (var brand in allBrands)
-		{
-			await unitOfWork.Brands.Delete(brand.Id);
-		}
-
-		// Delete all models from the database
-		var allModels = await unitOfWork.Models.Read();
-		foreach (var model in allModels)
-		{
-			await unitOfWork.Models.Delete(model.Id);
-		}
-
-		// Delete all cpus from the database
-		var allCpus = await unitOfWork.Cpus.Read();
-		foreach (var cpu in allCpus)
-		{
-			await unitOfWork.Cpus.Delete(cpu.Id);
-		}
-
-		// Delete all displays from the database
-		var allDisplays = await unitOfWork.Displays.Read();
-		foreach (var display in allDisplays)
-		{
-			await unitOfWork.Displays.Delete(display.Id);
-		}
-
-		// Delete all memories from the database
-		var allMemories = await unitOfWork.Memories.Read();
-		foreach (var memory in allMemories)
-		{
-			await unitOfWork.Memories.Delete(memory.Id);
-		}
-
-		// Delete all storages from the database
-		var allStorages = await unitOfWork.Storages.Read();
-		foreach (var storage in allStorages)
-		{
-			await unitOfWork.Storages.Delete(storage.Id);
-		}
 
 		await unitOfWork.Notebooks.Create(notebook);
 
