@@ -80,6 +80,8 @@ public class BrandServiceTests
             Role = "Admin"
         });
 
+        mockPermissionService.Setup(x => x.CanUpdateBrand(It.IsAny<Brand>(), It.IsAny<UserDto>())).Returns(true);
+
         // Delete all brands from the database
         var allBrands = await unitOfWork.Brands.Read();
         foreach (var brand in allBrands)
@@ -100,13 +102,13 @@ public class BrandServiceTests
             Assert.That(result.Count(), Is.EqualTo(2));
             Assert.That(result.ElementAt(0).Id, Is.EqualTo(1));
             Assert.That(result.ElementAt(0).Name, Is.EqualTo("Brand 1"));
-            // Assert.That(result.ElementAt(0).CanUpdate, Is.True);
-            // Assert.That(result.ElementAt(0).CanDelete, Is.True);
+            Assert.That(result.ElementAt(0).CanUpdate, Is.True);
+            Assert.That(result.ElementAt(0).CanDelete, Is.True);
 
             Assert.That(result.ElementAt(1).Id, Is.EqualTo(2));
             Assert.That(result.ElementAt(1).Name, Is.EqualTo("Brand 2"));
-            // Assert.That(result.ElementAt(1).CanUpdate, Is.True);
-            // Assert.That(result.ElementAt(1).CanDelete, Is.True);
+            Assert.That(result.ElementAt(1).CanUpdate, Is.True);
+            Assert.That(result.ElementAt(1).CanDelete, Is.True);
         });
     }
 
@@ -139,6 +141,8 @@ public class BrandServiceTests
             Role = "Admin"
         });
 
+        mockPermissionService.Setup(x => x.CanUpdateBrand(It.IsAny<Brand>(), It.IsAny<UserDto>())).Returns(true);
+
         // Delete all brands from the database
         var allBrands = await unitOfWork.Brands.Read();
         foreach (var b in allBrands)
@@ -157,8 +161,59 @@ public class BrandServiceTests
         {
             Assert.That(result?.Id, Is.EqualTo(1));
             Assert.That(result?.Name, Is.EqualTo("Brand 1"));
-            // Assert.That(result?.CanUpdate, Is.True);
-            // Assert.That(result?.CanDelete, Is.True);
+            Assert.That(result?.CanUpdate, Is.True);
+            Assert.That(result?.CanDelete, Is.True);
+        });
+    }
+
+    [Test]
+    public async Task Create_ReturnsBrand()
+    {
+        // Arrange
+        var brand = new Brand
+        {
+            Id = 1,
+            Name = "Brand 1",
+            CreatedAt = DateTime.Now.ToString(),
+            CreatedBy = null
+        };
+
+        var currentUser = new User
+        {
+            Id = 1,
+            Name = "User 1",
+            Password = "password",
+            Email = "",
+        };
+
+        mockUserService.Setup(x => x.GetCurrentUser()).ReturnsAsync(new UserDto
+        {
+            Id = currentUser.Id.ToString(),
+            Name = currentUser.Name,
+            Email = currentUser.Email,
+            Password = currentUser.Password,
+            Role = "Admin"
+        });
+
+        mockPermissionService.Setup(x => x.CanUpdateBrand(It.IsAny<Brand>(), It.IsAny<UserDto>())).Returns(true);
+
+        // Delete all brands from the database
+        var allBrands = await unitOfWork.Brands.Read();
+        foreach (var b in allBrands)
+        {
+            await unitOfWork.Brands.Delete(b.Id);
+        }
+
+        // Act
+        await unitOfWork.Brands.Create(brand);
+
+        // Assert that the brand was added to the database
+        var addedBrand = await unitOfWork.Brands.Find(1);
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(addedBrand?.Id, Is.EqualTo(1));
+            Assert.That(addedBrand?.Name, Is.EqualTo("Brand 1"));
         });
     }
 }
