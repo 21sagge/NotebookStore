@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore.Migrations;
+﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
@@ -13,24 +14,69 @@ namespace NotebookStoreContext.Migrations
             // Inserting data into the Roles table
             migrationBuilder.InsertData(
                 table: "AspNetRoles",
-                columns: new[] { "Id", "Name" },
-                values: new object[] { "1", "Admin" });
+                columns: new[] { "Id", "Name", "NormalizedName" },
+                values: new object[] { "1", "Admin", "ADMIN" });
 
             migrationBuilder.InsertData(
                 table: "AspNetRoles",
-                columns: new[] { "Id", "Name" },
-                values: new object[] { "2", "Editor" });
+                columns: new[] { "Id", "Name", "NormalizedName" },
+                values: new object[] { "2", "Editor", "EDITOR" });
 
             migrationBuilder.InsertData(
                 table: "AspNetRoles",
-                columns: new[] { "Id", "Name" },
-                values: new object[] { "3", "Viewer" });
+                columns: new[] { "Id", "Name", "NormalizedName" },
+                values: new object[] { "3", "Viewer", "VIEWER" });
+
+            var admin = new IdentityUser
+            {
+                Id = "1",
+                UserName = "admin@admin.com",
+                NormalizedUserName = "ADMIN@ADMIN.COM",
+                Email = "admin@admin.com",
+                NormalizedEmail = "ADMIN@ADMIN.COM",
+                EmailConfirmed = true,
+                PhoneNumberConfirmed = true,
+                TwoFactorEnabled = false,
+                LockoutEnabled = false,
+                AccessFailedCount = 0,
+                SecurityStamp = string.Empty
+            };
+
+            admin.PasswordHash = new PasswordHasher<IdentityUser>().HashPassword(admin, "admin");
 
             // Inserting data into the Users table
             migrationBuilder.InsertData(
                 table: "AspNetUsers",
-                columns: new[] { "Id", "Email", "EmailConfirmed", "PasswordHash", "PhoneNumberConfirmed", "TwoFactorEnabled", "LockoutEnabled", "AccessFailedCount" },
-                values: new object[] { "1", "admin@admin.com", true, "AQAAAAIAAYagAAAAEObH4fcXKI5vGEtFuokTLKRAVaGMWqd0Bjd443CDZLo3rdWMQY/u7wSsMMwJGnn8vQ==", false, false, false, 0 });
+                columns: new[]
+                {
+                    "Id",
+                    "Email",
+                    "NormalizedEmail",
+                    "UserName",
+                    "NormalizedUserName",
+                    "EmailConfirmed",
+                    "PasswordHash",
+                    "PhoneNumberConfirmed",
+                    "TwoFactorEnabled",
+                    "LockoutEnabled",
+                    "AccessFailedCount",
+                    "SecurityStamp"
+                },
+                values: new object[]
+                {
+                    admin.Id,
+                    admin.Email,
+                    admin.NormalizedEmail,
+                    admin.UserName,
+                    admin.NormalizedUserName,
+                    admin.EmailConfirmed,
+                    admin.PasswordHash,
+                    admin.PhoneNumberConfirmed,
+                    admin.TwoFactorEnabled,
+                    admin.LockoutEnabled,
+                    admin.AccessFailedCount,
+                    admin.SecurityStamp
+                });
 
             // Inserting data into the UserRoles table
             migrationBuilder.InsertData(
@@ -40,9 +86,6 @@ namespace NotebookStoreContext.Migrations
         }
 
         /// <inheritdoc />
-        protected override void Down(MigrationBuilder migrationBuilder)
-        {
-
-        }
+        protected override void Down(MigrationBuilder migrationBuilder) { }
     }
 }
