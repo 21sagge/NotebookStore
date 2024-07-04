@@ -2,44 +2,34 @@
 using NotebookStore.DAL;
 using AutoMapper;
 using NotebookStore.Entities;
-using Microsoft.EntityFrameworkCore;
-using NotebookStore.Business.Mapping;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace NotebookStore.Business.Tests;
 
 [TestFixture]
 public class BrandServiceTests
 {
-    private IUnitOfWork unitOfWork;
+    private ServiceProvider serviceProvider;
+    private NotebookStoreContext.NotebookStoreContext context;
     private IMapper mapper;
     private Mock<IUserService> mockUserService;
     private Mock<IPermissionService> mockPermissionService;
     private BrandService sut;
-    private NotebookStoreContext.NotebookStoreContext context;
 
     [SetUp]
     public void Setup()
     {
-        var options = new DbContextOptionsBuilder<NotebookStoreContext.NotebookStoreContext>()
-            .UseSqlite("DataSource=notebookStoreTest.db")
-            .Options;
+        serviceProvider = TestStartup.InitializeIoC();
 
-        context = new NotebookStoreContext.NotebookStoreContext(options);
-
+        context = serviceProvider.GetRequiredService<NotebookStoreContext.NotebookStoreContext>();
         context.Database.EnsureCreated();
 
-        unitOfWork = new UnitOfWork(context);
-        mapper = new MapperConfiguration(cfg => cfg.AddProfile<BusinessMapper>()).CreateMapper();
-        mockUserService = new Mock<IUserService>();
-        mockPermissionService = new Mock<IPermissionService>();
+        var unitOfWork = serviceProvider.GetRequiredService<IUnitOfWork>();
+        mapper = serviceProvider.GetRequiredService<IMapper>();
+        mockUserService = serviceProvider.GetRequiredService<Mock<IUserService>>();
+        mockPermissionService = serviceProvider.GetRequiredService<Mock<IPermissionService>>();
 
-        sut = new BrandService
-        (
-            unitOfWork,
-            mapper,
-            mockUserService.Object,
-            mockPermissionService.Object
-        );
+        sut = new BrandService(unitOfWork, mapper, mockUserService.Object, mockPermissionService.Object);
     }
 
     [Test]

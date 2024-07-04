@@ -1,45 +1,35 @@
 ﻿using Moq;
 using AutoMapper;
-using Microsoft.EntityFrameworkCore;
 using NotebookStore.DAL;
 using NotebookStore.Entities;
-using NotebookStore.Business.Mapping;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace NotebookStore.Business.Tests;
 
 [TestFixture]
 public class NotebookServiceTests
 {
-    private IUnitOfWork unitOfWork;
+    private ServiceProvider serviceProvider;
+    private NotebookStoreContext.NotebookStoreContext context;
     private IMapper mapper;
     private Mock<IUserService> mockUserService;
     private Mock<IPermissionService> mockPermissionService;
     private NotebookService sut;
-    private NotebookStoreContext.NotebookStoreContext context;
 
     [SetUp]
     public void Setup()
     {
-        var options = new DbContextOptionsBuilder<NotebookStoreContext.NotebookStoreContext>()
-            .UseSqlite("DataSource=notebookStoreTest.db")
-            .Options;
+        serviceProvider = TestStartup.InitializeIoC();
 
-        context = new NotebookStoreContext.NotebookStoreContext(options);
-
+        context = serviceProvider.GetRequiredService<NotebookStoreContext.NotebookStoreContext>();
         context.Database.EnsureCreated();
 
-        unitOfWork = new UnitOfWork(context);
-        mapper = new MapperConfiguration(cfg => cfg.AddProfile<BusinessMapper>()).CreateMapper();
-        mockUserService = new Mock<IUserService>();
-        mockPermissionService = new Mock<IPermissionService>();
+        var unitOfWork = serviceProvider.GetRequiredService<IUnitOfWork>();
+        mapper = serviceProvider.GetRequiredService<IMapper>();
+        mockUserService = serviceProvider.GetRequiredService<Mock<IUserService>>();
+        mockPermissionService = serviceProvider.GetRequiredService<Mock<IPermissionService>>();
 
-        sut = new NotebookService
-        (
-            unitOfWork,
-            mapper,
-            mockUserService.Object,
-            mockPermissionService.Object
-        );
+        sut = new NotebookService(unitOfWork, mapper, mockUserService.Object, mockPermissionService.Object);
     }
 
     [Test]
