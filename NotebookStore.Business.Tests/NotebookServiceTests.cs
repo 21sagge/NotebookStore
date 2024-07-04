@@ -26,7 +26,6 @@ public class NotebookServiceTests
 
         context = new NotebookStoreContext.NotebookStoreContext(options);
 
-        context.Database.EnsureDeleted();
         context.Database.EnsureCreated();
 
         unitOfWork = new UnitOfWork(context);
