@@ -78,20 +78,23 @@ public class BrandServiceTests
 
         // Act
         var result = await sut.GetAll();
+        var brand1Result = result.FirstOrDefault(b => b.Id == 1);
+        var brand2Result = result.FirstOrDefault(b => b.Id == 2);
 
         // Assert
         Assert.Multiple(() =>
         {
-            Assert.That(result.Count(), Is.EqualTo(2));
-            Assert.That(result.ElementAt(0).Id, Is.EqualTo(1));
-            Assert.That(result.ElementAt(0).Name, Is.EqualTo("Brand 1"));
-            Assert.That(result.ElementAt(0).CanUpdate, Is.True);
-            Assert.That(result.ElementAt(0).CanDelete, Is.True);
+            Assert.That(result.Count, Is.EqualTo(2));
 
-            Assert.That(result.ElementAt(1).Id, Is.EqualTo(2));
-            Assert.That(result.ElementAt(1).Name, Is.EqualTo("Brand 2"));
-            Assert.That(result.ElementAt(1).CanUpdate, Is.True);
-            Assert.That(result.ElementAt(1).CanDelete, Is.True);
+            Assert.That(brand1Result?.Id, Is.EqualTo(1));
+            Assert.That(brand1Result?.Name, Is.EqualTo("Brand 1"));
+            Assert.That(brand1Result?.CanUpdate, Is.True);
+            Assert.That(brand1Result?.CanDelete, Is.True);
+
+            Assert.That(brand2Result?.Id, Is.EqualTo(2));
+            Assert.That(brand2Result?.Name, Is.EqualTo("Brand 2"));
+            Assert.That(brand2Result?.CanUpdate, Is.True);
+            Assert.That(brand2Result?.CanDelete, Is.True);
         });
     }
 
@@ -138,12 +141,10 @@ public class BrandServiceTests
     public async Task Create_ReturnsBrand()
     {
         // Arrange
-        var brand = new Brand
+        var brand = new BrandDto
         {
             Id = 1,
-            Name = "Brand 1",
-            CreatedAt = DateTime.Now.ToString(),
-            CreatedBy = null
+            Name = "Brand 1"
         };
 
         mockUserService.Setup(x => x.GetCurrentUser()).ReturnsAsync(new UserDto
@@ -158,7 +159,7 @@ public class BrandServiceTests
         mockPermissionService.Setup(x => x.CanUpdateBrand(It.IsAny<Brand>(), It.IsAny<UserDto>())).Returns(true);
 
         // Act
-        await unitOfWork.Brands.Create(brand);
+        var result = await sut.Create(brand);
 
         var addedBrand = context.Brands.FirstOrDefault(b => b.Id == brand.Id);
 
@@ -167,7 +168,7 @@ public class BrandServiceTests
             Assert.That(addedBrand?.Id, Is.EqualTo(1));
             Assert.That(addedBrand?.Name, Is.EqualTo("Brand 1"));
             Assert.That(addedBrand?.CreatedAt, Is.Not.Null);
-            Assert.That(addedBrand?.CreatedBy, Is.Null);
+            Assert.That(addedBrand?.CreatedBy, Is.EqualTo("1"));
         });
     }
 
@@ -199,7 +200,7 @@ public class BrandServiceTests
 
         // Act
         brand.Name = "Brand 2";
-        await unitOfWork.Brands.Update(brand);
+        var result = await sut.Update(mapper.Map<BrandDto>(brand));
 
         var updatedBrand = context.Brands.FirstOrDefault(b => b.Id == brand.Id);
 
@@ -239,11 +240,14 @@ public class BrandServiceTests
         context.SaveChanges();
 
         // Act
-        await unitOfWork.Brands.Delete(brand.Id);
-
+        var result = await sut.Delete(brand.Id);
         var deletedBrand = context.Brands.FirstOrDefault(b => b.Id == brand.Id);
 
-        Assert.That(deletedBrand, Is.Null);
+        Assert.Multiple(() =>
+        {
+            Assert.That(result, Is.True, "Delete should return true");
+            Assert.That(deletedBrand, Is.Null, "Brand should be deleted");
+        });
     }
 
     [TearDown]

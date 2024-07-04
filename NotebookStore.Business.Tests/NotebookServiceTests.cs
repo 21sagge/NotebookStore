@@ -4,10 +4,10 @@ using Microsoft.EntityFrameworkCore;
 using NotebookStore.DAL;
 using NotebookStore.Entities;
 using NotebookStore.Business.Mapping;
-using System.Runtime.InteropServices;
 
 namespace NotebookStore.Business.Tests;
 
+[TestFixture]
 public class NotebookServiceTests
 {
     private IUnitOfWork unitOfWork;
@@ -181,49 +181,27 @@ public class NotebookServiceTests
 
         // Act
         var result = await sut.GetAll();
+        var notebook1Result = result.FirstOrDefault(n => n.Id == 1);
+        var notebook2Result = result.FirstOrDefault(n => n.Id == 2);
 
         // Assert
         Assert.Multiple(() =>
         {
             Assert.That(result.Count, Is.EqualTo(2));
-            Assert.That(result.ElementAt(0).Id, Is.EqualTo(notebook1.Id));
-            Assert.That(result.ElementAt(1).Id, Is.EqualTo(notebook2.Id));
 
-            Assert.That(result.ElementAt(0).CanUpdate, Is.True);
-            Assert.That(result.ElementAt(0).CanDelete, Is.True);
-            Assert.That(result.ElementAt(1).CanUpdate, Is.True);
-            Assert.That(result.ElementAt(1).CanDelete, Is.True);
+            Assert.That(notebook1Result?.Id, Is.EqualTo(1));
+            Assert.That(notebook1Result?.BrandId, Is.EqualTo(1));
+            Assert.That(notebook1Result?.Brand?.Name, Is.EqualTo("Brand 1"));
+            Assert.That(notebook1Result?.Color, Is.EqualTo("Black"));
+            Assert.That(notebook1Result?.CanUpdate, Is.True);
+            Assert.That(notebook1Result?.CanDelete, Is.True);
 
-            Assert.That(result.ElementAt(0).BrandId, Is.EqualTo(notebook1.BrandId));
-            Assert.That(result.ElementAt(0).ModelId, Is.EqualTo(notebook1.ModelId));
-            Assert.That(result.ElementAt(0).CpuId, Is.EqualTo(notebook1.CpuId));
-            Assert.That(result.ElementAt(0).DisplayId, Is.EqualTo(notebook1.DisplayId));
-            Assert.That(result.ElementAt(0).MemoryId, Is.EqualTo(notebook1.MemoryId));
-            Assert.That(result.ElementAt(0).StorageId, Is.EqualTo(notebook1.StorageId));
-
-            Assert.That(result.ElementAt(1).BrandId, Is.EqualTo(notebook2.BrandId));
-            Assert.That(result.ElementAt(1).ModelId, Is.EqualTo(notebook2.ModelId));
-            Assert.That(result.ElementAt(1).CpuId, Is.EqualTo(notebook2.CpuId));
-            Assert.That(result.ElementAt(1).DisplayId, Is.EqualTo(notebook2.DisplayId));
-            Assert.That(result.ElementAt(1).MemoryId, Is.EqualTo(notebook2.MemoryId));
-            Assert.That(result.ElementAt(1).StorageId, Is.EqualTo(notebook2.StorageId));
-
-            Assert.That(result.ElementAt(0).Color, Is.EqualTo(notebook1.Color));
-            Assert.That(result.ElementAt(1).Color, Is.EqualTo(notebook2.Color));
-
-            Assert.That(result.ElementAt(0).Brand?.Name, Is.EqualTo(notebook1.Brand.Name));
-            Assert.That(result.ElementAt(0).Model?.Name, Is.EqualTo(notebook1.Model.Name));
-            Assert.That(result.ElementAt(0).Cpu?.Brand, Is.EqualTo(notebook1.Cpu.Brand));
-            Assert.That(result.ElementAt(0).Display?.Size, Is.EqualTo(notebook1.Display.Size));
-            Assert.That(result.ElementAt(0).Memory?.Capacity, Is.EqualTo(notebook1.Memory.Capacity));
-            Assert.That(result.ElementAt(0).Storage?.Capacity, Is.EqualTo(notebook1.Storage.Capacity));
-
-            Assert.That(result.ElementAt(1).Brand?.Name, Is.EqualTo(notebook2.Brand.Name));
-            Assert.That(result.ElementAt(1).Model?.Name, Is.EqualTo(notebook2.Model?.Name));
-            Assert.That(result.ElementAt(1).Cpu?.Brand, Is.EqualTo(notebook2.Cpu?.Brand));
-            Assert.That(result.ElementAt(1).Display?.Size, Is.EqualTo(notebook2.Display?.Size));
-            Assert.That(result.ElementAt(1).Memory?.Capacity, Is.EqualTo(notebook2.Memory?.Capacity));
-            Assert.That(result.ElementAt(1).Storage?.Capacity, Is.EqualTo(notebook2.Storage?.Capacity));
+            Assert.That(notebook2Result?.Id, Is.EqualTo(2));
+            Assert.That(notebook2Result?.BrandId, Is.EqualTo(2));
+            Assert.That(notebook2Result?.Brand?.Name, Is.EqualTo("Brand 2"));
+            Assert.That(notebook2Result?.Color, Is.EqualTo("White"));
+            Assert.That(notebook2Result?.CanUpdate, Is.True);
+            Assert.That(notebook2Result?.CanDelete, Is.True);
         });
     }
 
@@ -320,5 +298,300 @@ public class NotebookServiceTests
             Assert.That(result?.CanUpdate, Is.True);
             Assert.That(result?.CanDelete, Is.True);
         });
+    }
+
+    [Test]
+    public async Task Create_ReturnsNotebook()
+    {
+        // Arrange
+        var notebook = new NotebookDto
+        {
+            Id = 1,
+            BrandId = 1,
+            ModelId = 1,
+            CpuId = 1,
+            DisplayId = 1,
+            MemoryId = 1,
+            StorageId = 1,
+            Color = "Black",
+            Price = 1000
+        };
+
+        mockUserService.Setup(service => service.GetCurrentUser())
+        .ReturnsAsync(
+            new UserDto
+            {
+                Id = "1",
+                Name = "user1",
+                Email = "",
+                Password = "",
+                Role = "Admin"
+            }
+        );
+
+        mockPermissionService.Setup(
+            service => service.CanUpdateNotebook(
+                It.IsAny<Notebook>(),
+                It.IsAny<UserDto>()))
+            .Returns(true);
+
+        context.Brands.Add(new Brand
+        {
+            Id = 1,
+            Name = "Brand 1",
+            CreatedAt = DateTime.Now.ToString(),
+        });
+
+        context.Models.Add(new Model
+        {
+            Id = 1,
+            Name = "Model 1",
+            CreatedAt = DateTime.Now.ToString(),
+        });
+
+        context.Cpus.Add(new Cpu
+        {
+            Id = 1,
+            Brand = "Intel",
+            Model = "Core i5",
+            CreatedAt = DateTime.Now.ToString(),
+        });
+
+        context.Displays.Add(new Display
+        {
+            Id = 1,
+            Size = 15.6,
+            ResolutionWidth = 1920,
+            ResolutionHeight = 1080,
+            PanelType = "IPS",
+            CreatedAt = DateTime.Now.ToString(),
+        });
+
+        context.Memories.Add(new Memory
+        {
+            Id = 1,
+            Capacity = 8,
+            Speed = 3200,
+            CreatedAt = DateTime.Now.ToString(),
+        });
+
+        context.Storages.Add(new Storage
+        {
+            Id = 1,
+            Capacity = 512,
+            Type = "SSD",
+            CreatedAt = DateTime.Now.ToString(),
+        });
+
+        context.SaveChanges();
+
+        // Act
+        var result = await sut.Create(notebook);
+        var addedNotebook = context.Notebooks.FirstOrDefault(n => n.Id == notebook.Id);
+
+        // Assert
+        Assert.Multiple(() =>
+        {
+            Assert.That(result, Is.True, "Create should return true");
+            Assert.That(addedNotebook?.Id, Is.EqualTo(notebook.Id), "Notebook id should be the same");
+            Assert.That(addedNotebook?.BrandId, Is.EqualTo(notebook.BrandId), "Notebook brand id should be the same");
+        });
+    }
+
+    [Test]
+    public async Task Update_ReturnsNotebook()
+    {
+        // Arrange
+        var notebook = new Notebook
+        {
+            Id = 1,
+            BrandId = 1,
+            Brand = new Brand
+            {
+                Id = 1,
+                Name = "Brand 1",
+                CreatedAt = DateTime.Now.ToString(),
+            },
+            ModelId = 1,
+            Model = new Model
+            {
+                Id = 1,
+                Name = "Model 1",
+                CreatedAt = DateTime.Now.ToString(),
+            },
+            CpuId = 1,
+            Cpu = new Cpu
+            {
+                Id = 1,
+                Brand = "Intel",
+                Model = "Core i5",
+                CreatedAt = DateTime.Now.ToString(),
+            },
+            DisplayId = 1,
+            Display = new Display
+            {
+                Id = 1,
+                Size = 15.6,
+                ResolutionWidth = 1920,
+                ResolutionHeight = 1080,
+                PanelType = "IPS",
+                CreatedAt = DateTime.Now.ToString(),
+            },
+            MemoryId = 1,
+            Memory = new Memory
+            {
+                Id = 1,
+                Capacity = 8,
+                Speed = 3200,
+                CreatedAt = DateTime.Now.ToString(),
+            },
+            StorageId = 1,
+            Storage = new Storage
+            {
+                Id = 1,
+                Capacity = 512,
+                Type = "SSD",
+                CreatedAt = DateTime.Now.ToString(),
+            },
+            Color = "Black",
+            CreatedAt = DateTime.Now.ToString(),
+            CreatedBy = null
+        };
+
+        mockUserService.Setup(service => service.GetCurrentUser())
+        .ReturnsAsync(
+            new UserDto
+            {
+                Id = "1",
+                Name = "user1",
+                Email = "",
+                Password = "",
+                Role = "Admin"
+            }
+        );
+
+        mockPermissionService.Setup(
+            service => service.CanUpdateNotebook(
+                It.IsAny<Notebook>(),
+                It.IsAny<UserDto>()))
+            .Returns(true);
+
+        context.Add(notebook);
+        context.SaveChanges();
+
+        // Act
+        notebook.Color = "White";
+        var result = await sut.Update(mapper.Map<NotebookDto>(notebook));
+
+        var updatedNotebook = context.Notebooks.FirstOrDefault(n => n.Id == notebook.Id);
+
+        // Assert
+        Assert.Multiple(() =>
+        {
+            Assert.That(result, Is.True, "Update should return true");
+            Assert.That(updatedNotebook?.Id, Is.EqualTo(notebook.Id), "Notebook id should be the same");
+            Assert.That(updatedNotebook?.BrandId, Is.EqualTo(notebook.BrandId), "Notebook brand id should be the same");
+            Assert.That(updatedNotebook?.Color, Is.EqualTo("White"), "Notebook color should be updated");
+        });
+    }
+
+    [Test]
+    public async Task Delete_ReturnsNotebook()
+    {
+        // Arrange
+        var notebook = new Notebook
+        {
+            Id = 1,
+            BrandId = 1,
+            Brand = new Brand
+            {
+                Id = 1,
+                Name = "Brand 1",
+                CreatedAt = DateTime.Now.ToString(),
+            },
+            ModelId = 1,
+            Model = new Model
+            {
+                Id = 1,
+                Name = "Model 1",
+                CreatedAt = DateTime.Now.ToString(),
+            },
+            CpuId = 1,
+            Cpu = new Cpu
+            {
+                Id = 1,
+                Brand = "Intel",
+                Model = "Core i5",
+                CreatedAt = DateTime.Now.ToString(),
+            },
+            DisplayId = 1,
+            Display = new Display
+            {
+                Id = 1,
+                Size = 15.6,
+                ResolutionWidth = 1920,
+                ResolutionHeight = 1080,
+                PanelType = "IPS",
+                CreatedAt = DateTime.Now.ToString(),
+            },
+            MemoryId = 1,
+            Memory = new Memory
+            {
+                Id = 1,
+                Capacity = 8,
+                Speed = 3200,
+                CreatedAt = DateTime.Now.ToString(),
+            },
+            StorageId = 1,
+            Storage = new Storage
+            {
+                Id = 1,
+                Capacity = 512,
+                Type = "SSD",
+                CreatedAt = DateTime.Now.ToString(),
+            },
+            Color = "Black",
+            CreatedAt = DateTime.Now.ToString(),
+            CreatedBy = null
+        };
+
+        mockUserService.Setup(service => service.GetCurrentUser())
+        .ReturnsAsync(
+            new UserDto
+            {
+                Id = "1",
+                Name = "user1",
+                Email = "",
+                Password = "",
+                Role = "Admin"
+            }
+        );
+
+        mockPermissionService.Setup(
+            service => service.CanUpdateNotebook(
+                It.IsAny<Notebook>(),
+                It.IsAny<UserDto>()))
+            .Returns(true);
+
+        context.Add(notebook);
+        context.SaveChanges();
+
+        // Act
+        var result = await sut.Delete(notebook.Id);
+        var deletedNotebook = context.Notebooks.FirstOrDefault(n => n.Id == notebook.Id);
+
+        // Assert
+        Assert.Multiple(() =>
+        {
+            Assert.That(result, Is.True, "Delete should return true");
+            Assert.That(deletedNotebook, Is.Null, "Notebook should be deleted");
+        });
+    }
+
+    [TearDown]
+    public void TearDown()
+    {
+        context.Database.EnsureDeleted();
+        context.Dispose();
     }
 }
