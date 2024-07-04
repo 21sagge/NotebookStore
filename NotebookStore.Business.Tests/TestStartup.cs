@@ -22,8 +22,11 @@ public static class TestStartup
 
 		services.AddSingleton(new MapperConfiguration(cfg => cfg.AddProfile<BusinessMapper>()).CreateMapper());
 
-		services.AddSingleton(new Mock<IUserService>().Object);
-		services.AddSingleton(new Mock<IPermissionService>().Object);
+		services.AddSingleton(new Mock<IUserService>());
+		services.AddSingleton(provider => provider.GetRequiredService<Mock<IUserService>>().Object);
+
+		services.AddSingleton(new Mock<IPermissionService>());
+		services.AddSingleton(provider => provider.GetRequiredService<Mock<IPermissionService>>().Object);
 
 		return services.BuildServiceProvider();
 	}
