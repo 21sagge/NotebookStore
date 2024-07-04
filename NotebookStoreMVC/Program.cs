@@ -16,15 +16,15 @@ builder.Services.AddScoped<IUserService, UserService>();
 
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 
-builder.Services.AddAutoMapper(typeof(MapperMvc));
-
-// builder.Services.AddAutoMapper((serviceProvider, config) =>
-// {
-//     config.AddProfile(new PermissionMapper(serviceProvider.GetRequiredService<IUserService>()));
-// }, typeof(PermissionMapper));
-
 builder.Services.AddScoped<ISerializer, JsonHandler>();
 builder.Services.AddScoped<ISerializer, XmlHandler>();
+
+builder.Services.AddAutoMapper(configure =>
+{
+    configure.AddProfile(new MapperMvc());
+});
+
+builder.Services.RegisterNotebookBusiness();
 
 builder.Services.AddDbContext<NotebookStoreContext.NotebookStoreContext>(options =>
 {

@@ -11,7 +11,6 @@ namespace NotebookStoreContext.Migrations
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            // Inserting data into the Roles table
             migrationBuilder.InsertData(
                 table: "AspNetRoles",
                 columns: new[] { "Id", "Name", "NormalizedName" },
@@ -44,7 +43,6 @@ namespace NotebookStoreContext.Migrations
 
             admin.PasswordHash = new PasswordHasher<IdentityUser>().HashPassword(admin, "admin");
 
-            // Inserting data into the Users table
             migrationBuilder.InsertData(
                 table: "AspNetUsers",
                 columns: new[]
@@ -78,7 +76,6 @@ namespace NotebookStoreContext.Migrations
                     admin.SecurityStamp
                 });
 
-            // Inserting data into the UserRoles table
             migrationBuilder.InsertData(
                 table: "AspNetUserRoles",
                 columns: new[] { "UserId", "RoleId" },
