@@ -111,17 +111,25 @@ public class NotebookService : IService<NotebookDto>
 
         unitOfWork.BeginTransaction();
 
-        notebook.Brand = await unitOfWork.Brands.Find(notebookDto.BrandId);
-        notebook.Model = await unitOfWork.Models.Find(notebookDto.ModelId);
-        notebook.Cpu = await unitOfWork.Cpus.Find(notebookDto.CpuId);
-        notebook.Display = await unitOfWork.Displays.Find(notebookDto.DisplayId);
-        notebook.Memory = await unitOfWork.Memories.Find(notebookDto.MemoryId);
-        notebook.Storage = await unitOfWork.Storages.Find(notebookDto.StorageId);
+        var canUpdateNotebook = permissionService.CanUpdateNotebook(notebook, currentUser);
 
-        if (!permissionService.CanUpdateNotebook(notebook, currentUser))
+        if (!canUpdateNotebook)
         {
             return false;
         }
+
+        notebookDto.CanUpdate = canUpdateNotebook;
+        notebookDto.CanDelete = canUpdateNotebook;
+
+        notebook = mapper.Map(notebookDto, notebook);
+
+        notebook.Brand = await unitOfWork.Brands.Find(notebook.BrandId);
+        notebook.Model = await unitOfWork.Models.Find(notebook.ModelId);
+        notebook.Cpu = await unitOfWork.Cpus.Find(notebook.CpuId);
+        notebook.Display = await unitOfWork.Displays.Find(notebook.DisplayId);
+        notebook.Memory = await unitOfWork.Memories.Find(notebook.MemoryId);
+        notebook.Storage = await unitOfWork.Storages.Find(notebook.StorageId);
+
         try
         {
             await unitOfWork.Notebooks.Update(notebook);

@@ -1,6 +1,4 @@
 ﻿using Moq;
-using NotebookStore.DAL;
-using AutoMapper;
 using NotebookStore.Entities;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -10,10 +8,10 @@ namespace NotebookStore.Business.Tests;
 [Parallelizable(ParallelScope.All)]
 public class BrandServiceTests
 {
-    private NotebookStoreContext.NotebookStoreContext context;
+    private BrandService sut;
     private Mock<IUserService> mockUserService;
     private Mock<IPermissionService> mockPermissionService;
-    private BrandService sut;
+    private NotebookStoreContext.NotebookStoreContext context;
 
     [SetUp]
     public void Setup()
@@ -24,8 +22,8 @@ public class BrandServiceTests
         mockPermissionService = new Mock<IPermissionService>();
 
         testStartup.Register<BrandService>();
-        testStartup.Register<IUserService>(mockUserService.Object);
-        testStartup.Register<IPermissionService>(mockPermissionService.Object);
+        testStartup.Register(mockUserService.Object);
+        testStartup.Register(mockPermissionService.Object);
 
         var serviceProvider = testStartup.GetProvider();
 
@@ -71,23 +69,26 @@ public class BrandServiceTests
 
         // Act
         var result = await sut.GetAll();
-        var brand1Result = result.FirstOrDefault(b => b.Id == 1);
-        var brand2Result = result.FirstOrDefault(b => b.Id == 2);
+        var brand1Result = result.FirstOrDefault(b => b.Id == brand1.Id);
+        var brand2Result = result.FirstOrDefault(b => b.Id == brand2.Id);
 
         // Assert
+        Assert.That(result.Count, Is.EqualTo(2), "Brands count should be 2");
+
         Assert.Multiple(() =>
         {
-            Assert.That(result.Count, Is.EqualTo(2));
+            Assert.That(brand1Result?.Id, Is.EqualTo(1), "Brand 1 Id should be 1");
+            Assert.That(brand1Result?.Name, Is.EqualTo("Brand 1"), "Brand 1 Name should be Brand 1");
+            Assert.That(brand1Result?.CanUpdate, Is.True, "Brand 1 CanUpdate should be true");
+            Assert.That(brand1Result?.CanDelete, Is.True, "Brand 1 CanDelete should be true");
+        });
 
-            Assert.That(brand1Result?.Id, Is.EqualTo(1));
-            Assert.That(brand1Result?.Name, Is.EqualTo("Brand 1"));
-            Assert.That(brand1Result?.CanUpdate, Is.True);
-            Assert.That(brand1Result?.CanDelete, Is.True);
-
-            Assert.That(brand2Result?.Id, Is.EqualTo(2));
-            Assert.That(brand2Result?.Name, Is.EqualTo("Brand 2"));
-            Assert.That(brand2Result?.CanUpdate, Is.True);
-            Assert.That(brand2Result?.CanDelete, Is.True);
+        Assert.Multiple(() =>
+        {
+            Assert.That(brand2Result?.Id, Is.EqualTo(2), "Brand 2 Id should be 2");
+            Assert.That(brand2Result?.Name, Is.EqualTo("Brand 2"), "Brand 2 Name should be Brand 2");
+            Assert.That(brand2Result?.CanUpdate, Is.True, "Brand 2 CanUpdate should be true");
+            Assert.That(brand2Result?.CanDelete, Is.True, "Brand 2 CanDelete should be true");
         });
     }
 
@@ -118,15 +119,15 @@ public class BrandServiceTests
         context.SaveChanges();
 
         // Act
-        var result = await sut.Find(1);
+        var result = await sut.Find(brand.Id);
 
         // Assert
         Assert.Multiple(() =>
         {
-            Assert.That(result?.Id, Is.EqualTo(1));
-            Assert.That(result?.Name, Is.EqualTo("Brand 1"));
-            Assert.That(result?.CanUpdate, Is.True);
-            Assert.That(result?.CanDelete, Is.True);
+            Assert.That(result?.Id, Is.EqualTo(1), "Brand Id should be 1");
+            Assert.That(result?.Name, Is.EqualTo("Brand 1"), "Brand Name should be Brand 1");
+            Assert.That(result?.CanUpdate, Is.True, "Brand CanUpdate should be true");
+            Assert.That(result?.CanDelete, Is.True, "Brand CanDelete should be true");
         });
     }
 
@@ -149,19 +150,22 @@ public class BrandServiceTests
             Role = "Admin"
         });
 
-        mockPermissionService.Setup(x => x.CanUpdateBrand(It.IsAny<Brand>(), It.IsAny<UserDto>())).Returns(true);
+        mockPermissionService.Setup(
+            x => x.CanUpdateBrand(
+                It.IsAny<Brand>(),
+                It.IsAny<UserDto>()))
+            .Returns(true);
 
         // Act
         var result = await sut.Create(brand);
-
         var addedBrand = context.Brands.FirstOrDefault(b => b.Id == brand.Id);
 
         Assert.Multiple(() =>
         {
-            Assert.That(addedBrand?.Id, Is.EqualTo(1));
-            Assert.That(addedBrand?.Name, Is.EqualTo("Brand 1"));
-            Assert.That(addedBrand?.CreatedAt, Is.Not.Null);
-            Assert.That(addedBrand?.CreatedBy, Is.EqualTo("1"));
+            Assert.That(addedBrand?.Id, Is.EqualTo(1), "Brand Id should be 1");
+            Assert.That(addedBrand?.Name, Is.EqualTo("Brand 1"), "Brand Name should be Brand 1");
+            Assert.That(addedBrand?.CreatedAt, Is.Not.Null, "Brand CreatedAt should not be null");
+            Assert.That(addedBrand?.CreatedBy, Is.EqualTo("1"), "Brand CreatedBy should be 1");
         });
     }
 
@@ -177,16 +181,23 @@ public class BrandServiceTests
             CreatedBy = null
         };
 
-        mockUserService.Setup(x => x.GetCurrentUser()).ReturnsAsync(new UserDto
-        {
-            Id = "1",
-            Name = "User 1",
-            Email = "",
-            Password = "",
-            Role = "Admin"
-        });
+        mockUserService.Setup(x => x.GetCurrentUser())
+        .ReturnsAsync(
+            new UserDto
+            {
+                Id = "1",
+                Name = "User 1",
+                Email = "",
+                Password = "",
+                Role = "Admin"
+            }
+        );
 
-        mockPermissionService.Setup(x => x.CanUpdateBrand(It.IsAny<Brand>(), It.IsAny<UserDto>())).Returns(true);
+        mockPermissionService.Setup(
+            x => x.CanUpdateBrand(
+                It.IsAny<Brand>(),
+                It.IsAny<UserDto>()))
+            .Returns(true);
 
         context.Add(brand);
         context.SaveChanges();
@@ -201,15 +212,14 @@ public class BrandServiceTests
         };
 
         var result = await sut.Update(brandDto);
-
         var updatedBrand = context.Brands.FirstOrDefault(b => b.Id == brand.Id);
 
         Assert.Multiple(() =>
         {
-            Assert.That(updatedBrand?.Id, Is.EqualTo(1));
-            Assert.That(updatedBrand?.Name, Is.EqualTo("Brand 2"));
-            Assert.That(updatedBrand?.CreatedAt, Is.Not.Null);
-            Assert.That(updatedBrand?.CreatedBy, Is.Null);
+            Assert.That(updatedBrand?.Id, Is.EqualTo(1), "Brand Id should be 1");
+            Assert.That(updatedBrand?.Name, Is.EqualTo("Brand 2"), "Brand Name should be Brand 2");
+            Assert.That(updatedBrand?.CreatedAt, Is.Not.Null, "Brand CreatedAt should not be null");
+            Assert.That(updatedBrand?.CreatedBy, Is.Null, "Brand CreatedBy should be null");
         });
     }
 
@@ -234,7 +244,11 @@ public class BrandServiceTests
             Role = "Admin"
         });
 
-        mockPermissionService.Setup(x => x.CanUpdateBrand(It.IsAny<Brand>(), It.IsAny<UserDto>())).Returns(true);
+        mockPermissionService.Setup(
+            x => x.CanUpdateBrand(
+                It.IsAny<Brand>(),
+                It.IsAny<UserDto>()))
+            .Returns(true);
 
         context.Add(brand);
         context.SaveChanges();

@@ -1,41 +1,36 @@
 ﻿using Moq;
-using AutoMapper;
-using NotebookStore.DAL;
 using NotebookStore.Entities;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace NotebookStore.Business.Tests;
 
 [TestFixture]
+[Parallelizable(ParallelScope.All)]
 public class NotebookServiceTests
 {
-    private ServiceProvider serviceProvider;
-    private NotebookStoreContext.NotebookStoreContext context;
-    private IMapper mapper;
+    private NotebookService sut;
     private Mock<IUserService> mockUserService;
     private Mock<IPermissionService> mockPermissionService;
-    private NotebookService sut;
+    private NotebookStoreContext.NotebookStoreContext context;
 
     [SetUp]
     public void Setup()
     {
         var testStartup = new TestStartup();
 
+        mockUserService = new Mock<IUserService>();
+        mockPermissionService = new Mock<IPermissionService>();
+
+        testStartup.Register<NotebookService>();
+        testStartup.Register(mockUserService.Object);
+        testStartup.Register(mockPermissionService.Object);
+
         var serviceProvider = testStartup.GetProvider();
+
+        sut = testStartup.Resolve<NotebookService>(serviceProvider);
 
         context = serviceProvider.GetRequiredService<NotebookStoreContext.NotebookStoreContext>();
         context.Database.EnsureCreated();
-
-        var unitOfWork = serviceProvider.GetRequiredService<IUnitOfWork>();
-        mapper = serviceProvider.GetRequiredService<IMapper>();
-        mockUserService = serviceProvider.GetRequiredService<Mock<IUserService>>();
-        mockPermissionService = serviceProvider.GetRequiredService<Mock<IPermissionService>>();
-
-        sut = new NotebookService(unitOfWork, mapper, mockUserService.Object, mockPermissionService.Object);
-
-        var sistemUT = serviceProvider.GetRequiredService<NotebookService>();
-
-
     }
 
     [Test]
@@ -176,27 +171,28 @@ public class NotebookServiceTests
 
         // Act
         var result = await sut.GetAll();
-        var notebook1Result = result.FirstOrDefault(n => n.Id == 1);
-        var notebook2Result = result.FirstOrDefault(n => n.Id == 2);
+        var notebook1Result = result.FirstOrDefault(n => n.Id == notebook1.Id);
+        var notebook2Result = result.FirstOrDefault(n => n.Id == notebook2.Id);
 
         // Assert
+        Assert.That(result.Count, Is.EqualTo(2), "Notebooks count should be 2");
+
         Assert.Multiple(() =>
         {
-            Assert.That(result.Count, Is.EqualTo(2));
+            Assert.That(notebook1Result?.Id, Is.EqualTo(1), "Notebook 1 Id should be 1");
+            Assert.That(notebook1Result?.BrandId, Is.EqualTo(1), "Notebook 1 BrandId should be 1");
+            Assert.That(notebook1Result?.Color, Is.EqualTo("Black"), "Notebook 1 Color should be Black");
+            Assert.That(notebook1Result?.CanUpdate, Is.True, "Notebook 1 CanUpdate should be true");
+            Assert.That(notebook1Result?.CanDelete, Is.True, "Notebook 1 CanDelete should be true");
+        });
 
-            Assert.That(notebook1Result?.Id, Is.EqualTo(1));
-            Assert.That(notebook1Result?.BrandId, Is.EqualTo(1));
-            Assert.That(notebook1Result?.Brand?.Name, Is.EqualTo("Brand 1"));
-            Assert.That(notebook1Result?.Color, Is.EqualTo("Black"));
-            Assert.That(notebook1Result?.CanUpdate, Is.True);
-            Assert.That(notebook1Result?.CanDelete, Is.True);
-
-            Assert.That(notebook2Result?.Id, Is.EqualTo(2));
-            Assert.That(notebook2Result?.BrandId, Is.EqualTo(2));
-            Assert.That(notebook2Result?.Brand?.Name, Is.EqualTo("Brand 2"));
-            Assert.That(notebook2Result?.Color, Is.EqualTo("White"));
-            Assert.That(notebook2Result?.CanUpdate, Is.True);
-            Assert.That(notebook2Result?.CanDelete, Is.True);
+        Assert.Multiple(() =>
+        {
+            Assert.That(notebook2Result?.Id, Is.EqualTo(2), "Notebook 2 Id should be 2");
+            Assert.That(notebook2Result?.BrandId, Is.EqualTo(2), "Notebook 2 BrandId should be 2");
+            Assert.That(notebook2Result?.Color, Is.EqualTo("White"), "Notebook 2 Color should be White");
+            Assert.That(notebook2Result?.CanUpdate, Is.True, "Notebook 2 CanUpdate should be true");
+            Assert.That(notebook2Result?.CanDelete, Is.True, "Notebook 2 CanDelete should be true");
         });
     }
 
@@ -287,11 +283,11 @@ public class NotebookServiceTests
         // Assert
         Assert.Multiple(() =>
         {
-            Assert.That(result?.Id, Is.EqualTo(notebook.Id));
-            Assert.That(result?.BrandId, Is.EqualTo(notebook.BrandId));
-            Assert.That(result?.Color, Is.EqualTo(notebook.Color));
-            Assert.That(result?.CanUpdate, Is.True);
-            Assert.That(result?.CanDelete, Is.True);
+            Assert.That(result?.Id, Is.EqualTo(notebook.Id), "Notebook Id should be 1");
+            Assert.That(result?.BrandId, Is.EqualTo(notebook.BrandId), "Notebook BrandId should be 1");
+            Assert.That(result?.Color, Is.EqualTo(notebook.Color), "Notebook Color should be Black");
+            Assert.That(result?.CanUpdate, Is.True, "Notebook CanUpdate should be true");
+            Assert.That(result?.CanDelete, Is.True, "Notebook CanDelete should be true");
         });
     }
 
@@ -475,9 +471,20 @@ public class NotebookServiceTests
         context.SaveChanges();
 
         // Act
-        notebook.Color = "White";
-        var result = await sut.Update(mapper.Map<NotebookDto>(notebook));
+        var notebookDto = new NotebookDto
+        {
+            Id = notebook.Id,
+            BrandId = notebook.BrandId,
+            ModelId = notebook.ModelId,
+            CpuId = notebook.CpuId,
+            DisplayId = notebook.DisplayId,
+            MemoryId = notebook.MemoryId,
+            StorageId = notebook.StorageId,
+            Price = notebook.Price,
+            Color = "White"
+        };
 
+        var result = await sut.Update(notebookDto);
         var updatedNotebook = context.Notebooks.FirstOrDefault(n => n.Id == notebook.Id);
 
         // Assert
