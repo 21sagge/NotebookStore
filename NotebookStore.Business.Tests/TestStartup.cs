@@ -7,27 +7,43 @@ using NotebookStore.DAL;
 
 namespace NotebookStore.Business.Tests;
 
-public static class TestStartup
+public class TestStartup
 {
-	public static ServiceProvider InitializeIoC()
-	{
-		var services = new ServiceCollection();
+    private static ServiceCollection services;
 
-		services.AddDbContext<NotebookStoreContext.NotebookStoreContext>(options =>
-		{
-			options.UseSqlite("DataSource=notebookStoreTest.db");
-		});
+    static TestStartup()
+    {
+        services = new ServiceCollection();
 
-		services.AddScoped<IUnitOfWork, UnitOfWork>();
+        services.AddDbContext<NotebookStoreContext.NotebookStoreContext>(options =>
+        {
+            options.UseSqlite("DataSource=notebookStoreTest.db");
+        });
 
-		services.AddSingleton(new MapperConfiguration(cfg => cfg.AddProfile<BusinessMapper>()).CreateMapper());
+        services.AddScoped<IUnitOfWork, UnitOfWork>();
 
-		services.AddSingleton(new Mock<IUserService>());
-		services.AddSingleton(provider => provider.GetRequiredService<Mock<IUserService>>().Object);
+        services.AddSingleton(new MapperConfiguration(cfg => cfg.AddProfile<BusinessMapper>()).CreateMapper());
 
-		services.AddSingleton(new Mock<IPermissionService>());
-		services.AddSingleton(provider => provider.GetRequiredService<Mock<IPermissionService>>().Object);
+        
+    }
 
-		return services.BuildServiceProvider();
-	}
+    public ServiceProvider GetProvider()
+    {
+        return services.BuildServiceProvider();
+    }
+
+    public void Register<T>() where T : class
+    {
+        services.AddSingleton<T>();
+    }
+
+    public T Resolve<T>(ServiceProvider serviceProvider)
+    {
+        return serviceProvider.GetRequiredService<T>();
+    }
+
+    public void Register<T>(T mock) where T : class
+    {
+        services.AddSingleton<T>(mock);
+    }
 }

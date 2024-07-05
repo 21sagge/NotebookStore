@@ -7,11 +7,10 @@ using Microsoft.Extensions.DependencyInjection;
 namespace NotebookStore.Business.Tests;
 
 [TestFixture]
+[Parallelizable(ParallelScope.All)]
 public class BrandServiceTests
 {
-    private ServiceProvider serviceProvider;
     private NotebookStoreContext.NotebookStoreContext context;
-    private IMapper mapper;
     private Mock<IUserService> mockUserService;
     private Mock<IPermissionService> mockPermissionService;
     private BrandService sut;
@@ -19,17 +18,21 @@ public class BrandServiceTests
     [SetUp]
     public void Setup()
     {
-        serviceProvider = TestStartup.InitializeIoC();
+        var testStartup = new TestStartup();
+
+        mockUserService = new Mock<IUserService>();
+        mockPermissionService = new Mock<IPermissionService>();
+
+        testStartup.Register<BrandService>();
+        testStartup.Register<IUserService>(mockUserService.Object);
+        testStartup.Register<IPermissionService>(mockPermissionService.Object);
+
+        var serviceProvider = testStartup.GetProvider();
+
+        sut = testStartup.Resolve<BrandService>(serviceProvider);
 
         context = serviceProvider.GetRequiredService<NotebookStoreContext.NotebookStoreContext>();
         context.Database.EnsureCreated();
-
-        var unitOfWork = serviceProvider.GetRequiredService<IUnitOfWork>();
-        mapper = serviceProvider.GetRequiredService<IMapper>();
-        mockUserService = serviceProvider.GetRequiredService<Mock<IUserService>>();
-        mockPermissionService = serviceProvider.GetRequiredService<Mock<IPermissionService>>();
-
-        sut = new BrandService(unitOfWork, mapper, mockUserService.Object, mockPermissionService.Object);
     }
 
     [Test]
@@ -189,8 +192,15 @@ public class BrandServiceTests
         context.SaveChanges();
 
         // Act
-        brand.Name = "Brand 2";
-        var result = await sut.Update(mapper.Map<BrandDto>(brand));
+        var brandDto = new BrandDto()
+        {
+            Id = brand.Id,
+            Name = "Brand 2",
+            CanDelete = true,
+            CanUpdate = true
+        };
+
+        var result = await sut.Update(brandDto);
 
         var updatedBrand = context.Brands.FirstOrDefault(b => b.Id == brand.Id);
 

@@ -19,7 +19,9 @@ public class NotebookServiceTests
     [SetUp]
     public void Setup()
     {
-        serviceProvider = TestStartup.InitializeIoC();
+        var testStartup = new TestStartup();
+
+        var serviceProvider = testStartup.GetProvider();
 
         context = serviceProvider.GetRequiredService<NotebookStoreContext.NotebookStoreContext>();
         context.Database.EnsureCreated();
@@ -30,6 +32,10 @@ public class NotebookServiceTests
         mockPermissionService = serviceProvider.GetRequiredService<Mock<IPermissionService>>();
 
         sut = new NotebookService(unitOfWork, mapper, mockUserService.Object, mockPermissionService.Object);
+
+        var sistemUT = serviceProvider.GetRequiredService<NotebookService>();
+
+
     }
 
     [Test]
