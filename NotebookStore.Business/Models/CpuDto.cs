@@ -2,7 +2,7 @@
 
 namespace NotebookStore.Business;
 
-public class CpuDto
+public class CpuDto : IAuditableDto
 {
 	public int Id { get; set; }
 	[MaxLength(50)]

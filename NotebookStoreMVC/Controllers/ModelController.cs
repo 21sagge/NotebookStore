@@ -23,19 +23,8 @@ public class ModelController : Controller
     public async Task<IActionResult> Index()
     {
         var models = await services.Models.GetAll();
-        var modelViewModels = mapper.Map<IEnumerable<ModelViewModel>>(models);
 
-        foreach (var model in models)
-        {
-            var modelViewModel = modelViewModels.FirstOrDefault(d => d.Id == model.Id);
-
-            if (modelViewModel != null)
-            {
-                modelViewModel.CanUpdateAndDelete = model.CanUpdate && model.CanDelete;
-            }
-        }
-
-        return View(modelViewModels);
+        return View(mapper.Map<IEnumerable<ModelViewModel>>(models));
     }
 
     // GET: ModelViewModel/Details/5
@@ -49,11 +38,7 @@ public class ModelController : Controller
             return NotFound();
         }
 
-        var modelViewModel = mapper.Map<ModelViewModel>(model);
-
-        modelViewModel.CanUpdateAndDelete = model.CanUpdate && model.CanDelete;
-
-        return View(modelViewModel);
+        return View(mapper.Map<ModelViewModel>(model));
     }
 
     // GET: ModelViewModel/Create

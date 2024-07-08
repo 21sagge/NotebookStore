@@ -9,36 +9,32 @@ public class ModelService : IService<ModelDto>
 	private readonly IUnitOfWork unitOfWork;
 	private readonly IMapper mapper;
 	private readonly IUserService userService;
+	private readonly IPermissionService permissionService;
 
-	public ModelService(IUnitOfWork unitOfWork, IMapper mapper, IUserService userService)
+	public ModelService(IUnitOfWork unitOfWork, IMapper mapper, IUserService userService, IPermissionService permissionService)
 	{
 		this.unitOfWork = unitOfWork;
 		this.mapper = mapper;
 		this.userService = userService;
+		this.permissionService = permissionService;
 	}
 
 	public async Task<IEnumerable<ModelDto>> GetAll()
 	{
 		var models = await unitOfWork.Models.Read();
-		var modelDtos = mapper.Map<IEnumerable<ModelDto>>(models);
 		var currentUser = await userService.GetCurrentUser();
 
-		foreach (var modelDto in modelDtos)
+		return models.Select(model =>
 		{
-			var model = await unitOfWork.Models.Find(modelDto.Id);
+			var modelDto = mapper.Map<ModelDto>(model);
 
-			if (model == null)
-			{
-				continue;
-			}
+			var canUpdateModel = permissionService.CanUpdateModel(model, currentUser);
 
-			var createdBy = model.CreatedBy;
+			modelDto.CanUpdate = canUpdateModel;
+			modelDto.CanDelete = canUpdateModel;
 
-			modelDto.CanUpdate = createdBy == currentUser.Id || currentUser.Role == "Admin" || createdBy == null;
-			modelDto.CanDelete = createdBy == currentUser.Id || currentUser.Role == "Admin" || createdBy == null;
-		}
-
-		return modelDtos;
+			return modelDto;
+		});
 	}
 
 	public async Task<ModelDto?> Find(int id)
@@ -50,17 +46,14 @@ public class ModelService : IService<ModelDto>
 			return null;
 		}
 
-		var modelDto = mapper.Map<ModelDto>(model);
-
 		var currentUser = await userService.GetCurrentUser();
 
-		if (model.CreatedBy == currentUser.Id
-			|| currentUser.Role == "Admin"
-			|| model.CreatedBy == null)
-		{
-			modelDto.CanUpdate = true;
-			modelDto.CanDelete = true;
-		}
+		bool canUpdateModel = permissionService.CanUpdateModel(model, currentUser);
+
+		var modelDto = mapper.Map<ModelDto>(model);
+
+		modelDto.CanUpdate = canUpdateModel;
+		modelDto.CanDelete = canUpdateModel;
 
 		return modelDto;
 	}
@@ -71,13 +64,13 @@ public class ModelService : IService<ModelDto>
 
 		unitOfWork.BeginTransaction();
 
+		var currentUser = await userService.GetCurrentUser();
+
+		model.CreatedBy = currentUser.Id;
+		model.CreatedAt = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
+
 		try
 		{
-			var currentUser = await userService.GetCurrentUser();
-
-			model.CreatedBy = currentUser.Id;
-			model.CreatedAt = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
-
 			await unitOfWork.Models.Create(model);
 			await unitOfWork.SaveAsync();
 
@@ -85,8 +78,9 @@ public class ModelService : IService<ModelDto>
 
 			return true;
 		}
-		catch (Exception)
+		catch (Exception e)
 		{
+			Console.WriteLine(e.Message);
 			unitOfWork.RollbackTransaction();
 			return false;
 		}
@@ -103,28 +97,30 @@ public class ModelService : IService<ModelDto>
 
 		unitOfWork.BeginTransaction();
 
+		var currentUser = await userService.GetCurrentUser();
+
+		var canUpdateModel = permissionService.CanUpdateModel(model, currentUser);
+
+		if (!canUpdateModel)
+		{
+			return false;
+		}
+
+		modelDto.CanUpdate = canUpdateModel;
+		modelDto.CanDelete = canUpdateModel;
+
 		try
 		{
-			var currentUser = await userService.GetCurrentUser();
-
-			if (model.CreatedBy != currentUser.Id
-				&& currentUser.Role != "Admin"
-				&& model.CreatedBy != null)
-			{
-				return false;
-			}
-
-			model.Name = modelDto.Name;
-
-			await unitOfWork.Models.Update(model);
+			await unitOfWork.Models.Update(mapper.Map(modelDto, model));
 			await unitOfWork.SaveAsync();
 
 			unitOfWork.CommitTransaction();
 
 			return true;
 		}
-		catch (Exception)
+		catch (Exception e)
 		{
+			Console.WriteLine(e.Message);
 			unitOfWork.RollbackTransaction();
 			return false;
 		}
@@ -132,20 +128,24 @@ public class ModelService : IService<ModelDto>
 
 	public async Task<bool> Delete(int id)
 	{
+		var model = await unitOfWork.Models.Find(id);
+
+		if (model == null)
+		{
+			return false;
+		}
+
 		unitOfWork.BeginTransaction();
+
+		var currentUser = await userService.GetCurrentUser();
+
+		if (!permissionService.CanUpdateModel(model, currentUser))
+		{
+			return false;
+		}
 
 		try
 		{
-			var model = await unitOfWork.Models.Find(id);
-			var currentUser = await userService.GetCurrentUser();
-
-			if (model?.CreatedBy != currentUser.Id
-				&& currentUser.Role != "Admin"
-				&& model?.CreatedBy != null)
-			{
-				return false;
-			}
-
 			await unitOfWork.Models.Delete(id);
 			await unitOfWork.SaveAsync();
 
@@ -153,8 +153,9 @@ public class ModelService : IService<ModelDto>
 
 			return true;
 		}
-		catch (Exception)
+		catch (Exception e)
 		{
+			Console.WriteLine(e.Message);
 			unitOfWork.RollbackTransaction();
 			return false;
 		}

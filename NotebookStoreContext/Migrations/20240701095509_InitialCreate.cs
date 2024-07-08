@@ -3,8 +3,6 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
-#pragma warning disable CA1814 // Prefer jagged arrays over multidimensional
-
 namespace NotebookStoreContext.Migrations
 {
     /// <inheritdoc />
@@ -58,7 +56,9 @@ namespace NotebookStoreContext.Migrations
                 {
                     Id = table.Column<int>(type: "INTEGER", nullable: false)
                         .Annotation("Sqlite:Autoincrement", true),
-                    Name = table.Column<string>(type: "TEXT", maxLength: 50, nullable: false)
+                    Name = table.Column<string>(type: "TEXT", maxLength: 50, nullable: false),
+                    CreatedBy = table.Column<string>(type: "TEXT", nullable: true),
+                    CreatedAt = table.Column<string>(type: "TEXT", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -72,7 +72,9 @@ namespace NotebookStoreContext.Migrations
                     Id = table.Column<int>(type: "INTEGER", nullable: false)
                         .Annotation("Sqlite:Autoincrement", true),
                     Brand = table.Column<string>(type: "TEXT", maxLength: 50, nullable: false),
-                    Model = table.Column<string>(type: "TEXT", maxLength: 50, nullable: false)
+                    Model = table.Column<string>(type: "TEXT", maxLength: 50, nullable: false),
+                    CreatedBy = table.Column<string>(type: "TEXT", nullable: true),
+                    CreatedAt = table.Column<string>(type: "TEXT", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -88,7 +90,9 @@ namespace NotebookStoreContext.Migrations
                     Size = table.Column<double>(type: "REAL", nullable: false),
                     ResolutionWidth = table.Column<int>(type: "INTEGER", nullable: false),
                     ResolutionHeight = table.Column<int>(type: "INTEGER", nullable: false),
-                    PanelType = table.Column<string>(type: "TEXT", maxLength: 10, nullable: false)
+                    PanelType = table.Column<string>(type: "TEXT", maxLength: 10, nullable: false),
+                    CreatedBy = table.Column<string>(type: "TEXT", nullable: true),
+                    CreatedAt = table.Column<string>(type: "TEXT", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -102,7 +106,9 @@ namespace NotebookStoreContext.Migrations
                     Id = table.Column<int>(type: "INTEGER", nullable: false)
                         .Annotation("Sqlite:Autoincrement", true),
                     Capacity = table.Column<int>(type: "INTEGER", nullable: false),
-                    Speed = table.Column<int>(type: "INTEGER", nullable: false)
+                    Speed = table.Column<int>(type: "INTEGER", nullable: false),
+                    CreatedBy = table.Column<string>(type: "TEXT", nullable: true),
+                    CreatedAt = table.Column<string>(type: "TEXT", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -115,7 +121,9 @@ namespace NotebookStoreContext.Migrations
                 {
                     Id = table.Column<int>(type: "INTEGER", nullable: false)
                         .Annotation("Sqlite:Autoincrement", true),
-                    Name = table.Column<string>(type: "TEXT", maxLength: 50, nullable: false)
+                    Name = table.Column<string>(type: "TEXT", maxLength: 50, nullable: false),
+                    CreatedBy = table.Column<string>(type: "TEXT", nullable: true),
+                    CreatedAt = table.Column<string>(type: "TEXT", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -131,7 +139,7 @@ namespace NotebookStoreContext.Migrations
                     Type = table.Column<string>(type: "TEXT", maxLength: 10, nullable: false),
                     Capacity = table.Column<int>(type: "INTEGER", nullable: false),
                     CreatedBy = table.Column<string>(type: "TEXT", nullable: true),
-                    CreatedAt = table.Column<DateTime>(type: "TEXT", nullable: false)
+                    CreatedAt = table.Column<string>(type: "TEXT", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -257,7 +265,9 @@ namespace NotebookStoreContext.Migrations
                     CpuId = table.Column<int>(type: "INTEGER", nullable: false),
                     DisplayId = table.Column<int>(type: "INTEGER", nullable: false),
                     MemoryId = table.Column<int>(type: "INTEGER", nullable: false),
-                    StorageId = table.Column<int>(type: "INTEGER", nullable: false)
+                    StorageId = table.Column<int>(type: "INTEGER", nullable: false),
+                    CreatedBy = table.Column<string>(type: "TEXT", nullable: true),
+                    CreatedAt = table.Column<string>(type: "TEXT", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -298,117 +308,6 @@ namespace NotebookStoreContext.Migrations
                         principalTable: "Storages",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.InsertData(
-                table: "AspNetRoles",
-                columns: new[] { "Id", "ConcurrencyStamp", "Name", "NormalizedName" },
-                values: new object[,]
-                {
-                    { "1", null, "Admin", "ADMIN" },
-                    { "2", null, "Editor", "EDITOR" },
-                    { "3", null, "Viewer", "VIEWER" }
-                });
-
-            migrationBuilder.InsertData(
-                table: "AspNetUsers",
-                columns: new[] { "Id", "AccessFailedCount", "ConcurrencyStamp", "Email", "EmailConfirmed", "LockoutEnabled", "LockoutEnd", "NormalizedEmail", "NormalizedUserName", "PasswordHash", "PhoneNumber", "PhoneNumberConfirmed", "SecurityStamp", "TwoFactorEnabled", "UserName" },
-                values: new object[] { "1", 0, "720e9d11-4c11-421b-9cc2-3cb9e1249405", "admin@admin.com", true, false, null, "ADMIN@ADMIN.COM", "ADMIN@ADMIN.COM", "AQAAAAIAAYagAAAAEAAKB9D9EENNWVujiCHhwKs0GS6kz7LlT8ZKgu40ZgBZmIa2t8ltzLqVCy8rwdyxDA==", null, false, "cc03c793-744d-4129-bbcd-0ed60ffb989c", false, "admin@admin.com" });
-
-            migrationBuilder.InsertData(
-                table: "Brands",
-                columns: new[] { "Id", "Name" },
-                values: new object[,]
-                {
-                    { 1, "Apple" },
-                    { 2, "Dell" },
-                    { 3, "HP" },
-                    { 4, "Lenovo" },
-                    { 5, "Microsoft" },
-                    { 6, "Samsung" }
-                });
-
-            migrationBuilder.InsertData(
-                table: "Cpus",
-                columns: new[] { "Id", "Brand", "Model" },
-                values: new object[,]
-                {
-                    { 1, "Intel", "Core i5" },
-                    { 2, "Intel", "Core i7" },
-                    { 3, "Intel", "Core i9" },
-                    { 4, "AMD", "Ryzen 5" },
-                    { 5, "AMD", "Ryzen 7" },
-                    { 6, "AMD", "Ryzen 9" }
-                });
-
-            migrationBuilder.InsertData(
-                table: "Displays",
-                columns: new[] { "Id", "PanelType", "ResolutionHeight", "ResolutionWidth", "Size" },
-                values: new object[,]
-                {
-                    { 1, "IPS", 1600, 2560, 13.300000000000001 },
-                    { 2, "IPS", 1080, 1920, 15.6 },
-                    { 3, "OLED", 1080, 1920, 13.300000000000001 },
-                    { 4, "IPS", 1080, 1920, 14.0 },
-                    { 5, "IPS", 1824, 2736, 12.300000000000001 },
-                    { 6, "AMOLED", 1440, 2160, 12.0 }
-                });
-
-            migrationBuilder.InsertData(
-                table: "Memories",
-                columns: new[] { "Id", "Capacity", "Speed" },
-                values: new object[,]
-                {
-                    { 1, 8, 2666 },
-                    { 2, 16, 2666 },
-                    { 3, 32, 2666 },
-                    { 4, 8, 3200 },
-                    { 5, 16, 3200 },
-                    { 6, 32, 3200 }
-                });
-
-            migrationBuilder.InsertData(
-                table: "Models",
-                columns: new[] { "Id", "Name" },
-                values: new object[,]
-                {
-                    { 1, "MacBook Pro" },
-                    { 2, "XPS" },
-                    { 3, "Spectre" },
-                    { 4, "ThinkPad" },
-                    { 5, "Surface" },
-                    { 6, "Galaxy Book" }
-                });
-
-            migrationBuilder.InsertData(
-                table: "Storages",
-                columns: new[] { "Id", "Capacity", "CreatedAt", "CreatedBy", "Type" },
-                values: new object[,]
-                {
-                    { 1, 256, new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), null, "SSD" },
-                    { 2, 512, new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), null, "SSD" },
-                    { 3, 1024, new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), null, "SSD" },
-                    { 4, 256, new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), null, "HDD" },
-                    { 5, 512, new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), null, "HDD" },
-                    { 6, 1024, new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), null, "HDD" }
-                });
-
-            migrationBuilder.InsertData(
-                table: "AspNetUserRoles",
-                columns: new[] { "RoleId", "UserId" },
-                values: new object[] { "1", "1" });
-
-            migrationBuilder.InsertData(
-                table: "Notebooks",
-                columns: new[] { "Id", "BrandId", "Color", "CpuId", "DisplayId", "MemoryId", "ModelId", "Price", "StorageId" },
-                values: new object[,]
-                {
-                    { 1, 1, "Space Gray", 1, 1, 1, 1, 1299, 1 },
-                    { 2, 2, "Platinum Silver", 2, 2, 2, 2, 1199, 2 },
-                    { 3, 3, "Dark Ash Silver", 3, 3, 3, 3, 1399, 3 },
-                    { 4, 4, "Black", 4, 4, 4, 4, 999, 4 },
-                    { 5, 5, "Platinum", 5, 5, 5, 5, 1099, 5 },
-                    { 6, 6, "Mystic Bronze", 6, 6, 6, 6, 1299, 6 }
                 });
 
             migrationBuilder.CreateIndex(

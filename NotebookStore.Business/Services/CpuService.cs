@@ -9,36 +9,32 @@ public class CpuService : IService<CpuDto>
 	private readonly IUnitOfWork unitOfWork;
 	private readonly IMapper mapper;
 	private readonly IUserService userService;
+	private readonly IPermissionService permissionService;
 
-	public CpuService(IUnitOfWork unitOfWork, IMapper mapper, IUserService userService)
+	public CpuService(IUnitOfWork unitOfWork, IMapper mapper, IUserService userService, IPermissionService permissionService)
 	{
 		this.unitOfWork = unitOfWork;
 		this.mapper = mapper;
 		this.userService = userService;
+		this.permissionService = permissionService;
 	}
 
 	public async Task<IEnumerable<CpuDto>> GetAll()
 	{
 		var cpus = await unitOfWork.Cpus.Read();
-		var cpuDtos = mapper.Map<IEnumerable<CpuDto>>(cpus);
 		var currentUser = await userService.GetCurrentUser();
 
-		foreach (var cpuDto in cpuDtos)
+		return cpus.Select(cpu =>
 		{
-			var cpu = await unitOfWork.Cpus.Find(cpuDto.Id);
+			var cpuDto = mapper.Map<CpuDto>(cpu);
 
-			if (cpu == null)
-			{
-				continue;
-			}
+			var canUpdateCpu = permissionService.CanUpdateCpu(cpu, currentUser);
 
-			var createdBy = cpu.CreatedBy;
+			cpuDto.CanUpdate = canUpdateCpu;
+			cpuDto.CanDelete = canUpdateCpu;
 
-			cpuDto.CanUpdate = createdBy == currentUser.Id || currentUser.Role == "Admin" || createdBy == null;
-			cpuDto.CanDelete = createdBy == currentUser.Id || currentUser.Role == "Admin" || createdBy == null;
-		}
-
-		return cpuDtos;
+			return cpuDto;
+		});
 	}
 
 	public async Task<CpuDto?> Find(int id)
@@ -50,17 +46,14 @@ public class CpuService : IService<CpuDto>
 			return null;
 		}
 
-		var cpuDto = mapper.Map<CpuDto>(cpu);
-
 		var currentUser = await userService.GetCurrentUser();
 
-		if (cpu.CreatedBy == currentUser.Id
-			|| currentUser.Role == "Admin"
-			|| cpu.CreatedBy == null)
-		{
-			cpuDto.CanUpdate = true;
-			cpuDto.CanDelete = true;
-		}
+		bool canUpdateCpu = permissionService.CanUpdateCpu(cpu, currentUser);
+
+		var cpuDto = mapper.Map<CpuDto>(cpu);
+
+		cpuDto.CanUpdate = canUpdateCpu;
+		cpuDto.CanDelete = canUpdateCpu;
 
 		return cpuDto;
 	}
@@ -71,13 +64,13 @@ public class CpuService : IService<CpuDto>
 
 		unitOfWork.BeginTransaction();
 
+		var currentUser = await userService.GetCurrentUser();
+
+		cpu.CreatedBy = currentUser.Id;
+		cpu.CreatedAt = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
+
 		try
 		{
-			var currentUser = await userService.GetCurrentUser();
-
-			cpu.CreatedBy = currentUser.Id;
-			cpu.CreatedAt = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
-
 			await unitOfWork.Cpus.Create(cpu);
 			await unitOfWork.SaveAsync();
 
@@ -103,21 +96,21 @@ public class CpuService : IService<CpuDto>
 
 		unitOfWork.BeginTransaction();
 
+		var currentUser = await userService.GetCurrentUser();
+
+		var canUpdateCpu = permissionService.CanUpdateCpu(cpu, currentUser);
+
+		if (!canUpdateCpu)
+		{
+			return false;
+		}
+
+		cpuDto.CanUpdate = canUpdateCpu;
+		cpuDto.CanDelete = canUpdateCpu;
+
 		try
 		{
-			var currentUser = await userService.GetCurrentUser();
-
-			if (cpu.CreatedBy != currentUser.Id
-				&& currentUser.Role != "Admin"
-				&& cpu.CreatedBy != null)
-			{
-				return false;
-			}
-
-			cpu.Brand = cpuDto.Brand;
-			cpu.Model = cpuDto.Model;
-
-			await unitOfWork.Cpus.Update(cpu);
+			await unitOfWork.Cpus.Update(mapper.Map(cpuDto, cpu));
 			await unitOfWork.SaveAsync();
 
 			unitOfWork.CommitTransaction();
@@ -133,20 +126,24 @@ public class CpuService : IService<CpuDto>
 
 	public async Task<bool> Delete(int id)
 	{
+		var cpu = await unitOfWork.Cpus.Find(id);
+
+		if (cpu == null)
+		{
+			return false;
+		}
+
 		unitOfWork.BeginTransaction();
+
+		var currentUser = await userService.GetCurrentUser();
+
+		if (!permissionService.CanUpdateCpu(cpu, currentUser))
+		{
+			return false;
+		}
 
 		try
 		{
-			var cpu = await unitOfWork.Cpus.Find(id);
-			var currentUser = await userService.GetCurrentUser();
-
-			if (cpu?.CreatedBy != currentUser.Id
-								&& currentUser.Role != "Admin"
-								&& cpu?.CreatedBy != null)
-			{
-				return false;
-			}
-
 			await unitOfWork.Cpus.Delete(id);
 			await unitOfWork.SaveAsync();
 

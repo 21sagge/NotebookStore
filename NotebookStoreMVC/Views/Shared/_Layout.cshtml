@@ -30,61 +30,75 @@
 							@if (User.IsInRole("Admin"))
 							{
 								<li class="nav-item">
-									<a class="nav-link text-dark" asp-area="" asp-controller="Notebook" asp-action="Index">Notebooks</a>
+									<a class="nav-link text-dark" asp-area="" asp-controller="Notebook"
+										asp-action="Index">Notebooks</a>
 								</li>
 								<li class="nav-item">
-									<a class="nav-link text-dark" asp-area="" asp-controller="Brand" asp-action="Index">Brands</a>
+									<a class="nav-link text-dark" asp-area="" asp-controller="Brand"
+										asp-action="Index">Brands</a>
 								</li>
 								<li class="nav-item">
 									<a class="nav-link text-dark" asp-area="" asp-controller="Cpu" asp-action="Index">Cpus</a>
 								</li>
 								<li class="nav-item">
-									<a class="nav-link text-dark" asp-area="" asp-controller="Display" asp-action="Index">Displays</a>
+									<a class="nav-link text-dark" asp-area="" asp-controller="Display"
+										asp-action="Index">Displays</a>
 								</li>
 								<li class="nav-item">
-									<a class="nav-link text-dark" asp-area="" asp-controller="Memory" asp-action="Index">Memories</a>
+									<a class="nav-link text-dark" asp-area="" asp-controller="Memory"
+										asp-action="Index">Memories</a>
 								</li>
 								<li class="nav-item">
-									<a class="nav-link text-dark" asp-area="" asp-controller="Model" asp-action="Index">Models</a>
+									<a class="nav-link text-dark" asp-area="" asp-controller="Model"
+										asp-action="Index">Models</a>
 								</li>
 								<li class="nav-item">
-									<a class="nav-link text-dark" asp-area="" asp-controller="Storage" asp-action="Index">Storages</a>
+									<a class="nav-link text-dark" asp-area="" asp-controller="Storage"
+										asp-action="Index">Storages</a>
 								</li>
 								<li class="nav-item">
 									<a class="nav-link text-dark" asp-area="" asp-controller="User" asp-action="Index">Users</a>
 								</li>
 								<li class="nav-item">
-									<a class="nav-link text-dark" asp-area="" asp-controller="Export" asp-action="Index">Export</a>
+									<a class="nav-link text-dark" asp-area="" asp-controller="Export"
+										asp-action="Index">Export</a>
 								</li>
 							}
 							else if (User.IsInRole("Editor"))
 							{
 								<li class="nav-item">
-									<a class="nav-link text-dark" asp-area="" asp-controller="Notebook" asp-action="Index">Notebooks</a>
+									<a class="nav-link text-dark" asp-area="" asp-controller="Notebook"
+										asp-action="Index">Notebooks</a>
 								</li>
 								<li class="nav-item">
-									<a class="nav-link text-dark" asp-area="" asp-controller="Brand" asp-action="Index">Brands</a>
+									<a class="nav-link text-dark" asp-area="" asp-controller="Brand"
+										asp-action="Index">Brands</a>
 								</li>
 								<li class="nav-item">
 									<a class="nav-link text-dark" asp-area="" asp-controller="Cpu" asp-action="Index">Cpus</a>
 								</li>
 								<li class="nav-item">
-									<a class="nav-link text-dark" asp-area="" asp-controller="Display" asp-action="Index">Displays</a>
+									<a class="nav-link text-dark" asp-area="" asp-controller="Display"
+										asp-action="Index">Displays</a>
 								</li>
 								<li class="nav-item">
-									<a class="nav-link text-dark" asp-area="" asp-controller="Memory" asp-action="Index">Memories</a>
+									<a class="nav-link text-dark" asp-area="" asp-controller="Memory"
+										asp-action="Index">Memories</a>
 								</li>
 								<li class="nav-item">
-									<a class="nav-link text-dark" asp-area="" asp-controller="Model" asp-action="Index">Models</a>
+									<a class="nav-link text-dark" asp-area="" asp-controller="Model"
+										asp-action="Index">Models</a>
 								</li>
 								<li class="nav-item">
-									<a class="nav-link text-dark" asp-area="" asp-controller="Storage" asp-action="Index">Storages</a>
+									<a class="nav-link text-dark" asp-area="" asp-controller="Storage"
+										asp-action="Index">Storages</a>
 								</li>
 							}
 							else if (User.IsInRole("Viewer"))
 							{
 								<li class="nav-item">
-									<a class="nav-link text-dark" asp-area="" asp-controller="Notebook" asp-action="Index">Notebooks</a>
+									<a class="nav-link text-dark" asp-area="" asp-controller="Notebook"
+										asp-action="Index">Notebooks</a>
 								</li>
 							}
 						}

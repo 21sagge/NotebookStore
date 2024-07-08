@@ -2,7 +2,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace NotebookStore.Entities;
 
-public class Storage
+public class Storage : IAuditable
 {
     public int Id { get; set; }
 

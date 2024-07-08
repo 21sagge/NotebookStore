@@ -23,19 +23,8 @@ public class StorageController : Controller
     public async Task<IActionResult> Index()
     {
         var storageDtos = await services.Storages.GetAll();
-        var storageViewModels = mapper.Map<IEnumerable<StorageViewModel>>(storageDtos);
 
-        foreach (var storageDto in storageDtos)
-        {
-            var storageViewModel = storageViewModels.FirstOrDefault(s => s.Id == storageDto.Id);
-
-            if (storageViewModel != null)
-            {
-                storageViewModel.CanUpdateAndDelete = storageDto.CanUpdate && storageDto.CanDelete;
-            }
-        }
-
-        return View(storageViewModels);
+        return View(mapper.Map<IEnumerable<StorageViewModel>>(storageDtos));
     }
 
     // GET: StorageViewModel/Details/5
@@ -49,11 +38,7 @@ public class StorageController : Controller
             return NotFound();
         }
 
-        var storageViewModel = mapper.Map<StorageViewModel>(storageDto);
-
-        storageViewModel.CanUpdateAndDelete = storageDto.CanUpdate && storageDto.CanDelete;
-
-        return View(storageViewModel);
+        return View(mapper.Map<StorageViewModel>(storageDto));
     }
 
     // GET: StorageViewModel/Create
@@ -112,7 +97,7 @@ public class StorageController : Controller
             }
             else
             {
-                ModelState.AddModelError("", "Unauthorized");
+                ModelState.AddModelError(string.Empty, "Unauthorized");
             }
         }
 
