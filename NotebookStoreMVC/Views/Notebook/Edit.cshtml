@@ -1,93 +1,149 @@
 @model NotebookStoreMVC.Models.NotebookViewModel
 
 @{
-  ViewData["Title"] = "Edit";
+    ViewData["Title"] = "Edit";
 }
 
 <header class="d-flex flex-column align-items-start column-gap-2">
-  <a asp-action="Index" class="mb-4 text-decoration-none text-black ">
-    <svg id="icon-arrow_back_ios" viewBox="0 0 24 24" width="24" height="24">
-      <path d="M11.672 3.891l-8.109 8.109 8.109 8.109-1.781 1.781-9.891-9.891 9.891-9.891z"></path>
-    </svg>
-    Back to List
-  </a>
-  <h1 class="display-4 fs-3 mb-4">Edit Notebook</h1>
+    <a asp-action="Index" class="mb-4 text-decoration-none text-black ">
+        <svg id="icon-arrow_back_ios" viewBox="0 0 24 24" width="24" height="24">
+            <path d="M11.672 3.891l-8.109 8.109 8.109 8.109-1.781 1.781-9.891-9.891 9.891-9.891z"></path>
+        </svg>
+        Back to List
+    </a>
+    <h1 class="display-4 fs-3 mb-4">Edit Notebook</h1>
 </header>
 <div class="row">
-  <div class="col-md-4">
-    <form asp-action="Edit" class="d-flex gap-4 flex-column">
-      <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-      <div class="form-group">
-        <label asp-for="Color" class="control-label"></label>
-        <input asp-for="Color" class="form-control" />
-        <span asp-validation-for="Color" class="text-danger"></span>
-      </div>
-      <div class="form-group">
-        <label asp-for="Price" class="control-label"></label>
-        <input asp-for="Price" class="form-control" />
-        <span asp-validation-for="Price" class="text-danger"></span>
-      </div>
-      <div class="form-group">
-        <label asp-for="Brand" class="control-label"></label>
-        @Html.DropDownListFor(model => model.BrandId, new SelectList(ViewBag.Brands, "Id", "Name"), new
-          {
-            @class =
-               "form-control"
-          })
-        <span asp-validation-for="BrandId" class="text-danger"></span>
-      </div>
-      <div class="form-group">
-        <label asp-for="Model" class="control-label"></label>
-        @Html.DropDownListFor(model => model.ModelId, new SelectList(ViewBag.Models, "Id", "Name"), new
-          {
-            @class = "form-control"
-          })
-        <span asp-validation-for="ModelId" class="text-danger"></span>
-      </div>
-      <div class="form-group">
-        <label asp-for="Cpu" class="control-label"></label>
-        @Html.DropDownListFor(model => model.CpuId, new SelectList(ViewBag.Cpus, "Id", "Name"), new
-          {
-            @class =
-               "form-control"
-          })
-        <span asp-validation-for="CpuId" class="text-danger"></span>
-      </div>
-      <div class="form-group">
-        <label asp-for="Display" class="control-label"></label>
-        @Html.DropDownListFor(model => model.DisplayId, new SelectList(ViewBag.Displays, "Id", "Name"), new
-          {
-            @class = "form-control"
-          })
-        <span asp-validation-for="DisplayId" class="text-danger"></span>
-      </div>
-      <div class="form-group">
-        <label asp-for="Memory" class="control-label"></label>
-        @Html.DropDownListFor(model => model.MemoryId, new SelectList(ViewBag.Memories, "Id", "CapacityAndSpeed"), new
-          {
-            @class =
-               "form-control"
-          })
-        <span asp-validation-for="MemoryId" class="text-danger"></span>
-      </div>
-      <div class="form-group">
-        <label asp-for="Storage" class="control-label"></label>
-        @Html.DropDownListFor(model => model.StorageId, new SelectList(ViewBag.Storages, "Id", "TypeAndCapacity"), new
-          {
-            @class =
-               "form-control"
-          })
-        <span asp-validation-for="StorageId" class="text-danger"></span>
-      </div>
-      <div class="form-group">
-        <input type="submit" value="Save" class="btn btn-primary" />
-      </div>
-    </form>
-  </div>
+    <div class="col-md-4">
+        <form asp-action="Edit" class="d-flex gap-4 flex-column">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div class="form-group">
+                <label asp-for="Color" class="control-label"></label>
+                <input asp-for="Color" class="form-control" />
+                <span asp-validation-for="Color" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Price" class="control-label"></label>
+                <input asp-for="Price" class="form-control" />
+                <span asp-validation-for="Price" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Brand" class="control-label"></label>
+                <select asp-for="BrandId" class="form-control">
+                    <option value="">Select Brand</option>
+                    @foreach (var brand in ViewBag.Brands)
+                    {
+                        @if (brand.CanUpdateAndDelete)
+                        {
+                            <option value="@brand.Id">@brand.Name</option>
+                        }
+                        else
+                        {
+                            <option value="@brand.Id" disabled>@brand.Name</option>
+                        }
+                    }
+                </select>
+                <span asp-validation-for="BrandId" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Model" class="control-label"></label>
+                <select asp-for="ModelId" class="form-control">
+                    <option value="">Select Model</option>
+                    @foreach (var mod in ViewBag.Models)
+                    {
+                        @if (mod.CanUpdateAndDelete)
+                        {
+                            <option value="@mod.Id">@mod.Name</option>
+                        }
+                        else
+                        {
+                            <option value="@mod.Id" disabled>@mod.Name</option>
+                        }
+                    }
+                </select>
+                <span asp-validation-for="ModelId" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Cpu" class="control-label"></label>
+                <select asp-for="CpuId" class="form-control">
+                    <option value="">Select CPU</option>
+                    @foreach (var cpu in ViewBag.Cpus)
+                    {
+                        @if (cpu.CanUpdateAndDelete)
+                        {
+                            <option value="@cpu.Id">@cpu.Brand @cpu.Model</option>
+                        }
+                        else
+                        {
+                            <option value="@cpu.Id" disabled>@cpu.Brand @cpu.Model</option>
+                        }
+                    }
+                </select>
+                <span asp-validation-for="CpuId" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Display" class="control-label"></label>
+                <select asp-for="DisplayId" class="form-control">
+                    <option value="">Select Display</option>
+                    @foreach (var display in ViewBag.Displays)
+                    {
+                        @if (display.CanUpdateAndDelete)
+                        {
+                            <option value="@display.Id">@display.Name</option>
+                        }
+                        else
+                        {
+                            <option value="@display.Id" disabled>@display.Name</option>
+                        }
+                    }
+                </select>
+                <span asp-validation-for="DisplayId" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Memory" class="control-label"></label>
+                <select asp-for="MemoryId" class="form-control">
+                    <option value="">Select Memory</option>
+                    @foreach (var memory in ViewBag.Memories)
+                    {
+                        @if (memory.CanUpdateAndDelete)
+                        {
+                            <option value="@memory.Id">@memory.CapacityAndSpeed</option>
+                        }
+                        else
+                        {
+                            <option value="@memory.Id" disabled>@memory.CapacityAndSpeed</option>
+                        }
+                    }
+                </select>
+                <span asp-validation-for="MemoryId" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Storage" class="control-label"></label>
+                <select asp-for="StorageId" class="form-control">
+                    <option value="">Select Storage</option>
+                    @foreach (var storage in ViewBag.Storages)
+                    {
+                        @if (storage.CanUpdateAndDelete)
+                        {
+                            <option value="@storage.Id">@storage.TypeAndCapacity</option>
+                        }
+                        else
+                        {
+                            <option value="@storage.Id" disabled>@storage.TypeAndCapacity</option>
+                        }
+                    }
+                </select>
+                <span asp-validation-for="StorageId" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <input type="submit" value="Save" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
 </div>
 
 @section Scripts {
-  @{
-    await Html.RenderPartialAsync("_ValidationScriptsPartial");
-  }
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
 }

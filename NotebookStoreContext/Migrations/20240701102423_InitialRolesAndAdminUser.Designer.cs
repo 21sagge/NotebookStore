@@ -11,8 +11,8 @@ using NotebookStoreContext;
 namespace NotebookStoreContext.Migrations
 {
     [DbContext(typeof(NotebookStoreContext))]
-    [Migration("20240605131148_ChangedCreatedAtType")]
-    partial class ChangedCreatedAtType
+    [Migration("20240701102423_InitialRolesAndAdminUser")]
+    partial class InitialRolesAndAdminUser
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -44,26 +44,6 @@ namespace NotebookStoreContext.Migrations
                         .HasDatabaseName("RoleNameIndex");
 
                     b.ToTable("AspNetRoles", (string)null);
-
-                    b.HasData(
-                        new
-                        {
-                            Id = "1",
-                            Name = "Admin",
-                            NormalizedName = "ADMIN"
-                        },
-                        new
-                        {
-                            Id = "2",
-                            Name = "Editor",
-                            NormalizedName = "EDITOR"
-                        },
-                        new
-                        {
-                            Id = "3",
-                            Name = "Viewer",
-                            NormalizedName = "VIEWER"
-                        });
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
@@ -151,24 +131,6 @@ namespace NotebookStoreContext.Migrations
                         .HasDatabaseName("UserNameIndex");
 
                     b.ToTable("AspNetUsers", (string)null);
-
-                    b.HasData(
-                        new
-                        {
-                            Id = "1",
-                            AccessFailedCount = 0,
-                            ConcurrencyStamp = "05ba4351-331f-4d38-882f-ab4dfb7dc7c0",
-                            Email = "admin@admin.com",
-                            EmailConfirmed = true,
-                            LockoutEnabled = false,
-                            NormalizedEmail = "ADMIN@ADMIN.COM",
-                            NormalizedUserName = "ADMIN@ADMIN.COM",
-                            PasswordHash = "AQAAAAIAAYagAAAAEGMFmiSVs0PB1Chdo+uCoHSCH51yylW8mYbH2QbtbcP3ZxBMlae1Lag3h1kx39pNfw==",
-                            PhoneNumberConfirmed = false,
-                            SecurityStamp = "198fc2bf-efda-4222-b0d6-f278d613a068",
-                            TwoFactorEnabled = false,
-                            UserName = "admin@admin.com"
-                        });
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserClaim<string>", b =>
@@ -231,13 +193,6 @@ namespace NotebookStoreContext.Migrations
                     b.HasIndex("RoleId");
 
                     b.ToTable("AspNetUserRoles", (string)null);
-
-                    b.HasData(
-                        new
-                        {
-                            UserId = "1",
-                            RoleId = "1"
-                        });
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<string>", b =>
@@ -267,6 +222,13 @@ namespace NotebookStoreContext.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("INTEGER");
 
+                    b.Property<string>("CreatedAt")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("TEXT");
+
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(50)
@@ -278,38 +240,6 @@ namespace NotebookStoreContext.Migrations
                         .IsUnique();
 
                     b.ToTable("Brands");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = 1,
-                            Name = "Apple"
-                        },
-                        new
-                        {
-                            Id = 2,
-                            Name = "Dell"
-                        },
-                        new
-                        {
-                            Id = 3,
-                            Name = "HP"
-                        },
-                        new
-                        {
-                            Id = 4,
-                            Name = "Lenovo"
-                        },
-                        new
-                        {
-                            Id = 5,
-                            Name = "Microsoft"
-                        },
-                        new
-                        {
-                            Id = 6,
-                            Name = "Samsung"
-                        });
                 });
 
             modelBuilder.Entity("NotebookStore.Entities.Cpu", b =>
@@ -323,6 +253,13 @@ namespace NotebookStoreContext.Migrations
                         .HasMaxLength(50)
                         .HasColumnType("TEXT");
 
+                    b.Property<string>("CreatedAt")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("TEXT");
+
                     b.Property<string>("Model")
                         .IsRequired()
                         .HasMaxLength(50)
@@ -334,44 +271,6 @@ namespace NotebookStoreContext.Migrations
                         .IsUnique();
 
                     b.ToTable("Cpus");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = 1,
-                            Brand = "Intel",
-                            Model = "Core i5"
-                        },
-                        new
-                        {
-                            Id = 2,
-                            Brand = "Intel",
-                            Model = "Core i7"
-                        },
-                        new
-                        {
-                            Id = 3,
-                            Brand = "Intel",
-                            Model = "Core i9"
-                        },
-                        new
-                        {
-                            Id = 4,
-                            Brand = "AMD",
-                            Model = "Ryzen 5"
-                        },
-                        new
-                        {
-                            Id = 5,
-                            Brand = "AMD",
-                            Model = "Ryzen 7"
-                        },
-                        new
-                        {
-                            Id = 6,
-                            Brand = "AMD",
-                            Model = "Ryzen 9"
-                        });
                 });
 
             modelBuilder.Entity("NotebookStore.Entities.Display", b =>
@@ -379,6 +278,13 @@ namespace NotebookStoreContext.Migrations
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("INTEGER");
+
+                    b.Property<string>("CreatedAt")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("TEXT");
 
                     b.Property<string>("PanelType")
                         .IsRequired()
@@ -400,56 +306,6 @@ namespace NotebookStoreContext.Migrations
                         .IsUnique();
 
                     b.ToTable("Displays");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = 1,
-                            PanelType = "IPS",
-                            ResolutionHeight = 1600,
-                            ResolutionWidth = 2560,
-                            Size = 13.300000000000001
-                        },
-                        new
-                        {
-                            Id = 2,
-                            PanelType = "IPS",
-                            ResolutionHeight = 1080,
-                            ResolutionWidth = 1920,
-                            Size = 15.6
-                        },
-                        new
-                        {
-                            Id = 3,
-                            PanelType = "OLED",
-                            ResolutionHeight = 1080,
-                            ResolutionWidth = 1920,
-                            Size = 13.300000000000001
-                        },
-                        new
-                        {
-                            Id = 4,
-                            PanelType = "IPS",
-                            ResolutionHeight = 1080,
-                            ResolutionWidth = 1920,
-                            Size = 14.0
-                        },
-                        new
-                        {
-                            Id = 5,
-                            PanelType = "IPS",
-                            ResolutionHeight = 1824,
-                            ResolutionWidth = 2736,
-                            Size = 12.300000000000001
-                        },
-                        new
-                        {
-                            Id = 6,
-                            PanelType = "AMOLED",
-                            ResolutionHeight = 1440,
-                            ResolutionWidth = 2160,
-                            Size = 12.0
-                        });
                 });
 
             modelBuilder.Entity("NotebookStore.Entities.Memory", b =>
@@ -461,6 +317,13 @@ namespace NotebookStoreContext.Migrations
                     b.Property<int>("Capacity")
                         .HasColumnType("INTEGER");
 
+                    b.Property<string>("CreatedAt")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("TEXT");
+
                     b.Property<int>("Speed")
                         .HasColumnType("INTEGER");
 
@@ -470,44 +333,6 @@ namespace NotebookStoreContext.Migrations
                         .IsUnique();
 
                     b.ToTable("Memories");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = 1,
-                            Capacity = 8,
-                            Speed = 2666
-                        },
-                        new
-                        {
-                            Id = 2,
-                            Capacity = 16,
-                            Speed = 2666
-                        },
-                        new
-                        {
-                            Id = 3,
-                            Capacity = 32,
-                            Speed = 2666
-                        },
-                        new
-                        {
-                            Id = 4,
-                            Capacity = 8,
-                            Speed = 3200
-                        },
-                        new
-                        {
-                            Id = 5,
-                            Capacity = 16,
-                            Speed = 3200
-                        },
-                        new
-                        {
-                            Id = 6,
-                            Capacity = 32,
-                            Speed = 3200
-                        });
                 });
 
             modelBuilder.Entity("NotebookStore.Entities.Model", b =>
@@ -515,6 +340,13 @@ namespace NotebookStoreContext.Migrations
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("INTEGER");
+
+                    b.Property<string>("CreatedAt")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("TEXT");
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -524,38 +356,6 @@ namespace NotebookStoreContext.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Models");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = 1,
-                            Name = "MacBook Pro"
-                        },
-                        new
-                        {
-                            Id = 2,
-                            Name = "XPS"
-                        },
-                        new
-                        {
-                            Id = 3,
-                            Name = "Spectre"
-                        },
-                        new
-                        {
-                            Id = 4,
-                            Name = "ThinkPad"
-                        },
-                        new
-                        {
-                            Id = 5,
-                            Name = "Surface"
-                        },
-                        new
-                        {
-                            Id = 6,
-                            Name = "Galaxy Book"
-                        });
                 });
 
             modelBuilder.Entity("NotebookStore.Entities.Notebook", b =>
@@ -574,6 +374,13 @@ namespace NotebookStoreContext.Migrations
 
                     b.Property<int>("CpuId")
                         .HasColumnType("INTEGER");
+
+                    b.Property<string>("CreatedAt")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("TEXT");
 
                     b.Property<int>("DisplayId")
                         .HasColumnType("INTEGER");
@@ -606,80 +413,6 @@ namespace NotebookStoreContext.Migrations
                         .IsUnique();
 
                     b.ToTable("Notebooks");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = 1,
-                            BrandId = 1,
-                            Color = "Space Gray",
-                            CpuId = 1,
-                            DisplayId = 1,
-                            MemoryId = 1,
-                            ModelId = 1,
-                            Price = 1299,
-                            StorageId = 1
-                        },
-                        new
-                        {
-                            Id = 2,
-                            BrandId = 2,
-                            Color = "Platinum Silver",
-                            CpuId = 2,
-                            DisplayId = 2,
-                            MemoryId = 2,
-                            ModelId = 2,
-                            Price = 1199,
-                            StorageId = 2
-                        },
-                        new
-                        {
-                            Id = 3,
-                            BrandId = 3,
-                            Color = "Dark Ash Silver",
-                            CpuId = 3,
-                            DisplayId = 3,
-                            MemoryId = 3,
-                            ModelId = 3,
-                            Price = 1399,
-                            StorageId = 3
-                        },
-                        new
-                        {
-                            Id = 4,
-                            BrandId = 4,
-                            Color = "Black",
-                            CpuId = 4,
-                            DisplayId = 4,
-                            MemoryId = 4,
-                            ModelId = 4,
-                            Price = 999,
-                            StorageId = 4
-                        },
-                        new
-                        {
-                            Id = 5,
-                            BrandId = 5,
-                            Color = "Platinum",
-                            CpuId = 5,
-                            DisplayId = 5,
-                            MemoryId = 5,
-                            ModelId = 5,
-                            Price = 1099,
-                            StorageId = 5
-                        },
-                        new
-                        {
-                            Id = 6,
-                            BrandId = 6,
-                            Color = "Mystic Bronze",
-                            CpuId = 6,
-                            DisplayId = 6,
-                            MemoryId = 6,
-                            ModelId = 6,
-                            Price = 1299,
-                            StorageId = 6
-                        });
                 });
 
             modelBuilder.Entity("NotebookStore.Entities.Storage", b =>
@@ -709,50 +442,6 @@ namespace NotebookStoreContext.Migrations
                         .IsUnique();
 
                     b.ToTable("Storages");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = 1,
-                            Capacity = 256,
-                            CreatedAt = "2024-06-05 15:11:48",
-                            Type = "SSD"
-                        },
-                        new
-                        {
-                            Id = 2,
-                            Capacity = 512,
-                            CreatedAt = "2024-06-05 15:11:48",
-                            Type = "SSD"
-                        },
-                        new
-                        {
-                            Id = 3,
-                            Capacity = 1024,
-                            CreatedAt = "2024-06-05 15:11:48",
-                            Type = "SSD"
-                        },
-                        new
-                        {
-                            Id = 4,
-                            Capacity = 256,
-                            CreatedAt = "2024-06-05 15:11:48",
-                            Type = "HDD"
-                        },
-                        new
-                        {
-                            Id = 5,
-                            Capacity = 512,
-                            CreatedAt = "2024-06-05 15:11:48",
-                            Type = "HDD"
-                        },
-                        new
-                        {
-                            Id = 6,
-                            Capacity = 1024,
-                            CreatedAt = "2024-06-05 15:11:48",
-                            Type = "HDD"
-                        });
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>

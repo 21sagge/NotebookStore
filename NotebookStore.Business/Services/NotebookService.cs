@@ -6,206 +6,171 @@ using NotebookStore.Entities;
 
 public class NotebookService : IService<NotebookDto>
 {
-	private readonly IUnitOfWork unitOfWork;
-	private readonly IMapper mapper;
-	private readonly IUserService userService;
+    private readonly IUnitOfWork unitOfWork;
+    private readonly IMapper mapper;
+    private readonly IUserService userService;
+    private readonly IPermissionService permissionService;
 
-	public NotebookService(IUnitOfWork unitOfWork, IMapper mapper, IUserService userService)
-	{
-		this.unitOfWork = unitOfWork;
-		this.mapper = mapper;
-		this.userService = userService;
-	}
+    public NotebookService(IUnitOfWork unitOfWork, IMapper mapper, IUserService userService, IPermissionService permissionService)
+    {
+        this.unitOfWork = unitOfWork;
+        this.mapper = mapper;
+        this.userService = userService;
+        this.permissionService = permissionService;
+    }
 
-	public async Task<IEnumerable<NotebookDto>> GetAll()
-	{
-		var notebooks = await unitOfWork.Notebooks.Read();
-		var notebookDtos = mapper.Map<IEnumerable<NotebookDto>>(notebooks);
-		var currentUser = await userService.GetCurrentUser();
+    public async Task<IEnumerable<NotebookDto>> GetAll()
+    {
+        var notebooks = await unitOfWork.Notebooks.Read();
+        var currentUser = await userService.GetCurrentUser();
 
-		foreach (var notebookDto in notebookDtos)
-		{
-			var notebook = await unitOfWork.Notebooks.Find(notebookDto.Id);
+        return notebooks.Select(notebook =>
+        {
+            var notebookDto = mapper.Map<NotebookDto>(notebook);
 
-			if (notebook == null)
-			{
-				continue;
-			}
+            var canUpdateNotebook = permissionService.CanUpdateNotebook(notebook, currentUser);
 
-			var createdBy = notebook.CreatedBy;
+            notebookDto.CanUpdate = canUpdateNotebook;
+            notebookDto.CanDelete = canUpdateNotebook;
 
-			notebookDto.CanUpdate = createdBy == currentUser.Id || currentUser.Role == "Admin" || createdBy == null;
-			notebookDto.CanDelete = createdBy == currentUser.Id || currentUser.Role == "Admin" || createdBy == null;
-		}
+            return notebookDto;
+        });
+    }
 
-		return notebookDtos;
-	}
+    public async Task<NotebookDto?> Find(int id)
+    {
+        var notebook = await unitOfWork.Notebooks.Find(id);
 
-	public async Task<IEnumerable<BrandDto>> GetBrands()
-	{
-		var brands = await unitOfWork.Brands.Read();
+        if (notebook == null)
+        {
+            return null;
+        }
 
-		return mapper.Map<IEnumerable<BrandDto>>(brands);
-	}
+        var currentUser = await userService.GetCurrentUser();
 
-	public async Task<IEnumerable<CpuDto>> GetCpus()
-	{
-		var cpus = await unitOfWork.Cpus.Read();
+        var canUpdateNotebook = permissionService.CanUpdateNotebook(notebook, currentUser);
 
-		return mapper.Map<IEnumerable<CpuDto>>(cpus);
-	}
+        var notebookDto = mapper.Map<NotebookDto>(notebook);
 
-	public async Task<IEnumerable<DisplayDto>> GetDisplays()
-	{
-		var displays = await unitOfWork.Displays.Read();
+        notebookDto.CanUpdate = canUpdateNotebook;
+        notebookDto.CanDelete = canUpdateNotebook;
 
-		return mapper.Map<IEnumerable<DisplayDto>>(displays);
-	}
+        return notebookDto;
+    }
 
-	public async Task<IEnumerable<MemoryDto>> GetMemories()
-	{
-		var memories = await unitOfWork.Memories.Read();
+    public async Task<bool> Create(NotebookDto notebookDto)
+    {
+        var notebook = mapper.Map<Notebook>(notebookDto);
 
-		return mapper.Map<IEnumerable<MemoryDto>>(memories);
-	}
+        unitOfWork.BeginTransaction();
 
-	public async Task<IEnumerable<ModelDto>> GetModels()
-	{
-		var models = await unitOfWork.Models.Read();
+        var currentUser = await userService.GetCurrentUser();
 
-		return mapper.Map<IEnumerable<ModelDto>>(models);
-	}
+        notebook.Brand = await unitOfWork.Brands.Find(notebook.BrandId);
+        notebook.Model = await unitOfWork.Models.Find(notebook.ModelId);
+        notebook.Cpu = await unitOfWork.Cpus.Find(notebook.CpuId);
+        notebook.Display = await unitOfWork.Displays.Find(notebook.DisplayId);
+        notebook.Memory = await unitOfWork.Memories.Find(notebook.MemoryId);
+        notebook.Storage = await unitOfWork.Storages.Find(notebook.StorageId);
 
-	public async Task<IEnumerable<StorageDto>> GetStorages()
-	{
-		var storages = await unitOfWork.Storages.Read();
+        notebook.CreatedBy = currentUser.Id;
+        notebook.CreatedAt = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
 
-		return mapper.Map<IEnumerable<StorageDto>>(storages);
-	}
+        if (!permissionService.CanUpdateNotebook(notebook, currentUser))
+        {
+            return false;
+        }
 
-	public async Task<NotebookDto?> Find(int id)
-	{
-		var notebook = await unitOfWork.Notebooks.Find(id);
+        try
+        {
+            await unitOfWork.Notebooks.Create(notebook);
+            await unitOfWork.SaveAsync();
 
-		if (notebook == null)
-		{
-			return null;
-		}
+            unitOfWork.CommitTransaction();
 
-		var notebookDto = mapper.Map<NotebookDto>(notebook);
+            return true;
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e.Message);
+            unitOfWork.RollbackTransaction();
+            return false;
+        }
+    }
 
-		var currentUser = await userService.GetCurrentUser();
+    public async Task<bool> Update(NotebookDto notebookDto)
+    {
+        var notebook = await unitOfWork.Notebooks.Find(notebookDto.Id);
 
-		if (notebook.CreatedBy == currentUser.Id
-			|| currentUser.Role == "Admin"
-			|| notebook.CreatedBy == null)
-		{
-			notebookDto.CanUpdate = true;
-			notebookDto.CanDelete = true;
-		}
+        if (notebook == null)
+        {
+            return false;
+        }
 
-		return notebookDto;
-	}
+        var currentUser = await userService.GetCurrentUser();
 
-	public async Task<bool> Create(NotebookDto notebookDto)
-	{
-		var notebook = mapper.Map<Notebook>(notebookDto);
+        unitOfWork.BeginTransaction();
 
-		unitOfWork.BeginTransaction();
+        notebook.Brand = await unitOfWork.Brands.Find(notebookDto.BrandId);
+        notebook.Model = await unitOfWork.Models.Find(notebookDto.ModelId);
+        notebook.Cpu = await unitOfWork.Cpus.Find(notebookDto.CpuId);
+        notebook.Display = await unitOfWork.Displays.Find(notebookDto.DisplayId);
+        notebook.Memory = await unitOfWork.Memories.Find(notebookDto.MemoryId);
+        notebook.Storage = await unitOfWork.Storages.Find(notebookDto.StorageId);
 
-		try
-		{
-			var currentUser = await userService.GetCurrentUser();
+        if (!permissionService.CanUpdateNotebook(notebook, currentUser))
+        {
+            return false;
+        }
+        try
+        {
+            await unitOfWork.Notebooks.Update(notebook);
+            await unitOfWork.SaveAsync();
 
-			notebook.CreatedBy = currentUser.Id;
-			notebook.CreatedAt = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
+            unitOfWork.CommitTransaction();
 
-			await unitOfWork.Notebooks.Create(notebook);
-			await unitOfWork.SaveAsync();
+            return true;
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e.Message);
+            unitOfWork.RollbackTransaction();
+            return false;
+        }
+    }
 
-			unitOfWork.CommitTransaction();
+    public async Task<bool> Delete(int id)
+    {
+        var notebook = await unitOfWork.Notebooks.Find(id);
 
-			return true;
-		}
-		catch (Exception)
-		{
-			unitOfWork.RollbackTransaction();
-			return false;
-		}
-	}
+        if (notebook == null)
+        {
+            return false;
+        }
 
-	public async Task<bool> Update(NotebookDto notebookDto)
-	{
-		var notebook = await unitOfWork.Notebooks.Find(notebookDto.Id);
+        unitOfWork.BeginTransaction();
 
-		if (notebook == null)
-		{
-			return false;
-		}
+        var currentUser = await userService.GetCurrentUser();
 
-		unitOfWork.BeginTransaction();
+        if (!permissionService.CanUpdateNotebook(notebook, currentUser))
+        {
+            return false;
+        }
 
-		try
-		{
-			var currentUser = await userService.GetCurrentUser();
+        try
+        {
+            await unitOfWork.Notebooks.Delete(id);
+            await unitOfWork.SaveAsync();
 
-			if (notebook.CreatedBy != currentUser.Id
-				&& currentUser.Role != "Admin"
-				&& notebook.CreatedBy != null)
-			{
-				return false;
-			}
+            unitOfWork.CommitTransaction();
 
-			notebook.Color = notebookDto.Color;
-			notebook.Price = notebookDto.Price;
-			notebook.BrandId = notebookDto.BrandId;
-			notebook.ModelId = notebookDto.ModelId;
-			notebook.CpuId = notebookDto.CpuId;
-			notebook.DisplayId = notebookDto.DisplayId;
-			notebook.MemoryId = notebookDto.MemoryId;
-			notebook.StorageId = notebookDto.StorageId;
-
-			await unitOfWork.Notebooks.Update(notebook);
-			await unitOfWork.SaveAsync();
-
-			unitOfWork.CommitTransaction();
-
-			return true;
-		}
-		catch (Exception)
-		{
-			unitOfWork.RollbackTransaction();
-			return false;
-		}
-	}
-
-	public async Task<bool> Delete(int id)
-	{
-		unitOfWork.BeginTransaction();
-
-		try
-		{
-			var notebook = await unitOfWork.Notebooks.Find(id);
-			var currentUser = await userService.GetCurrentUser();
-
-			if (notebook?.CreatedBy != currentUser.Id
-				&& currentUser.Role != "admin"
-				&& notebook?.CreatedBy != null)
-			{
-				return false;
-			}
-
-			await unitOfWork.Notebooks.Delete(id);
-			await unitOfWork.SaveAsync();
-
-			unitOfWork.CommitTransaction();
-
-			return true;
-		}
-		catch (Exception)
-		{
-			unitOfWork.RollbackTransaction();
-			return false;
-		}
-	}
+            return true;
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e.Message);
+            unitOfWork.RollbackTransaction();
+            return false;
+        }
+    }
 }

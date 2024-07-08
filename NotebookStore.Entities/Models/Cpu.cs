@@ -2,7 +2,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace NotebookStore.Entities;
 
-public class Cpu
+public class Cpu : IAuditable
 {
   public int Id { get; set; }
   [MaxLength(50)]

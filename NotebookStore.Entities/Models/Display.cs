@@ -2,7 +2,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace NotebookStore.Entities;
 
-public class Display
+public class Display : IAuditable
 {
   public int Id { get; set; }
 

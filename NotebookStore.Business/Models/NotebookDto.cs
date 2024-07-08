@@ -1,6 +1,6 @@
 ﻿namespace NotebookStore.Business;
 
-public class NotebookDto
+public class NotebookDto : IAuditableDto
 {
 	public int Id { get; set; }
 	public required string Color { get; set; }

@@ -23,19 +23,8 @@ public class DisplayController : Controller
     public async Task<IActionResult> Index()
     {
         var displays = await services.Displays.GetAll();
-        var displayViewModels = mapper.Map<IEnumerable<DisplayViewModel>>(displays);
-
-        foreach (var display in displays)
-        {
-            var displayViewModel = displayViewModels.FirstOrDefault(d => d.Id == display.Id);
-
-            if (displayViewModel != null)
-            {
-                displayViewModel.CanUpdateAndDelete = display.CanUpdate && display.CanDelete;
-            }
-        }
-
-        return View(displayViewModels);
+        
+        return View(mapper.Map<IEnumerable<DisplayViewModel>>(displays));
     }
 
     // GET: DisplayViewModel/Details/5
@@ -49,11 +38,7 @@ public class DisplayController : Controller
             return NotFound();
         }
 
-        var displayViewModel = mapper.Map<DisplayViewModel>(display);
-
-        displayViewModel.CanUpdateAndDelete = display.CanUpdate && display.CanDelete;
-
-        return View(displayViewModel);
+        return View(mapper.Map<DisplayViewModel>(display));
     }
 
     // GET: DisplayViewModel/Create

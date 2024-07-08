@@ -23,19 +23,8 @@ public class MemoryController : Controller
     public async Task<IActionResult> Index()
     {
         var memories = await services.Memories.GetAll();
-        var memoryViewModels = mapper.Map<IEnumerable<MemoryViewModel>>(memories);
 
-        foreach (var memory in memories)
-        {
-            var memoryViewModel = memoryViewModels.FirstOrDefault(d => d.Id == memory.Id);
-
-            if (memoryViewModel != null)
-            {
-                memoryViewModel.CanUpdateAndDelete = memory.CanUpdate && memory.CanDelete;
-            }
-        }
-
-        return View(memoryViewModels);
+        return View(mapper.Map<IEnumerable<MemoryViewModel>>(memories));
     }
 
     // GET: MemoryViewModel/Details/5
@@ -49,11 +38,7 @@ public class MemoryController : Controller
             return NotFound();
         }
 
-        var memoryViewModel = mapper.Map<MemoryViewModel>(memory);
-
-        memoryViewModel.CanUpdateAndDelete = memory.CanUpdate && memory.CanDelete;
-
-        return View(memoryViewModel);
+        return View(mapper.Map<MemoryViewModel>(memory));
     }
 
     // GET: MemoryViewModel/Create

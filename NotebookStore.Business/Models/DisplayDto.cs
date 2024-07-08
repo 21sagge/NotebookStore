@@ -2,7 +2,7 @@
 
 namespace NotebookStore.Business;
 
-public class DisplayDto
+public class DisplayDto : IAuditableDto
 {
 	public int Id { get; set; }
 

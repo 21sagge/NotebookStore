@@ -6,157 +6,155 @@ using NotebookStore.Entities;
 
 public class BrandService : IService<BrandDto>
 {
-	private readonly IUnitOfWork unitOfWork;
-	private readonly IMapper mapper;
-	private readonly IUserService userService;
+    private readonly IUnitOfWork unitOfWork;
+    private readonly IMapper mapper;
+    private readonly IUserService userService;
+    private readonly IPermissionService permissionService;
 
-	public BrandService(IUnitOfWork unitOfWork, IMapper mapper, IUserService userService)
-	{
-		this.unitOfWork = unitOfWork;
-		this.mapper = mapper;
-		this.userService = userService;
-	}
+    public BrandService(IUnitOfWork unitOfWork, IMapper mapper, IUserService userService, IPermissionService permissionService)
+    {
+        this.unitOfWork = unitOfWork;
+        this.mapper = mapper;
+        this.userService = userService;
+        this.permissionService = permissionService;
+    }
 
-	public async Task<IEnumerable<BrandDto>> GetAll()
-	{
-		var brands = await unitOfWork.Brands.Read();
-		var brandDtos = mapper.Map<IEnumerable<BrandDto>>(brands);
-		var currentUser = await userService.GetCurrentUser();
+    public async Task<IEnumerable<BrandDto>> GetAll()
+    {
+        var brands = await unitOfWork.Brands.Read();
+        var currentUser = await userService.GetCurrentUser();
 
-		foreach (var brandDto in brandDtos)
-		{
-			var brand = await unitOfWork.Brands.Find(brandDto.Id);
+        return brands.Select(brand =>
+        {
+            var brandDto = mapper.Map<BrandDto>(brand);
 
-			if (brand == null)
-			{
-				continue;
-			}
+            var canUpdateBrand = permissionService.CanUpdateBrand(brand, currentUser);
 
-			var createdBy = brand.CreatedBy;
+            brandDto.CanUpdate = canUpdateBrand;
+            brandDto.CanDelete = canUpdateBrand;
 
-			brandDto.CanUpdate = createdBy == currentUser.Id || currentUser.Role == "Admin" || createdBy == null;
-			brandDto.CanDelete = createdBy == currentUser.Id || currentUser.Role == "Admin" || createdBy == null;
-		}
+            return brandDto;
+        });
+    }
 
-		return brandDtos;
-	}
+    public async Task<BrandDto?> Find(int id)
+    {
+        var brand = await unitOfWork.Brands.Find(id);
 
-	public async Task<BrandDto?> Find(int id)
-	{
-		var brand = await unitOfWork.Brands.Find(id);
+        if (brand == null)
+        {
+            return null;
+        }
 
-		if (brand == null)
-		{
-			return null;
-		}
+        var currentUser = await userService.GetCurrentUser();
 
-		var brandDto = mapper.Map<BrandDto>(brand);
+        bool canUpdateBrand = permissionService.CanUpdateBrand(brand, currentUser);
 
-		var currentUser = await userService.GetCurrentUser();
+        var brandDto = mapper.Map<BrandDto>(brand);
 
-		if (brand.CreatedBy == currentUser.Id
-			|| currentUser.Role == "Admin"
-			|| brand.CreatedBy == null)
-		{
-			brandDto.CanUpdate = true;
-			brandDto.CanDelete = true;
-		}
+        brandDto.CanUpdate = canUpdateBrand;
+        brandDto.CanDelete = canUpdateBrand;
 
-		return brandDto;
-	}
+        return brandDto;
+    }
 
-	public async Task<bool> Create(BrandDto brandDto)
-	{
-		var brand = mapper.Map<Brand>(brandDto);
+    public async Task<bool> Create(BrandDto brandDto)
+    {
+        var brand = mapper.Map<Brand>(brandDto);
 
-		unitOfWork.BeginTransaction();
+        unitOfWork.BeginTransaction();
 
-		try
-		{
-			var currentUser = await userService.GetCurrentUser();
+        var currentUser = await userService.GetCurrentUser();
 
-			brand.CreatedBy = currentUser.Id;
-			brand.CreatedAt = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
+        brand.CreatedBy = currentUser.Id;
+        brand.CreatedAt = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
 
-			await unitOfWork.Brands.Create(brand);
-			await unitOfWork.SaveAsync();
+        try
+        {
+            await unitOfWork.Brands.Create(brand);
+            await unitOfWork.SaveAsync();
 
-			unitOfWork.CommitTransaction();
+            unitOfWork.CommitTransaction();
 
-			return true;
-		}
-		catch (Exception)
-		{
-			unitOfWork.RollbackTransaction();
-			return false;
-		}
-	}
+            return true;
+        }
+        catch (Exception)
+        {
+            unitOfWork.RollbackTransaction();
+            return false;
+        }
+    }
 
-	public async Task<bool> Update(BrandDto brandDto)
-	{
-		var brand = await unitOfWork.Brands.Find(brandDto.Id);
+    public async Task<bool> Update(BrandDto brandDto)
+    {
+        var brand = await unitOfWork.Brands.Find(brandDto.Id);
 
-		if (brand == null)
-		{
-			return false;
-		}
+        if (brand == null)
+        {
+            return false;
+        }
 
-		unitOfWork.BeginTransaction();
+        unitOfWork.BeginTransaction();
 
-		try
-		{
-			var currentUser = await userService.GetCurrentUser();
+        var currentUser = await userService.GetCurrentUser();
 
-			if (brand.CreatedBy != currentUser.Id
-				&& currentUser.Role != "admin"
-				&& brand.CreatedBy != null)
-			{
-				return false;
-			}
+        var canUpdateBrand = permissionService.CanUpdateBrand(brand, currentUser);
 
-			brand.Name = brandDto.Name;
+        if (!canUpdateBrand)
+        {
+            return false;
+        }
 
-			await unitOfWork.Brands.Update(brand);
-			await unitOfWork.SaveAsync();
+        brandDto.CanUpdate = canUpdateBrand;
+        brandDto.CanDelete = canUpdateBrand;
 
-			unitOfWork.CommitTransaction();
+        try
+        {
+            await unitOfWork.Brands.Update(mapper.Map(brandDto, brand));
+            await unitOfWork.SaveAsync();
 
-			return true;
-		}
-		catch (Exception)
-		{
-			unitOfWork.RollbackTransaction();
-			return false;
-		}
-	}
+            unitOfWork.CommitTransaction();
 
-	public async Task<bool> Delete(int id)
-	{
-		unitOfWork.BeginTransaction();
+            return true;
+        }
+        catch (Exception)
+        {
+            unitOfWork.RollbackTransaction();
+            return false;
+        }
+    }
 
-		try
-		{
-			var brand = await unitOfWork.Brands.Find(id);
-			var currentUser = await userService.GetCurrentUser();
+    public async Task<bool> Delete(int id)
+    {
+        var brand = await unitOfWork.Brands.Find(id);
 
-			if (brand?.CreatedBy != currentUser.Id
-				&& currentUser.Role != "admin"
-				&& brand?.CreatedBy != null)
-			{
-				return false;
-			}
+        if (brand == null)
+        {
+            return false;
+        }
 
-			await unitOfWork.Brands.Delete(id);
-			await unitOfWork.SaveAsync();
+        unitOfWork.BeginTransaction();
 
-			unitOfWork.CommitTransaction();
+        var currentUser = await userService.GetCurrentUser();
 
-			return true;
-		}
-		catch (Exception)
-		{
-			unitOfWork.RollbackTransaction();
-			return false;
-		}
-	}
+        if (!permissionService.CanUpdateBrand(brand, currentUser))
+        {
+            return false;
+        }
+
+        try
+        {
+            await unitOfWork.Brands.Delete(id);
+            await unitOfWork.SaveAsync();
+
+            unitOfWork.CommitTransaction();
+
+            return true;
+        }
+        catch (Exception)
+        {
+            unitOfWork.RollbackTransaction();
+            return false;
+        }
+    }
 }

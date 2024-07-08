@@ -25,22 +25,12 @@ public class NotebookController : Controller
 		var notebookDtos = await services.Notebooks.GetAll();
 		var notebookViewModels = mapper.Map<IEnumerable<NotebookViewModel>>(notebookDtos);
 
-		foreach (var notebook in notebookDtos)
-		{
-			var notebookViewModel = notebookViewModels.FirstOrDefault(n => n.Id == notebook.Id);
-
-			if (notebookViewModel != null)
-			{
-				notebookViewModel.CanUpdateAndDelete = notebook.CanUpdate && notebook.CanDelete;
-			}
-		}
-
 		return View(notebookViewModels);
 	}
 
 	// GET: Notebook/Details/5
 	[HttpGet]
-	[Authorize(Roles = "Admin")]
+	[Authorize]
 	public async Task<IActionResult> Details(int id)
 	{
 		var notebook = await services.Notebooks.Find(id);
@@ -52,22 +42,27 @@ public class NotebookController : Controller
 
 		var notebookViewModel = mapper.Map<NotebookViewModel>(notebook);
 
-		notebookViewModel.CanUpdateAndDelete = notebook.CanUpdate && notebook.CanDelete;
-
 		return View(notebookViewModel);
 	}
 
 	// GET: Notebook/Create
 	[HttpGet]
-	[Authorize(Roles = "Admin")]
+	[Authorize(Roles = "Admin, Editor")]
 	public async Task<IActionResult> Create()
 	{
-		ViewBag.Brands = mapper.Map<IEnumerable<BrandViewModel>>(await services.Brands.GetAll());
-		ViewBag.Cpus = mapper.Map<IEnumerable<CpuViewModel>>(await services.Cpus.GetAll());
-		ViewBag.Displays = mapper.Map<IEnumerable<DisplayViewModel>>(await services.Displays.GetAll());
-		ViewBag.Memories = mapper.Map<IEnumerable<MemoryViewModel>>(await services.Memories.GetAll());
-		ViewBag.Models = mapper.Map<IEnumerable<ModelViewModel>>(await services.Models.GetAll());
-		ViewBag.Storages = mapper.Map<IEnumerable<StorageViewModel>>(await services.Storages.GetAll());
+		var brandDtos = await services.Brands.GetAll();
+		var cpuDtos = await services.Cpus.GetAll();
+		var displayDtos = await services.Displays.GetAll();
+		var memoryDtos = await services.Memories.GetAll();
+		var modelDtos = await services.Models.GetAll();
+		var storageDtos = await services.Storages.GetAll();
+
+		ViewBag.Brands = mapper.Map<IEnumerable<BrandViewModel>>(brandDtos);
+		ViewBag.Cpus = mapper.Map<IEnumerable<CpuViewModel>>(cpuDtos);
+		ViewBag.Displays = mapper.Map<IEnumerable<DisplayViewModel>>(displayDtos);
+		ViewBag.Memories = mapper.Map<IEnumerable<MemoryViewModel>>(memoryDtos);
+		ViewBag.Models = mapper.Map<IEnumerable<ModelViewModel>>(modelDtos);
+		ViewBag.Storages = mapper.Map<IEnumerable<StorageViewModel>>(storageDtos);
 
 		return View();
 	}
@@ -75,11 +70,9 @@ public class NotebookController : Controller
 	// POST: Notebook/Create
 	[HttpPost]
 	[ValidateAntiForgeryToken]
-	[Authorize(Roles = "Admin")]
+	[Authorize(Roles = "Admin, Editor")]
 	public async Task<IActionResult> Create([Bind("Id,Color,Price,BrandId,ModelId,CpuId,DisplayId,MemoryId,StorageId")] NotebookViewModel notebook)
 	{
-		ModelState.Remove("CreatedAt");
-
 		if (ModelState.IsValid)
 		{
 			await services.Notebooks.Create(mapper.Map<NotebookDto>(notebook));
@@ -92,7 +85,7 @@ public class NotebookController : Controller
 
 	// GET: Notebook/Edit/5
 	[HttpGet]
-	[Authorize(Roles = "Admin")]
+	[Authorize(Roles = "Admin, Editor")]
 	public async Task<IActionResult> Edit(int id)
 	{
 		var notebook = await services.Notebooks.Find(id);
@@ -102,12 +95,19 @@ public class NotebookController : Controller
 			return NotFound();
 		}
 
-		ViewBag.Brands = mapper.Map<IEnumerable<BrandViewModel>>(await services.Brands.GetAll());
-		ViewBag.Cpus = mapper.Map<IEnumerable<CpuViewModel>>(await services.Cpus.GetAll());
-		ViewBag.Displays = mapper.Map<IEnumerable<DisplayViewModel>>(await services.Displays.GetAll());
-		ViewBag.Memories = mapper.Map<IEnumerable<MemoryViewModel>>(await services.Memories.GetAll());
-		ViewBag.Models = mapper.Map<IEnumerable<ModelViewModel>>(await services.Models.GetAll());
-		ViewBag.Storages = mapper.Map<IEnumerable<StorageViewModel>>(await services.Storages.GetAll());
+		var brandDtos = await services.Brands.GetAll();
+		var cpuDtos = await services.Cpus.GetAll();
+		var displayDtos = await services.Displays.GetAll();
+		var memoryDtos = await services.Memories.GetAll();
+		var modelDtos = await services.Models.GetAll();
+		var storageDtos = await services.Storages.GetAll();
+
+		ViewBag.Brands = mapper.Map<IEnumerable<BrandViewModel>>(brandDtos);
+		ViewBag.Cpus = mapper.Map<IEnumerable<CpuViewModel>>(cpuDtos);
+		ViewBag.Displays = mapper.Map<IEnumerable<DisplayViewModel>>(displayDtos);
+		ViewBag.Memories = mapper.Map<IEnumerable<MemoryViewModel>>(memoryDtos);
+		ViewBag.Models = mapper.Map<IEnumerable<ModelViewModel>>(modelDtos);
+		ViewBag.Storages = mapper.Map<IEnumerable<StorageViewModel>>(storageDtos);
 
 		return View(mapper.Map<NotebookViewModel>(notebook));
 	}
@@ -115,8 +115,8 @@ public class NotebookController : Controller
 	// POST: Notebook/Edit/5
 	[HttpPost]
 	[ValidateAntiForgeryToken]
-	[Authorize(Roles = "Admin")]
-	public async Task<IActionResult> Edit(int id, [Bind("Id,Color,Price,BrandId,ModelId,CpuId,DisplayId,MemoryId,StorageId,CreatedAt,CreatedBy")] NotebookViewModel notebook)
+	[Authorize(Roles = "Admin, Editor")]
+	public async Task<IActionResult> Edit(int id, [Bind("Id,Color,Price,BrandId,ModelId,CpuId,DisplayId,MemoryId,StorageId")] NotebookViewModel notebook)
 	{
 		if (id != notebook.Id)
 		{
@@ -142,7 +142,7 @@ public class NotebookController : Controller
 
 	// GET: Notebook/Delete/5
 	[HttpGet]
-	[Authorize(Roles = "Admin")]
+	[Authorize(Roles = "Admin,Editor")]
 	public async Task<IActionResult> Delete(int id)
 	{
 		var notebook = await services.Notebooks.Find(id);
@@ -158,7 +158,7 @@ public class NotebookController : Controller
 	// POST: Notebook/Delete/5
 	[HttpPost, ActionName("Delete")]
 	[ValidateAntiForgeryToken]
-	[Authorize(Roles = "Admin")]
+	[Authorize(Roles = "Admin, Editor")]
 	public async Task<IActionResult> DeleteConfirmed(int id)
 	{
 		await services.Notebooks.Delete(id);

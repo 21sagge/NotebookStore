@@ -23,19 +23,8 @@ public class CpuController : Controller
     public async Task<IActionResult> Index()
     {
         var cpus = await services.Cpus.GetAll();
-        var cpuViewModels = mapper.Map<IEnumerable<CpuViewModel>>(cpus);
 
-        foreach (var cpu in cpus)
-        {
-            var cpuViewModel = cpuViewModels.FirstOrDefault(c => c.Id == cpu.Id);
-
-            if (cpuViewModel != null)
-            {
-                cpuViewModel.CanUpdateAndDelete = cpu.CanUpdate && cpu.CanDelete;
-            }
-        }
-
-        return View(cpuViewModels);
+        return View(mapper.Map<IEnumerable<CpuViewModel>>(cpus));
     }
 
     // GET: CpuViewModel/Details/5
@@ -49,11 +38,7 @@ public class CpuController : Controller
             return NotFound();
         }
 
-        var cpuViewModel = mapper.Map<CpuViewModel>(cpu);
-
-        cpuViewModel.CanUpdateAndDelete = cpu.CanUpdate && cpu.CanDelete;
-
-        return View(cpuViewModel);
+        return View(mapper.Map<CpuViewModel>(cpu));
     }
 
     // GET: CpuViewModel/Create
@@ -112,7 +97,7 @@ public class CpuController : Controller
             }
             else
             {
-                ModelState.AddModelError("", "Unauthorized");
+                ModelState.AddModelError(string.Empty, "Unauthorized");
             }
         }
 
