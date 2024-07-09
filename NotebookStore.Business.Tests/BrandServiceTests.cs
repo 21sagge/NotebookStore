@@ -1,6 +1,5 @@
 ﻿using Moq;
 using NotebookStore.Entities;
-using Microsoft.Extensions.DependencyInjection;
 
 namespace NotebookStore.Business.Tests;
 
@@ -8,32 +7,37 @@ namespace NotebookStore.Business.Tests;
 [Parallelizable(ParallelScope.All)]
 public class BrandServiceTests
 {
-    private BrandService sut;
-    private Mock<IUserService> mockUserService;
-    private Mock<IPermissionService> mockPermissionService;
-    private NotebookStoreContext.NotebookStoreContext context;
+    // [SetUp]
+    // public void Setup()
+    // {
+    //     mockUserService = new Mock<IUserService>();
+    //     mockPermissionService = new Mock<IPermissionService>();
 
-    [SetUp]
-    public void Setup()
-    {
-        var testStartup = new TestStartup();
+    //     TestStartup.Register<BrandService>();
+    //     TestStartup.Register(mockUserService.Object);
+    //     TestStartup.Register(mockPermissionService.Object);
 
-        mockUserService = new Mock<IUserService>();
-        mockPermissionService = new Mock<IPermissionService>();
+    //     sut = TestStartup.Resolve<BrandService>();
 
-        testStartup.Register<BrandService>();
-        testStartup.Register(mockUserService.Object);
-        testStartup.Register(mockPermissionService.Object);
-
-        sut = testStartup.Resolve<BrandService>();
-
-        context = testStartup.Resolve<NotebookStoreContext.NotebookStoreContext>();
-        context.Database.EnsureCreated();
-    }
+    //     context = TestStartup.Resolve<NotebookStoreContext.NotebookStoreContext>();
+    //     context.Database.EnsureCreated();
+    // }
 
     [Test]
     public async Task GetAll_ReturnsBrands()
     {
+        using var context = TestStartup.CreateComponentsContext();
+
+        var sut = context.Resolve<BrandService>();
+
+        var userService = context.Resolve<IUserService>();
+        var permissionService = context.Resolve<IPermissionService>();
+
+        var mockUserService = Mock.Get(userService);
+        var mockPermissionService = Mock.Get(permissionService);
+
+        context.DbContext.Database.EnsureCreated();
+
         // Arrange
         var brand1 = new Brand
         {
@@ -62,8 +66,8 @@ public class BrandServiceTests
 
         mockPermissionService.Setup(x => x.CanUpdateBrand(It.IsAny<Brand>(), It.IsAny<UserDto>())).Returns(true);
 
-        context.AddRange(brand1, brand2);
-        context.SaveChanges();
+        context.DbContext.AddRange(brand1, brand2);
+        context.DbContext.SaveChanges();
 
         // Act
         var result = await sut.GetAll();
@@ -93,6 +97,18 @@ public class BrandServiceTests
     [Test]
     public async Task Find_ReturnsBrand()
     {
+        using var context = TestStartup.CreateComponentsContext();
+
+        var sut = context.Resolve<BrandService>();
+
+        var userService = context.Resolve<IUserService>();
+        var permissionService = context.Resolve<IPermissionService>();
+
+        var mockUserService = Mock.Get(userService);
+        var mockPermissionService = Mock.Get(permissionService);
+
+        context.DbContext.Database.EnsureCreated();
+
         // Arrange
         var brand = new Brand
         {
@@ -113,8 +129,8 @@ public class BrandServiceTests
 
         mockPermissionService.Setup(x => x.CanUpdateBrand(It.IsAny<Brand>(), It.IsAny<UserDto>())).Returns(true);
 
-        context.Add(brand);
-        context.SaveChanges();
+        context.DbContext.Add(brand);
+        context.DbContext.SaveChanges();
 
         // Act
         var result = await sut.Find(brand.Id);
@@ -132,6 +148,16 @@ public class BrandServiceTests
     [Test]
     public async Task Create_ReturnsBrand()
     {
+        using var context = TestStartup.CreateComponentsContext();
+
+        var sut = context.Resolve<BrandService>();
+
+        var userService = context.Resolve<IUserService>();
+        var permissionService = context.Resolve<IPermissionService>();
+
+        var mockUserService = Mock.Get(userService);
+        var mockPermissionService = Mock.Get(permissionService);
+
         // Arrange
         var brand = new BrandDto
         {
@@ -156,7 +182,7 @@ public class BrandServiceTests
 
         // Act
         var result = await sut.Create(brand);
-        var addedBrand = context.Brands.FirstOrDefault(b => b.Id == brand.Id);
+        var addedBrand = context.DbContext.Brands.FirstOrDefault(b => b.Id == brand.Id);
 
         Assert.Multiple(() =>
         {
@@ -170,6 +196,16 @@ public class BrandServiceTests
     [Test]
     public async Task Update_ReturnsBrand()
     {
+        using var context = TestStartup.CreateComponentsContext();
+
+        var sut = context.Resolve<BrandService>();
+
+        var userService = context.Resolve<IUserService>();
+        var permissionService = context.Resolve<IPermissionService>();
+
+        var mockUserService = Mock.Get(userService);
+        var mockPermissionService = Mock.Get(permissionService);
+
         // Arrange
         var brand = new Brand
         {
@@ -197,8 +233,8 @@ public class BrandServiceTests
                 It.IsAny<UserDto>()))
             .Returns(true);
 
-        context.Add(brand);
-        context.SaveChanges();
+        context.DbContext.Add(brand);
+        context.DbContext.SaveChanges();
 
         // Act
         var brandDto = new BrandDto()
@@ -210,7 +246,7 @@ public class BrandServiceTests
         };
 
         var result = await sut.Update(brandDto);
-        var updatedBrand = context.Brands.FirstOrDefault(b => b.Id == brand.Id);
+        var updatedBrand = context.DbContext.Brands.FirstOrDefault(b => b.Id == brand.Id);
 
         Assert.Multiple(() =>
         {
@@ -224,6 +260,16 @@ public class BrandServiceTests
     [Test]
     public async Task Delete_ReturnsBrand()
     {
+        using var context = TestStartup.CreateComponentsContext();
+
+        var sut = context.Resolve<BrandService>();
+
+        var userService = context.Resolve<IUserService>();
+        var permissionService = context.Resolve<IPermissionService>();
+
+        var mockUserService = Mock.Get(userService);
+        var mockPermissionService = Mock.Get(permissionService);
+
         // Arrange
         var brand = new Brand
         {
@@ -248,12 +294,12 @@ public class BrandServiceTests
                 It.IsAny<UserDto>()))
             .Returns(true);
 
-        context.Add(brand);
-        context.SaveChanges();
+        context.DbContext.Add(brand);
+        context.DbContext.SaveChanges();
 
         // Act
         var result = await sut.Delete(brand.Id);
-        var deletedBrand = context.Brands.FirstOrDefault(b => b.Id == brand.Id);
+        var deletedBrand = context.DbContext.Brands.FirstOrDefault(b => b.Id == brand.Id);
 
         Assert.Multiple(() =>
         {
@@ -262,10 +308,10 @@ public class BrandServiceTests
         });
     }
 
-    [TearDown]
-    public void TearDown()
-    {
-        context.Database.EnsureDeleted();
-        context.Dispose();
-    }
+    // [TearDown]
+    // public void TearDown()
+    // {
+    //     context.Database.EnsureDeleted();
+    //     context.Dispose();
+    // }
 }

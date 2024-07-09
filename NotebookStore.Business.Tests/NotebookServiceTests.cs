@@ -1,6 +1,5 @@
 ﻿using Moq;
 using NotebookStore.Entities;
-using Microsoft.Extensions.DependencyInjection;
 
 namespace NotebookStore.Business.Tests;
 
@@ -21,13 +20,13 @@ public class NotebookServiceTests
         mockUserService = new Mock<IUserService>();
         mockPermissionService = new Mock<IPermissionService>();
 
-        testStartup.Register<NotebookService>();
-        testStartup.Register(mockUserService.Object);
-        testStartup.Register(mockPermissionService.Object);
+        TestStartup.Register<NotebookService>();
+        TestStartup.Register(mockUserService.Object);
+        TestStartup.Register(mockPermissionService.Object);
 
-        sut = testStartup.Resolve<NotebookService>();
+        sut = TestStartup.Resolve<NotebookService>();
 
-        context = testStartup.Resolve<NotebookStoreContext.NotebookStoreContext>();
+        context = TestStartup.Resolve<NotebookStoreContext.NotebookStoreContext>();
         context.Database.EnsureCreated();
     }
 
