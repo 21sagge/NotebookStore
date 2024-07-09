@@ -25,11 +25,9 @@ public class NotebookServiceTests
         testStartup.Register(mockUserService.Object);
         testStartup.Register(mockPermissionService.Object);
 
-        var serviceProvider = testStartup.GetProvider();
+        sut = testStartup.Resolve<NotebookService>();
 
-        sut = testStartup.Resolve<NotebookService>(serviceProvider);
-
-        context = serviceProvider.GetRequiredService<NotebookStoreContext.NotebookStoreContext>();
+        context = testStartup.Resolve<NotebookStoreContext.NotebookStoreContext>();
         context.Database.EnsureCreated();
     }
 

@@ -14,14 +14,14 @@ public class TestStartup
     {
         services = new ServiceCollection();
 
+        services.RegisterNotebookBusiness();
+
         services.AddDbContext<NotebookStoreContext.NotebookStoreContext>(options =>
         {
             options.UseSqlite("DataSource=notebookStoreTest.db");
         });
 
         services.AddScoped<IUnitOfWork, UnitOfWork>();
-
-        services.AddSingleton(new MapperConfiguration(cfg => cfg.AddProfile<BusinessMapper>()).CreateMapper());
     }
 
     /// <summary>
@@ -42,13 +42,10 @@ public class TestStartup
     /// Resolve a service
     /// </summary>
     /// <typeparam name="T">Service type</typeparam>
-    public T Resolve<T>(ServiceProvider serviceProvider) where T : class
-    => serviceProvider.GetRequiredService<T>();
+    public T Resolve<T>() where T : class
+    {
+        var serviceProvider = services.BuildServiceProvider();
 
-    /// <summary>
-    /// Get service provider
-    /// </summary>
-    /// <returns>Service provider</returns>
-    public ServiceProvider GetProvider()
-    => services.BuildServiceProvider();
+        return serviceProvider.GetRequiredService<T>();
+    }
 }

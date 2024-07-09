@@ -25,11 +25,9 @@ public class BrandServiceTests
         testStartup.Register(mockUserService.Object);
         testStartup.Register(mockPermissionService.Object);
 
-        var serviceProvider = testStartup.GetProvider();
+        sut = testStartup.Resolve<BrandService>();
 
-        sut = testStartup.Resolve<BrandService>(serviceProvider);
-
-        context = serviceProvider.GetRequiredService<NotebookStoreContext.NotebookStoreContext>();
+        context = testStartup.Resolve<NotebookStoreContext.NotebookStoreContext>();
         context.Database.EnsureCreated();
     }
 
