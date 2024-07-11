@@ -15,6 +15,9 @@ builder.Services.AddScoped<IUserContext, HttpUserContext>();
 
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 
+builder.Services.AddScoped<ISerializer, JsonHandler>();
+builder.Services.AddScoped<ISerializer, XmlHandler>();
+
 builder.Services.AddAutoMapper(configure =>
 {
     configure.AddProfile(new MapperMvc());
