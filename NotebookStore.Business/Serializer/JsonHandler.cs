@@ -3,7 +3,7 @@ using System.Text.Json;
 
 namespace NotebookStore.Business;
 
-public class JsonHandler : ISerializer
+internal class JsonHandler : ISerializer
 {
     public string Format => "json";
 

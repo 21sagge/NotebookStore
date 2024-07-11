@@ -5,7 +5,7 @@ using NotebookStore.DAL;
 
 namespace NotebookStore.Business;
 
-public class Services : IServices
+internal class Services : IServices
 {
     private readonly IUnitOfWork _unitOfWork;
     private readonly IMapper _mapper;

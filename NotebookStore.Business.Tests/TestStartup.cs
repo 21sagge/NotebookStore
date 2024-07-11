@@ -1,6 +1,7 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
-using Moq;
+using NotebookStore.Business.Context;
 using NotebookStore.DAL;
 
 namespace NotebookStore.Business.Tests;
@@ -21,14 +22,13 @@ public class TestStartup
             options.UseSqlite($"DataSource=notebookStoreTest_{Guid.NewGuid()}.db");
         });
 
-        services.AddScoped<BrandService>();
-        services.AddScoped<NotebookService>();
+        services.AddScoped<IUnitOfWork, UnitOfWork>();
+        
+        services.AddScoped<IUserContext, ConsoleUserContext>();
 
-        var mockUserService = new Mock<IUserService>();
-        var mockPermissionService = new Mock<IPermissionService>();
-
-        services.AddSingleton(mockUserService.Object);
-        services.AddSingleton(mockPermissionService.Object);
+        services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = false)
+            .AddRoles<IdentityRole>()
+            .AddEntityFrameworkStores<NotebookStoreContext.NotebookStoreContext>();
     }
 
     /// <summary>
@@ -43,18 +43,8 @@ public class TestStartup
     /// </summary>
     /// <typeparam name="T">Service type</typeparam>
     public static void Register<T>(T mock) where T : class
-    => services.AddSingleton<T>(mock);
+    => services.AddSingleton(mock);
 
-    /// <summary>
-    /// Resolve a service
-    /// </summary>
-    /// <typeparam name="T">Service type</typeparam>
-    public static T Resolve<T>() where T : class
-    {
-        var serviceProvider = services.BuildServiceProvider();
-
-        return serviceProvider.GetRequiredService<T>();
-    }
 
     /// <summary>
     /// Create a ComponentsContext
@@ -64,6 +54,11 @@ public class TestStartup
     {
         var serviceProvider = services.BuildServiceProvider();
 
+        var context = serviceProvider.GetRequiredService<NotebookStoreContext.NotebookStoreContext>();
+
+        context.Database.EnsureCreated();
+        // context.Database.BeginTransaction();
+
         return new ComponentsContext(serviceProvider);
     }
 
@@ -72,35 +67,15 @@ public class TestStartup
         private readonly ServiceProvider serviceProvider;
 
         private readonly Lazy<NotebookStoreContext.NotebookStoreContext> context;
-        private readonly Lazy<IUnitOfWork> unitOfWork;
-        private readonly Lazy<Mock<IUserService>> userService;
-        private readonly Lazy<Mock<IPermissionService>> permissionService;
-        private readonly Lazy<BrandService> brandService;
-        private readonly Lazy<NotebookService> notebookService;
 
         public NotebookStoreContext.NotebookStoreContext DbContext
         => context.Value;
-        public IUnitOfWork UnitOfWork
-        => unitOfWork.Value;
-        public IUserService UserService
-        => userService.Value.Object;
-        public IPermissionService PermissionService
-        => permissionService.Value.Object;
-        public BrandService BrandService
-        => brandService.Value;
-        public NotebookService NotebookService
-        => notebookService.Value;
 
         public ComponentsContext(ServiceProvider serviceProvider)
         {
             this.serviceProvider = serviceProvider;
 
-            context = new Lazy<NotebookStoreContext.NotebookStoreContext>(() => serviceProvider.GetRequiredService<NotebookStoreContext.NotebookStoreContext>(), true);
-            unitOfWork = new Lazy<IUnitOfWork>(() => serviceProvider.GetRequiredService<IUnitOfWork>(), true);
-            brandService = new Lazy<BrandService>(() => serviceProvider.GetRequiredService<BrandService>(), true);
-            userService = new Lazy<Mock<IUserService>>(() => serviceProvider.GetRequiredService<Mock<IUserService>>(), true);
-            permissionService = new Lazy<Mock<IPermissionService>>(() => serviceProvider.GetRequiredService<Mock<IPermissionService>>(), true);
-            notebookService = new Lazy<NotebookService>(() => serviceProvider.GetRequiredService<NotebookService>(), true);
+            context = new Lazy<NotebookStoreContext.NotebookStoreContext>(serviceProvider.GetRequiredService<NotebookStoreContext.NotebookStoreContext>, true);
         }
 
         /// <summary>

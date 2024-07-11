@@ -7,24 +7,18 @@ using NotebookStore.Business.Context;
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.Services.RegisterNotebookBusiness();
+
 builder.Services.AddControllersWithViews();
 
 builder.Services.AddScoped<IUserContext, HttpUserContext>();
 
-builder.Services.AddScoped<IServices, Services>();
-builder.Services.AddScoped<IUserService, UserService>();
-
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
-
-builder.Services.AddScoped<ISerializer, JsonHandler>();
-builder.Services.AddScoped<ISerializer, XmlHandler>();
 
 builder.Services.AddAutoMapper(configure =>
 {
     configure.AddProfile(new MapperMvc());
 });
-
-builder.Services.RegisterNotebookBusiness();
 
 builder.Services.AddDbContext<NotebookStoreContext.NotebookStoreContext>(options =>
 {
@@ -69,14 +63,6 @@ builder.Services.ConfigureApplicationCookie(options =>
     options.AccessDeniedPath = "/Identity/Account/AccessDenied";
     options.SlidingExpiration = true;
 });
-
-// builder.Services.AddAuthorization(options =>
-// {
-//     options.AddPolicy("Admin", policy => policy.RequireClaim("Role", "Admin"));
-//     options.AddPolicy("Editor", policy => policy.RequireClaim("Role", "Editor"));
-//     options.AddPolicy("User", policy => policy.RequireClaim("Role", "User"));
-//     options.AddPolicy("All", policy => policy.RequireClaim("Role", "Admin", "Editor", "User"));
-// });
 
 builder.Logging.AddConsole();
 

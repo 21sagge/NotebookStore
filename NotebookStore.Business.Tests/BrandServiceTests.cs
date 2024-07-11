@@ -7,36 +7,35 @@ namespace NotebookStore.Business.Tests;
 [Parallelizable(ParallelScope.All)]
 public class BrandServiceTests
 {
-    // [SetUp]
-    // public void Setup()
-    // {
-    //     mockUserService = new Mock<IUserService>();
-    //     mockPermissionService = new Mock<IPermissionService>();
-
-    //     TestStartup.Register<BrandService>();
-    //     TestStartup.Register(mockUserService.Object);
-    //     TestStartup.Register(mockPermissionService.Object);
-
-    //     sut = TestStartup.Resolve<BrandService>();
-
-    //     context = TestStartup.Resolve<NotebookStoreContext.NotebookStoreContext>();
-    //     context.Database.EnsureCreated();
-    // }
+    [OneTimeSetUp]
+    public void OneTimeSetup()
+    {
+        TestStartup.Register<BrandService>();
+    }
 
     [Test]
     public async Task GetAll_ReturnsBrands()
     {
+        var userServiceMock = new Mock<IUserService>();
+        var permissionServiceMock = new Mock<IPermissionService>();
+
+        userServiceMock.Setup(x => x.GetCurrentUser()).ReturnsAsync(new UserDto
+        {
+            Id = "1",
+            Name = "User 1",
+            Email = "",
+            Password = "",
+            Role = "Admin"
+        });
+
+        permissionServiceMock.Setup(x => x.CanUpdateBrand(It.IsAny<Brand>(), It.IsAny<UserDto>())).Returns(true);
+
+        TestStartup.Register(userServiceMock.Object);
+        TestStartup.Register(permissionServiceMock.Object);
+
         using var context = TestStartup.CreateComponentsContext();
 
         var sut = context.Resolve<BrandService>();
-
-        var userService = context.Resolve<IUserService>();
-        var permissionService = context.Resolve<IPermissionService>();
-
-        var mockUserService = Mock.Get(userService);
-        var mockPermissionService = Mock.Get(permissionService);
-
-        context.DbContext.Database.EnsureCreated();
 
         // Arrange
         var brand1 = new Brand
@@ -54,17 +53,6 @@ public class BrandServiceTests
             CreatedAt = DateTime.Now.ToString(),
             CreatedBy = null
         };
-
-        mockUserService.Setup(x => x.GetCurrentUser()).ReturnsAsync(new UserDto
-        {
-            Id = "1",
-            Name = "User 1",
-            Email = "",
-            Password = "",
-            Role = "Admin"
-        });
-
-        mockPermissionService.Setup(x => x.CanUpdateBrand(It.IsAny<Brand>(), It.IsAny<UserDto>())).Returns(true);
 
         context.DbContext.AddRange(brand1, brand2);
         context.DbContext.SaveChanges();
@@ -97,17 +85,26 @@ public class BrandServiceTests
     [Test]
     public async Task Find_ReturnsBrand()
     {
+        var userServiceMock = new Mock<IUserService>();
+        var permissionServiceMock = new Mock<IPermissionService>();
+
+        userServiceMock.Setup(x => x.GetCurrentUser()).ReturnsAsync(new UserDto
+        {
+            Id = "1",
+            Name = "User 1",
+            Email = "",
+            Password = "",
+            Role = "Admin"
+        });
+
+        permissionServiceMock.Setup(x => x.CanUpdateBrand(It.IsAny<Brand>(), It.IsAny<UserDto>())).Returns(true);
+
+        TestStartup.Register(userServiceMock.Object);
+        TestStartup.Register(permissionServiceMock.Object);
+
         using var context = TestStartup.CreateComponentsContext();
 
         var sut = context.Resolve<BrandService>();
-
-        var userService = context.Resolve<IUserService>();
-        var permissionService = context.Resolve<IPermissionService>();
-
-        var mockUserService = Mock.Get(userService);
-        var mockPermissionService = Mock.Get(permissionService);
-
-        context.DbContext.Database.EnsureCreated();
 
         // Arrange
         var brand = new Brand
@@ -117,17 +114,6 @@ public class BrandServiceTests
             CreatedAt = DateTime.Now.ToString(),
             CreatedBy = null
         };
-
-        mockUserService.Setup(x => x.GetCurrentUser()).ReturnsAsync(new UserDto
-        {
-            Id = "1",
-            Name = "User 1",
-            Email = "",
-            Password = "",
-            Role = "Admin"
-        });
-
-        mockPermissionService.Setup(x => x.CanUpdateBrand(It.IsAny<Brand>(), It.IsAny<UserDto>())).Returns(true);
 
         context.DbContext.Add(brand);
         context.DbContext.SaveChanges();
@@ -148,24 +134,10 @@ public class BrandServiceTests
     [Test]
     public async Task Create_ReturnsBrand()
     {
-        using var context = TestStartup.CreateComponentsContext();
+        var userServiceMock = new Mock<IUserService>();
+        var permissionServiceMock = new Mock<IPermissionService>();
 
-        var sut = context.Resolve<BrandService>();
-
-        var userService = context.Resolve<IUserService>();
-        var permissionService = context.Resolve<IPermissionService>();
-
-        var mockUserService = Mock.Get(userService);
-        var mockPermissionService = Mock.Get(permissionService);
-
-        // Arrange
-        var brand = new BrandDto
-        {
-            Id = 1,
-            Name = "Brand 1"
-        };
-
-        mockUserService.Setup(x => x.GetCurrentUser()).ReturnsAsync(new UserDto
+        userServiceMock.Setup(x => x.GetCurrentUser()).ReturnsAsync(new UserDto
         {
             Id = "1",
             Name = "User 1",
@@ -174,11 +146,21 @@ public class BrandServiceTests
             Role = "Admin"
         });
 
-        mockPermissionService.Setup(
-            x => x.CanUpdateBrand(
-                It.IsAny<Brand>(),
-                It.IsAny<UserDto>()))
-            .Returns(true);
+        permissionServiceMock.Setup(x => x.CanUpdateBrand(It.IsAny<Brand>(), It.IsAny<UserDto>())).Returns(true);
+
+        TestStartup.Register(userServiceMock.Object);
+        TestStartup.Register(permissionServiceMock.Object);
+
+        using var context = TestStartup.CreateComponentsContext();
+
+        var sut = context.Resolve<BrandService>();
+
+        // Arrange
+        var brand = new BrandDto
+        {
+            Id = 1,
+            Name = "Brand 1"
+        };
 
         // Act
         var result = await sut.Create(brand);
@@ -196,15 +178,26 @@ public class BrandServiceTests
     [Test]
     public async Task Update_ReturnsBrand()
     {
+        var userServiceMock = new Mock<IUserService>();
+        var permissionServiceMock = new Mock<IPermissionService>();
+
+        userServiceMock.Setup(x => x.GetCurrentUser()).ReturnsAsync(new UserDto
+        {
+            Id = "1",
+            Name = "User 1",
+            Email = "",
+            Password = "",
+            Role = "Admin"
+        });
+
+        permissionServiceMock.Setup(x => x.CanUpdateBrand(It.IsAny<Brand>(), It.IsAny<UserDto>())).Returns(true);
+
+        TestStartup.Register(userServiceMock.Object);
+        TestStartup.Register(permissionServiceMock.Object);
+
         using var context = TestStartup.CreateComponentsContext();
 
         var sut = context.Resolve<BrandService>();
-
-        var userService = context.Resolve<IUserService>();
-        var permissionService = context.Resolve<IPermissionService>();
-
-        var mockUserService = Mock.Get(userService);
-        var mockPermissionService = Mock.Get(permissionService);
 
         // Arrange
         var brand = new Brand
@@ -214,24 +207,6 @@ public class BrandServiceTests
             CreatedAt = DateTime.Now.ToString(),
             CreatedBy = null
         };
-
-        mockUserService.Setup(x => x.GetCurrentUser())
-        .ReturnsAsync(
-            new UserDto
-            {
-                Id = "1",
-                Name = "User 1",
-                Email = "",
-                Password = "",
-                Role = "Admin"
-            }
-        );
-
-        mockPermissionService.Setup(
-            x => x.CanUpdateBrand(
-                It.IsAny<Brand>(),
-                It.IsAny<UserDto>()))
-            .Returns(true);
 
         context.DbContext.Add(brand);
         context.DbContext.SaveChanges();
@@ -260,15 +235,26 @@ public class BrandServiceTests
     [Test]
     public async Task Delete_ReturnsBrand()
     {
+        var userServiceMock = new Mock<IUserService>();
+        var permissionServiceMock = new Mock<IPermissionService>();
+
+        userServiceMock.Setup(x => x.GetCurrentUser()).ReturnsAsync(new UserDto
+        {
+            Id = "1",
+            Name = "User 1",
+            Email = "",
+            Password = "",
+            Role = "Admin"
+        });
+
+        permissionServiceMock.Setup(x => x.CanUpdateBrand(It.IsAny<Brand>(), It.IsAny<UserDto>())).Returns(true);
+
+        TestStartup.Register(userServiceMock.Object);
+        TestStartup.Register(permissionServiceMock.Object);
+
         using var context = TestStartup.CreateComponentsContext();
 
         var sut = context.Resolve<BrandService>();
-
-        var userService = context.Resolve<IUserService>();
-        var permissionService = context.Resolve<IPermissionService>();
-
-        var mockUserService = Mock.Get(userService);
-        var mockPermissionService = Mock.Get(permissionService);
 
         // Arrange
         var brand = new Brand
@@ -278,21 +264,6 @@ public class BrandServiceTests
             CreatedAt = DateTime.Now.ToString(),
             CreatedBy = null
         };
-
-        mockUserService.Setup(x => x.GetCurrentUser()).ReturnsAsync(new UserDto
-        {
-            Id = "1",
-            Name = "User 1",
-            Email = "",
-            Password = "",
-            Role = "Admin"
-        });
-
-        mockPermissionService.Setup(
-            x => x.CanUpdateBrand(
-                It.IsAny<Brand>(),
-                It.IsAny<UserDto>()))
-            .Returns(true);
 
         context.DbContext.Add(brand);
         context.DbContext.SaveChanges();
@@ -307,11 +278,4 @@ public class BrandServiceTests
             Assert.That(deletedBrand, Is.Null, "Brand should be deleted");
         });
     }
-
-    // [TearDown]
-    // public void TearDown()
-    // {
-    //     context.Database.EnsureDeleted();
-    //     context.Dispose();
-    // }
 }

@@ -1,15 +1,15 @@
-﻿using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
-using NotebookStore.Business.Context;
+﻿using Microsoft.Extensions.DependencyInjection;
 using NotebookStore.Business.Mapping;
-using NotebookStore.DAL;
 
 namespace NotebookStore.Business
 {
     public static class ServiceCollectionExtensions
     {
+        /// <summary>
+        /// Registers the necessary services for the notebook business.
+        /// (AutoMapper, ISerializer, IServices, IUserService)
+        /// </summary>
+        /// <param name="services">The IServiceCollection to add the services to.</param>
         public static void RegisterNotebookBusiness(this IServiceCollection services)
         {
             services.AddAutoMapper(configure =>
@@ -17,18 +17,11 @@ namespace NotebookStore.Business
                 configure.AddProfile(new BusinessMapper());
             });
 
-            services.AddScoped<IUserContext, ConsoleUserContext>();
+            services.AddScoped<ISerializer, JsonHandler>();
+            services.AddScoped<ISerializer, XmlHandler>();
 
-            services.AddScoped<IUserContext, ConsoleUserContext>();
-            services.AddScoped<UserManager<IdentityUser>>();
-            services.AddScoped<IUserStore<IdentityUser>, UserStore<IdentityUser, IdentityRole, NotebookStoreContext.NotebookStoreContext, string>>();
-            services.AddScoped<IPasswordHasher<IdentityUser>, PasswordHasher<IdentityUser>>();
-            services.AddScoped<ILookupNormalizer, UpperInvariantLookupNormalizer>();
-            services.AddScoped<IdentityErrorDescriber>();
-            services.AddScoped<ILogger<UserManager<IdentityUser>>, Logger<UserManager<IdentityUser>>>();
-            services.AddScoped<ILoggerFactory, LoggerFactory>();
-
-            services.AddScoped<IUnitOfWork, UnitOfWork>();
+            services.AddScoped<IServices, Services>();
+            services.AddScoped<IUserService, UserService>();
         }
     }
 }
