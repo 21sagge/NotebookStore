@@ -16,23 +16,6 @@ public class NotebookServiceTests
     [Test]
     public async Task GetAll_ReturnsNotebooks()
     {
-        var userServiceMock = new Mock<IUserService>();
-        var permissionServiceMock = new Mock<IPermissionService>();
-
-        userServiceMock.Setup(x => x.GetCurrentUser()).ReturnsAsync(new UserDto
-        {
-            Id = "1",
-            Name = "User 1",
-            Email = "",
-            Password = "",
-            Role = "Admin"
-        });
-
-        permissionServiceMock.Setup(x => x.CanUpdateNotebook(It.IsAny<Notebook>(), It.IsAny<UserDto>())).Returns(true);
-
-        TestStartup.Register(userServiceMock.Object);
-        TestStartup.Register(permissionServiceMock.Object);
-
         using var context = TestStartup.CreateComponentsContext();
 
         var sut = context.Resolve<NotebookService>();
@@ -150,6 +133,24 @@ public class NotebookServiceTests
             CreatedBy = null
         };
 
+        Mock.Get(context.UserService)
+            .Setup(x => x.GetCurrentUser())
+            .ReturnsAsync(new UserDto
+            {
+                Id = "1",
+                Name = "User 1",
+                Email = "",
+                Password = "",
+                Role = "Admin"
+            });
+
+        Mock.Get(context.PermissionService)
+            .Setup(x => x.CanUpdateNotebook(
+                It.IsAny<Notebook>(),
+                It.IsAny<UserDto>()
+            ))
+            .Returns(true);
+
         context.DbContext.AddRange(notebook1, notebook2);
         context.DbContext.SaveChanges();
 
@@ -183,23 +184,6 @@ public class NotebookServiceTests
     [Test]
     public async Task Find_ReturnsNotebook()
     {
-        var userServiceMock = new Mock<IUserService>();
-        var permissionServiceMock = new Mock<IPermissionService>();
-
-        userServiceMock.Setup(x => x.GetCurrentUser()).ReturnsAsync(new UserDto
-        {
-            Id = "1",
-            Name = "User 1",
-            Email = "",
-            Password = "",
-            Role = "Admin"
-        });
-
-        permissionServiceMock.Setup(x => x.CanUpdateNotebook(It.IsAny<Notebook>(), It.IsAny<UserDto>())).Returns(true);
-
-        TestStartup.Register(userServiceMock.Object);
-        TestStartup.Register(permissionServiceMock.Object);
-
         using var context = TestStartup.CreateComponentsContext();
 
         var sut = context.Resolve<NotebookService>();
@@ -261,6 +245,24 @@ public class NotebookServiceTests
             CreatedBy = null
         };
 
+        Mock.Get(context.UserService)
+            .Setup(x => x.GetCurrentUser())
+            .ReturnsAsync(new UserDto
+            {
+                Id = "1",
+                Name = "User 1",
+                Email = "",
+                Password = "",
+                Role = "Admin"
+            });
+
+        Mock.Get(context.PermissionService)
+            .Setup(x => x.CanUpdateNotebook(
+                It.IsAny<Notebook>(),
+                It.IsAny<UserDto>()
+            ))
+            .Returns(true);
+
         context.DbContext.Add(notebook);
         context.DbContext.SaveChanges();
 
@@ -281,23 +283,6 @@ public class NotebookServiceTests
     [Test]
     public async Task Create_ReturnsNotebook()
     {
-        var userServiceMock = new Mock<IUserService>();
-        var permissionServiceMock = new Mock<IPermissionService>();
-
-        userServiceMock.Setup(x => x.GetCurrentUser()).ReturnsAsync(new UserDto
-        {
-            Id = "1",
-            Name = "User 1",
-            Email = "",
-            Password = "",
-            Role = "Admin"
-        });
-
-        permissionServiceMock.Setup(x => x.CanUpdateNotebook(It.IsAny<Notebook>(), It.IsAny<UserDto>())).Returns(true);
-
-        TestStartup.Register(userServiceMock.Object);
-        TestStartup.Register(permissionServiceMock.Object);
-
         using var context = TestStartup.CreateComponentsContext();
 
         var sut = context.Resolve<NotebookService>();
@@ -315,6 +300,24 @@ public class NotebookServiceTests
             Color = "Black",
             Price = 1000
         };
+
+        Mock.Get(context.UserService)
+            .Setup(x => x.GetCurrentUser())
+            .ReturnsAsync(new UserDto
+            {
+                Id = "1",
+                Name = "User 1",
+                Email = "",
+                Password = "",
+                Role = "Admin"
+            });
+
+        Mock.Get(context.PermissionService)
+            .Setup(x => x.CanUpdateNotebook(
+                It.IsAny<Notebook>(),
+                It.IsAny<UserDto>()
+            ))
+            .Returns(true);
 
         context.DbContext.Brands.Add(new Brand
         {
@@ -373,7 +376,7 @@ public class NotebookServiceTests
         // Assert
         Assert.Multiple(() =>
         {
-            Assert.That(result, Is.True, "Create should return true");
+            Assert.That(result, Is.True, "Create failed");
             Assert.That(addedNotebook?.Id, Is.EqualTo(notebook.Id), "Notebook id should be the same");
             Assert.That(addedNotebook?.BrandId, Is.EqualTo(notebook.BrandId), "Notebook brand id should be the same");
         });
@@ -382,23 +385,6 @@ public class NotebookServiceTests
     [Test]
     public async Task Update_ReturnsNotebook()
     {
-        var userServiceMock = new Mock<IUserService>();
-        var permissionServiceMock = new Mock<IPermissionService>();
-
-        userServiceMock.Setup(x => x.GetCurrentUser()).ReturnsAsync(new UserDto
-        {
-            Id = "1",
-            Name = "User 1",
-            Email = "",
-            Password = "",
-            Role = "Admin"
-        });
-
-        permissionServiceMock.Setup(x => x.CanUpdateNotebook(It.IsAny<Notebook>(), It.IsAny<UserDto>())).Returns(true);
-
-        TestStartup.Register(userServiceMock.Object);
-        TestStartup.Register(permissionServiceMock.Object);
-
         using var context = TestStartup.CreateComponentsContext();
 
         var sut = context.Resolve<NotebookService>();
@@ -459,6 +445,24 @@ public class NotebookServiceTests
             CreatedAt = DateTime.Now.ToString(),
             CreatedBy = null
         };
+
+        Mock.Get(context.UserService)
+            .Setup(x => x.GetCurrentUser())
+            .ReturnsAsync(new UserDto
+            {
+                Id = "1",
+                Name = "User 1",
+                Email = "",
+                Password = "",
+                Role = "Admin"
+            });
+
+        Mock.Get(context.PermissionService)
+            .Setup(x => x.CanUpdateNotebook(
+                It.IsAny<Notebook>(),
+                It.IsAny<UserDto>()
+            ))
+            .Returns(true);
 
         context.DbContext.Add(notebook);
         context.DbContext.SaveChanges();
@@ -493,23 +497,6 @@ public class NotebookServiceTests
     [Test]
     public async Task Delete_ReturnsNotebook()
     {
-        var userServiceMock = new Mock<IUserService>();
-        var permissionServiceMock = new Mock<IPermissionService>();
-
-        userServiceMock.Setup(x => x.GetCurrentUser()).ReturnsAsync(new UserDto
-        {
-            Id = "1",
-            Name = "User 1",
-            Email = "",
-            Password = "",
-            Role = "Admin"
-        });
-
-        permissionServiceMock.Setup(x => x.CanUpdateNotebook(It.IsAny<Notebook>(), It.IsAny<UserDto>())).Returns(true);
-
-        TestStartup.Register(userServiceMock.Object);
-        TestStartup.Register(permissionServiceMock.Object);
-
         using var context = TestStartup.CreateComponentsContext();
 
         var sut = context.Resolve<NotebookService>();
@@ -570,6 +557,24 @@ public class NotebookServiceTests
             CreatedAt = DateTime.Now.ToString(),
             CreatedBy = null
         };
+
+        Mock.Get(context.UserService)
+            .Setup(x => x.GetCurrentUser())
+            .ReturnsAsync(new UserDto
+            {
+                Id = "1",
+                Name = "User 1",
+                Email = "",
+                Password = "",
+                Role = "Admin"
+            });
+
+        Mock.Get(context.PermissionService)
+            .Setup(x => x.CanUpdateNotebook(
+                It.IsAny<Notebook>(),
+                It.IsAny<UserDto>()
+            ))
+            .Returns(true);
 
         context.DbContext.Add(notebook);
         context.DbContext.SaveChanges();

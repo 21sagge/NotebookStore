@@ -7,7 +7,7 @@ namespace NotebookStore.Business
     {
         /// <summary>
         /// Registers the necessary services for the notebook business.
-        /// (AutoMapper, ISerializer, IServices, IUserService)
+        /// (BusinessMapper, ISerializer, IServices, IUserService)
         /// </summary>
         /// <param name="services">The IServiceCollection to add the services to.</param>
         public static void RegisterNotebookBusiness(this IServiceCollection services)

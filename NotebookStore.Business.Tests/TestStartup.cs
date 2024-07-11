@@ -1,16 +1,19 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+using Moq;
 using NotebookStore.Business.Context;
 using NotebookStore.DAL;
 
 namespace NotebookStore.Business.Tests;
 
+/// <summary>
+/// Represents the startup class for testing purposes.
+/// </summary>
 public class TestStartup
 {
     private static readonly ServiceCollection services;
 
-    // Register services
     static TestStartup()
     {
         services = new ServiceCollection();
@@ -23,12 +26,18 @@ public class TestStartup
         });
 
         services.AddScoped<IUnitOfWork, UnitOfWork>();
-        
+
         services.AddScoped<IUserContext, ConsoleUserContext>();
 
         services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = false)
             .AddRoles<IdentityRole>()
             .AddEntityFrameworkStores<NotebookStoreContext.NotebookStoreContext>();
+
+        var userServiceMock = new Mock<IUserService>();
+        var permissionServiceMock = new Mock<IPermissionService>();
+
+        services.AddSingleton(userServiceMock.Object);
+        services.AddSingleton(permissionServiceMock.Object);
     }
 
     /// <summary>
@@ -45,7 +54,6 @@ public class TestStartup
     public static void Register<T>(T mock) where T : class
     => services.AddSingleton(mock);
 
-
     /// <summary>
     /// Create a ComponentsContext
     /// </summary>
@@ -57,36 +65,70 @@ public class TestStartup
         var context = serviceProvider.GetRequiredService<NotebookStoreContext.NotebookStoreContext>();
 
         context.Database.EnsureCreated();
-        // context.Database.BeginTransaction();
 
-        return new ComponentsContext(serviceProvider);
+        return new ComponentsContext(serviceProvider, context);
     }
 
+    /// <summary>
+    /// Represents a context that provides access to various components and services used in the application.
+    /// </summary>
     public class ComponentsContext : IDisposable
     {
         private readonly ServiceProvider serviceProvider;
 
         private readonly Lazy<NotebookStoreContext.NotebookStoreContext> context;
 
-        public NotebookStoreContext.NotebookStoreContext DbContext
-        => context.Value;
+        private readonly Lazy<IUserService> userService;
+        private readonly Lazy<IPermissionService> permissionService;
 
-        public ComponentsContext(ServiceProvider serviceProvider)
+        /// <summary>
+        /// Gets the instance of the NotebookStoreContext.NotebookStoreContext used by the context.
+        /// </summary>
+        public NotebookStoreContext.NotebookStoreContext DbContext => context.Value;
+
+        /// <summary>
+        /// Gets the instance of the IUserService used by the context.
+        /// </summary>
+        public IUserService UserService => userService.Value;
+
+        /// <summary>
+        /// Gets the instance of the IPermissionService used by the context.
+        /// </summary>
+        public IPermissionService PermissionService => permissionService.Value;
+
+        /// <summary>
+        /// Initializes a new instance of the ComponentsContext class.
+        /// </summary>
+        /// <param name="serviceProvider">The service provider used to resolve services.</param>
+        /// <param name="context">The instance of the NotebookStoreContext.NotebookStoreContext used by the context.</param>
+        public ComponentsContext(ServiceProvider serviceProvider, NotebookStoreContext.NotebookStoreContext context)
         {
             this.serviceProvider = serviceProvider;
+            this.context = new Lazy<NotebookStoreContext.NotebookStoreContext>(() => context, isThreadSafe: true);
 
-            context = new Lazy<NotebookStoreContext.NotebookStoreContext>(serviceProvider.GetRequiredService<NotebookStoreContext.NotebookStoreContext>, true);
+            userService = new Lazy<IUserService>(
+                serviceProvider.GetRequiredService<IUserService>,
+                isThreadSafe: true
+            );
+
+            permissionService = new Lazy<IPermissionService>(
+                serviceProvider.GetRequiredService<IPermissionService>,
+                isThreadSafe: true
+            );
         }
 
         /// <summary>
-        /// Resolve a service
+        /// Resolve a service from the context.
         /// </summary>
-        /// <typeparam name="T">Service type</typeparam>
+        /// <typeparam name="T">The type of the service to resolve.</typeparam>
+        /// <returns>The resolved service instance.</returns>
         public T Resolve<T>() where T : class
-        => serviceProvider.GetRequiredService<T>();
+        {
+            return serviceProvider.GetRequiredService<T>();
+        }
 
         /// <summary>
-        /// Dispose the context
+        /// Dispose the context and release any resources used.
         /// </summary>
         public void Dispose()
         {
