@@ -3,7 +3,6 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Configuration;
 using NotebookStore.Business;
 using NotebookStore.DAL;
-using NotebookStoreMVC;
 using Microsoft.AspNetCore.Identity;
 using NotebookStore.Business.Context;
 
@@ -21,6 +20,8 @@ class Program
 
         var services = new ServiceCollection();
 
+        services.RegisterNotebookBusiness();
+
         services.AddDefaultIdentity<IdentityUser>()
             .AddRoles<IdentityRole>()
             .AddEntityFrameworkStores<NotebookStoreContext.NotebookStoreContext>();
@@ -34,9 +35,7 @@ class Program
                     config.GetSection("ConnectionStrings").GetSection("SqlLite").Value,
                     b => b.MigrationsAssembly("NotebookStoreContext"));
             })
-            .AddAutoMapper(configure => configure.AddProfile(new MapperMvc()))
-            .AddScoped<IUnitOfWork, UnitOfWork>()
-            .AddScoped<IServices, Services>();
+            .AddScoped<IUnitOfWork, UnitOfWork>();
 
         var serviceProvider = services.BuildServiceProvider();
 
