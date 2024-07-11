@@ -3,7 +3,7 @@ using System.Xml.Serialization;
 
 namespace NotebookStore.Business;
 
-public class XmlHandler : ISerializer
+internal class XmlHandler : ISerializer
 {
     public string Format => "xml";
 

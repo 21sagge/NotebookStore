@@ -2,7 +2,7 @@
 
 namespace NotebookStore.Business;
 
-public class PermissionService : IPermissionService
+internal class PermissionService : IPermissionService
 {
     public bool CanUpdateBrand(Brand entity, UserDto currentUser) =>
         entity != null && (

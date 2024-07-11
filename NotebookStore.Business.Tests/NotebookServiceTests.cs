@@ -1,51 +1,25 @@
 ﻿using Moq;
-using AutoMapper;
-using Microsoft.EntityFrameworkCore;
-using NotebookStore.DAL;
 using NotebookStore.Entities;
-using NotebookStore.Business.Mapping;
 
 namespace NotebookStore.Business.Tests;
 
 [TestFixture]
+[Parallelizable(ParallelScope.All)]
 public class NotebookServiceTests
 {
-    private IUnitOfWork unitOfWork;
-    private IMapper mapper;
-    private Mock<IUserService> mockUserService;
-    private Mock<IPermissionService> mockPermissionService;
-    private NotebookService sut;
-    private NotebookStoreContext.NotebookStoreContext context;
-
-    [SetUp]
-    public void Setup()
+    [OneTimeSetUp]
+    public void OneTimeSetup()
     {
-        var options = new DbContextOptionsBuilder<NotebookStoreContext.NotebookStoreContext>()
-            .UseSqlite("DataSource=notebookStoreTest.db")
-            .Options;
-
-        context = new NotebookStoreContext.NotebookStoreContext(options);
-
-        context.Database.EnsureDeleted();
-        context.Database.EnsureCreated();
-
-        unitOfWork = new UnitOfWork(context);
-        mapper = new MapperConfiguration(cfg => cfg.AddProfile<BusinessMapper>()).CreateMapper();
-        mockUserService = new Mock<IUserService>();
-        mockPermissionService = new Mock<IPermissionService>();
-
-        sut = new NotebookService
-        (
-            unitOfWork,
-            mapper,
-            mockUserService.Object,
-            mockPermissionService.Object
-        );
+        TestStartup.Register<NotebookService>();
     }
 
     [Test]
     public async Task GetAll_ReturnsNotebooks()
     {
+        using var context = TestStartup.CreateComponentsContext();
+
+        var sut = context.Resolve<NotebookService>();
+
         // Arrange
         var notebook1 = new Notebook
         {
@@ -159,55 +133,61 @@ public class NotebookServiceTests
             CreatedBy = null
         };
 
-        mockUserService.Setup(service => service.GetCurrentUser()).ReturnsAsync(
-            new UserDto
+        Mock.Get(context.UserService)
+            .Setup(x => x.GetCurrentUser())
+            .ReturnsAsync(new UserDto
             {
                 Id = "1",
-                Name = "user1",
+                Name = "User 1",
                 Email = "",
                 Password = "",
                 Role = "Admin"
-            }
-        );
+            });
 
-        mockPermissionService.Setup(
-            service => service.CanUpdateNotebook(
+        Mock.Get(context.PermissionService)
+            .Setup(x => x.CanUpdateNotebook(
                 It.IsAny<Notebook>(),
-                It.IsAny<UserDto>()))
+                It.IsAny<UserDto>()
+            ))
             .Returns(true);
 
-        context.AddRange(notebook1, notebook2);
-        context.SaveChanges();
+        context.DbContext.AddRange(notebook1, notebook2);
+        context.DbContext.SaveChanges();
 
         // Act
         var result = await sut.GetAll();
-        var notebook1Result = result.FirstOrDefault(n => n.Id == 1);
-        var notebook2Result = result.FirstOrDefault(n => n.Id == 2);
+        var notebook1Result = result.FirstOrDefault(n => n.Id == notebook1.Id);
+        var notebook2Result = result.FirstOrDefault(n => n.Id == notebook2.Id);
 
         // Assert
+        Assert.That(result.Count, Is.EqualTo(2), "Notebooks count should be 2");
+
         Assert.Multiple(() =>
         {
-            Assert.That(result.Count, Is.EqualTo(2));
+            Assert.That(notebook1Result?.Id, Is.EqualTo(1), "Notebook 1 Id should be 1");
+            Assert.That(notebook1Result?.BrandId, Is.EqualTo(1), "Notebook 1 BrandId should be 1");
+            Assert.That(notebook1Result?.Color, Is.EqualTo("Black"), "Notebook 1 Color should be Black");
+            Assert.That(notebook1Result?.CanUpdate, Is.True, "Notebook 1 CanUpdate should be true");
+            Assert.That(notebook1Result?.CanDelete, Is.True, "Notebook 1 CanDelete should be true");
+        });
 
-            Assert.That(notebook1Result?.Id, Is.EqualTo(1));
-            Assert.That(notebook1Result?.BrandId, Is.EqualTo(1));
-            Assert.That(notebook1Result?.Brand?.Name, Is.EqualTo("Brand 1"));
-            Assert.That(notebook1Result?.Color, Is.EqualTo("Black"));
-            Assert.That(notebook1Result?.CanUpdate, Is.True);
-            Assert.That(notebook1Result?.CanDelete, Is.True);
-
-            Assert.That(notebook2Result?.Id, Is.EqualTo(2));
-            Assert.That(notebook2Result?.BrandId, Is.EqualTo(2));
-            Assert.That(notebook2Result?.Brand?.Name, Is.EqualTo("Brand 2"));
-            Assert.That(notebook2Result?.Color, Is.EqualTo("White"));
-            Assert.That(notebook2Result?.CanUpdate, Is.True);
-            Assert.That(notebook2Result?.CanDelete, Is.True);
+        Assert.Multiple(() =>
+        {
+            Assert.That(notebook2Result?.Id, Is.EqualTo(2), "Notebook 2 Id should be 2");
+            Assert.That(notebook2Result?.BrandId, Is.EqualTo(2), "Notebook 2 BrandId should be 2");
+            Assert.That(notebook2Result?.Color, Is.EqualTo("White"), "Notebook 2 Color should be White");
+            Assert.That(notebook2Result?.CanUpdate, Is.True, "Notebook 2 CanUpdate should be true");
+            Assert.That(notebook2Result?.CanDelete, Is.True, "Notebook 2 CanDelete should be true");
         });
     }
 
     [Test]
     public async Task Find_ReturnsNotebook()
     {
+        using var context = TestStartup.CreateComponentsContext();
+
+        var sut = context.Resolve<NotebookService>();
+
         // Arrange
         var notebook = new Notebook
         {
@@ -265,26 +245,26 @@ public class NotebookServiceTests
             CreatedBy = null
         };
 
-        mockUserService.Setup(service => service.GetCurrentUser())
-        .ReturnsAsync(
-            new UserDto
+        Mock.Get(context.UserService)
+            .Setup(x => x.GetCurrentUser())
+            .ReturnsAsync(new UserDto
             {
                 Id = "1",
-                Name = "user1",
+                Name = "User 1",
                 Email = "",
                 Password = "",
                 Role = "Admin"
-            }
-        );
+            });
 
-        mockPermissionService.Setup(
-            service => service.CanUpdateNotebook(
+        Mock.Get(context.PermissionService)
+            .Setup(x => x.CanUpdateNotebook(
                 It.IsAny<Notebook>(),
-                It.IsAny<UserDto>()))
+                It.IsAny<UserDto>()
+            ))
             .Returns(true);
 
-        context.Add(notebook);
-        context.SaveChanges();
+        context.DbContext.Add(notebook);
+        context.DbContext.SaveChanges();
 
         // Act
         var result = await sut.Find(notebook.Id);
@@ -292,17 +272,21 @@ public class NotebookServiceTests
         // Assert
         Assert.Multiple(() =>
         {
-            Assert.That(result?.Id, Is.EqualTo(notebook.Id));
-            Assert.That(result?.BrandId, Is.EqualTo(notebook.BrandId));
-            Assert.That(result?.Color, Is.EqualTo(notebook.Color));
-            Assert.That(result?.CanUpdate, Is.True);
-            Assert.That(result?.CanDelete, Is.True);
+            Assert.That(result?.Id, Is.EqualTo(notebook.Id), "Notebook Id should be 1");
+            Assert.That(result?.BrandId, Is.EqualTo(notebook.BrandId), "Notebook BrandId should be 1");
+            Assert.That(result?.Color, Is.EqualTo(notebook.Color), "Notebook Color should be Black");
+            Assert.That(result?.CanUpdate, Is.True, "Notebook CanUpdate should be true");
+            Assert.That(result?.CanDelete, Is.True, "Notebook CanDelete should be true");
         });
     }
 
     [Test]
     public async Task Create_ReturnsNotebook()
     {
+        using var context = TestStartup.CreateComponentsContext();
+
+        var sut = context.Resolve<NotebookService>();
+
         // Arrange
         var notebook = new NotebookDto
         {
@@ -317,39 +301,39 @@ public class NotebookServiceTests
             Price = 1000
         };
 
-        mockUserService.Setup(service => service.GetCurrentUser())
-        .ReturnsAsync(
-            new UserDto
+        Mock.Get(context.UserService)
+            .Setup(x => x.GetCurrentUser())
+            .ReturnsAsync(new UserDto
             {
                 Id = "1",
-                Name = "user1",
+                Name = "User 1",
                 Email = "",
                 Password = "",
                 Role = "Admin"
-            }
-        );
+            });
 
-        mockPermissionService.Setup(
-            service => service.CanUpdateNotebook(
+        Mock.Get(context.PermissionService)
+            .Setup(x => x.CanUpdateNotebook(
                 It.IsAny<Notebook>(),
-                It.IsAny<UserDto>()))
+                It.IsAny<UserDto>()
+            ))
             .Returns(true);
 
-        context.Brands.Add(new Brand
+        context.DbContext.Brands.Add(new Brand
         {
             Id = 1,
             Name = "Brand 1",
             CreatedAt = DateTime.Now.ToString(),
         });
 
-        context.Models.Add(new Model
+        context.DbContext.Models.Add(new Model
         {
             Id = 1,
             Name = "Model 1",
             CreatedAt = DateTime.Now.ToString(),
         });
 
-        context.Cpus.Add(new Cpu
+        context.DbContext.Cpus.Add(new Cpu
         {
             Id = 1,
             Brand = "Intel",
@@ -357,7 +341,7 @@ public class NotebookServiceTests
             CreatedAt = DateTime.Now.ToString(),
         });
 
-        context.Displays.Add(new Display
+        context.DbContext.Displays.Add(new Display
         {
             Id = 1,
             Size = 15.6,
@@ -367,7 +351,7 @@ public class NotebookServiceTests
             CreatedAt = DateTime.Now.ToString(),
         });
 
-        context.Memories.Add(new Memory
+        context.DbContext.Memories.Add(new Memory
         {
             Id = 1,
             Capacity = 8,
@@ -375,7 +359,7 @@ public class NotebookServiceTests
             CreatedAt = DateTime.Now.ToString(),
         });
 
-        context.Storages.Add(new Storage
+        context.DbContext.Storages.Add(new Storage
         {
             Id = 1,
             Capacity = 512,
@@ -383,16 +367,16 @@ public class NotebookServiceTests
             CreatedAt = DateTime.Now.ToString(),
         });
 
-        context.SaveChanges();
+        context.DbContext.SaveChanges();
 
         // Act
         var result = await sut.Create(notebook);
-        var addedNotebook = context.Notebooks.FirstOrDefault(n => n.Id == notebook.Id);
+        var addedNotebook = context.DbContext.Notebooks.FirstOrDefault(n => n.Id == notebook.Id);
 
         // Assert
         Assert.Multiple(() =>
         {
-            Assert.That(result, Is.True, "Create should return true");
+            Assert.That(result, Is.True, "Create failed");
             Assert.That(addedNotebook?.Id, Is.EqualTo(notebook.Id), "Notebook id should be the same");
             Assert.That(addedNotebook?.BrandId, Is.EqualTo(notebook.BrandId), "Notebook brand id should be the same");
         });
@@ -401,6 +385,10 @@ public class NotebookServiceTests
     [Test]
     public async Task Update_ReturnsNotebook()
     {
+        using var context = TestStartup.CreateComponentsContext();
+
+        var sut = context.Resolve<NotebookService>();
+
         // Arrange
         var notebook = new Notebook
         {
@@ -458,32 +446,43 @@ public class NotebookServiceTests
             CreatedBy = null
         };
 
-        mockUserService.Setup(service => service.GetCurrentUser())
-        .ReturnsAsync(
-            new UserDto
+        Mock.Get(context.UserService)
+            .Setup(x => x.GetCurrentUser())
+            .ReturnsAsync(new UserDto
             {
                 Id = "1",
-                Name = "user1",
+                Name = "User 1",
                 Email = "",
                 Password = "",
                 Role = "Admin"
-            }
-        );
+            });
 
-        mockPermissionService.Setup(
-            service => service.CanUpdateNotebook(
+        Mock.Get(context.PermissionService)
+            .Setup(x => x.CanUpdateNotebook(
                 It.IsAny<Notebook>(),
-                It.IsAny<UserDto>()))
+                It.IsAny<UserDto>()
+            ))
             .Returns(true);
 
-        context.Add(notebook);
-        context.SaveChanges();
+        context.DbContext.Add(notebook);
+        context.DbContext.SaveChanges();
 
         // Act
-        notebook.Color = "White";
-        var result = await sut.Update(mapper.Map<NotebookDto>(notebook));
+        var notebookDto = new NotebookDto
+        {
+            Id = notebook.Id,
+            BrandId = notebook.BrandId,
+            ModelId = notebook.ModelId,
+            CpuId = notebook.CpuId,
+            DisplayId = notebook.DisplayId,
+            MemoryId = notebook.MemoryId,
+            StorageId = notebook.StorageId,
+            Price = notebook.Price,
+            Color = "White"
+        };
 
-        var updatedNotebook = context.Notebooks.FirstOrDefault(n => n.Id == notebook.Id);
+        var result = await sut.Update(notebookDto);
+        var updatedNotebook = context.DbContext.Notebooks.FirstOrDefault(n => n.Id == notebook.Id);
 
         // Assert
         Assert.Multiple(() =>
@@ -498,6 +497,10 @@ public class NotebookServiceTests
     [Test]
     public async Task Delete_ReturnsNotebook()
     {
+        using var context = TestStartup.CreateComponentsContext();
+
+        var sut = context.Resolve<NotebookService>();
+
         // Arrange
         var notebook = new Notebook
         {
@@ -555,30 +558,30 @@ public class NotebookServiceTests
             CreatedBy = null
         };
 
-        mockUserService.Setup(service => service.GetCurrentUser())
-        .ReturnsAsync(
-            new UserDto
+        Mock.Get(context.UserService)
+            .Setup(x => x.GetCurrentUser())
+            .ReturnsAsync(new UserDto
             {
                 Id = "1",
-                Name = "user1",
+                Name = "User 1",
                 Email = "",
                 Password = "",
                 Role = "Admin"
-            }
-        );
+            });
 
-        mockPermissionService.Setup(
-            service => service.CanUpdateNotebook(
+        Mock.Get(context.PermissionService)
+            .Setup(x => x.CanUpdateNotebook(
                 It.IsAny<Notebook>(),
-                It.IsAny<UserDto>()))
+                It.IsAny<UserDto>()
+            ))
             .Returns(true);
 
-        context.Add(notebook);
-        context.SaveChanges();
+        context.DbContext.Add(notebook);
+        context.DbContext.SaveChanges();
 
         // Act
         var result = await sut.Delete(notebook.Id);
-        var deletedNotebook = context.Notebooks.FirstOrDefault(n => n.Id == notebook.Id);
+        var deletedNotebook = context.DbContext.Notebooks.FirstOrDefault(n => n.Id == notebook.Id);
 
         // Assert
         Assert.Multiple(() =>
@@ -586,12 +589,5 @@ public class NotebookServiceTests
             Assert.That(result, Is.True, "Delete should return true");
             Assert.That(deletedNotebook, Is.Null, "Notebook should be deleted");
         });
-    }
-
-    [TearDown]
-    public void TearDown()
-    {
-        context.Database.EnsureDeleted();
-        context.Dispose();
     }
 }

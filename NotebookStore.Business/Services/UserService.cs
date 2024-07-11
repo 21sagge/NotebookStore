@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using NotebookStore.Business.Context;
 
-public class UserService : IUserService
+internal class UserService : IUserService
 {
     private readonly IMapper mapper;
     private readonly IUserContext context;
