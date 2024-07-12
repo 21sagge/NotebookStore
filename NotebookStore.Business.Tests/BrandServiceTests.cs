@@ -134,6 +134,56 @@ public class BrandServiceTests
     }
 
     [Test]
+    public async Task Find_UserHasNoPermission_Works()
+    {
+        using var context = TestStartup.CreateComponentsContext();
+
+        var sut = context.Resolve<BrandService>();
+
+        // Arrange
+        var brand = new Brand
+        {
+            Id = 1,
+            Name = "Brand 1",
+            CreatedAt = DateTime.Now.ToString(),
+            CreatedBy = null
+        };
+
+        Mock.Get(context.UserService)
+            .Setup(x => x.GetCurrentUser())
+            .ReturnsAsync(new UserDto
+            {
+                Id = "1",
+                Name = "User 1",
+                Email = "",
+                Password = "",
+                Role = "Admin"
+            });
+
+        Mock.Get(context.PermissionService)
+            .Setup(x => x.CanUpdateBrand(
+                It.IsAny<Brand>(),
+                It.IsAny<UserDto>()
+            ))
+            .Returns(false);
+
+        context.DbContext.Add(brand);
+        context.DbContext.SaveChanges();
+
+        // Act
+        var result = await sut.Find(brand.Id);
+
+        // Assert
+        Assert.Multiple(() =>
+        {
+            Assert.That(result?.Id, Is.EqualTo(1), "Brand Id should be 1");
+            Assert.That(result?.Name, Is.EqualTo("Brand 1"), "Brand Name should be Brand 1");
+            Assert.That(result?.CanUpdate, Is.False, "Brand CanUpdate should be false");
+            Assert.That(result?.CanDelete, Is.False, "Brand CanDelete should be false");
+        });
+    }
+
+    [Test]
     public async Task Create_ReturnsBrand()
     {
         using var context = TestStartup.CreateComponentsContext();

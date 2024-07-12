@@ -33,11 +33,8 @@ public class TestStartup
             .AddRoles<IdentityRole>()
             .AddEntityFrameworkStores<NotebookStoreContext.NotebookStoreContext>();
 
-        var userServiceMock = new Mock<IUserService>();
-        var permissionServiceMock = new Mock<IPermissionService>();
-
-        services.AddSingleton(userServiceMock.Object);
-        services.AddSingleton(permissionServiceMock.Object);
+        services.AddScoped(_ => new Mock<IUserService>().Object);
+        services.AddScoped(_ => new Mock<IPermissionService>().Object);
     }
 
     /// <summary>
