@@ -6,49 +6,49 @@ internal class PermissionService : IPermissionService
 {
     public bool CanUpdateBrand(Brand entity, UserDto currentUser) =>
         entity != null && (
-            currentUser.Role == "Admin" ||
+            currentUser.Roles.Contains("Admin") ||
             currentUser.Id == entity.CreatedBy ||
             entity.CreatedBy == null
         );
 
     public bool CanUpdateModel(Model entity, UserDto currentUser) =>
         entity != null && (
-            currentUser.Role == "Admin" ||
+            currentUser.Roles.Contains("Admin") ||
             currentUser.Id == entity.CreatedBy ||
             entity.CreatedBy == null
         );
 
     public bool CanUpdateCpu(Cpu entity, UserDto currentUser) =>
         entity != null && (
-            currentUser.Role == "Admin" ||
+            currentUser.Roles.Contains("Admin") ||
             currentUser.Id == entity.CreatedBy ||
             entity.CreatedBy == null
         );
 
     public bool CanUpdateStorage(Storage entity, UserDto currentUser) =>
         entity != null && (
-            currentUser.Role == "Admin" ||
+            currentUser.Roles.Contains("Admin") ||
             currentUser.Id == entity.CreatedBy ||
             entity.CreatedBy == null
         );
 
     public bool CanUpdateMemory(Memory entity, UserDto currentUser) =>
         entity != null && (
-            currentUser.Role == "Admin" ||
+            currentUser.Roles.Contains("Admin") ||
             currentUser.Id == entity.CreatedBy ||
             entity.CreatedBy == null
         );
 
     public bool CanUpdateDisplay(Display entity, UserDto currentUser) =>
         entity != null && (
-            currentUser.Role == "Admin" ||
+            currentUser.Roles.Contains("Admin") ||
             currentUser.Id == entity.CreatedBy ||
             entity.CreatedBy == null
         );
 
     public bool CanUpdateNotebook(Notebook notebook, UserDto currentUser) =>
         notebook != null && (
-            currentUser.Role == "Admin" ||
+            currentUser.Roles.Contains("Admin") ||
             currentUser.Id == notebook.CreatedBy ||
             notebook.CreatedBy == null
         ) &&

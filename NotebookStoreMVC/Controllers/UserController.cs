@@ -9,26 +9,27 @@ namespace NotebookStoreMVC.Controllers;
 [Authorize]
 public class UserController : Controller
 {
-	private readonly IUserService services;
+	private readonly IUserService userService;
 	private readonly IMapper mapper;
+    private readonly IRoleService roleService;
 
-	public UserController(IUserService services, IMapper mapper)
+    public UserController(IUserService userService, IMapper mapper, IRoleService roleService)
 	{
-		this.services = services;
+		this.userService = userService;
 		this.mapper = mapper;
-	}
+        this.roleService = roleService;
+    }
 
 	// GET: userViewModel
 	[HttpGet]
 	public async Task<IActionResult> Index()
 	{
-		var users = await services.GetUsers();
+		var users = await userService.GetUsers();
 
 		foreach (var user in users)
 		{
-			var roles = await services.GetUserRoles(user.Id);
-			user.Role = roles?.LastOrDefault() ?? string.Empty;
-			// user.Roles = roles?.ToArray() ?? new string[0];
+			var roles = await userService.GetUserRoles(user.Id);
+			user.Roles = roles?.ToArray() ?? Array.Empty<string>();
 		}
 
 		return View(mapper.Map<IEnumerable<UserViewModel>>(users));
@@ -39,16 +40,17 @@ public class UserController : Controller
 	[Authorize(Roles = "Admin")]
 	public async Task<IActionResult> Edit(string id)
 	{
-		var user = await services.GetUser(id);
+		var user = await userService.GetUser(id);
 
 		if (user == null)
 		{
 			return NotFound();
 		}
 
-		var roles = await services.GetUserRoles(user.Id);
-		user.Role = roles?.LastOrDefault() ?? string.Empty;
-		// user.Roles = roles?.ToArray() ?? new string[0];
+		var roles = await userService.GetUserRoles(user.Id);
+		user.Roles = roles?.ToArray() ?? Array.Empty<string>();
+
+		ViewData["Roles"] = await roleService.GetRoles();
 
 		return View(mapper.Map<UserViewModel>(user));
 	}
@@ -57,7 +59,7 @@ public class UserController : Controller
 	[HttpPost]
 	[ValidateAntiForgeryToken]
 	[Authorize(Roles = "Admin")]
-	public async Task<IActionResult> Edit(string id, [Bind("Id,Role")] UserViewModel userViewModel)
+	public async Task<IActionResult> Edit(string id, [Bind("Id,Roles")] UserViewModel userViewModel)
 	{
 		if (id != userViewModel.Id)
 		{
@@ -66,17 +68,18 @@ public class UserController : Controller
 
 		if (ModelState.IsValid)
 		{
-			var roles = await services.GetUserRoles(userViewModel.Id);
+			var roles = await userService.GetUserRoles(userViewModel.Id);
 
-			var role = roles?.LastOrDefault() ?? string.Empty;
-
-			if (role != null && !string.IsNullOrEmpty(userViewModel.Role))
+			if (roles != null)
 			{
-				var result = await services.AddUserToRole(userViewModel.Id, userViewModel.Role);
-				if (result)
-				{
-					await services.RemoveUserFromRole(userViewModel.Id, role);
-				}
+				await userService.RemoveUserRoles(userViewModel.Id, roles.ToArray());
+			}
+
+			var result = await userService.AddUserRoles(userViewModel.Id, userViewModel.Roles);
+
+			if (!result)
+			{
+				return BadRequest();
 			}
 
 			return RedirectToAction(nameof(Index));
@@ -94,7 +97,7 @@ public class UserController : Controller
 	[Authorize(Roles = "Admin")]
 	public async Task<IActionResult> Delete(string id)
 	{
-		var user = await services.GetUser(id);
+		var user = await userService.GetUser(id);
 
 		if (user == null)
 		{
@@ -108,13 +111,13 @@ public class UserController : Controller
 		}
 
 		// if user is an admin, redirect to the index page
-		if (User.IsInRole("Admin") && user.Role == "Admin")
+		if (User.IsInRole("Admin") && user.Roles.Contains("Admin"))
 		{
 			return RedirectToAction(nameof(Index));
 		}
 
-		var roles = await services.GetUserRoles(user.Id);
-		user.Role = roles?.LastOrDefault() ?? string.Empty;
+		var roles = await userService.GetUserRoles(user.Id);
+		user.Roles = roles?.ToArray() ?? Array.Empty<string>();
 
 		return View(mapper.Map<UserViewModel>(user));
 	}
@@ -125,7 +128,7 @@ public class UserController : Controller
 	[Authorize(Roles = "Admin")]
 	public async Task<IActionResult> DeleteConfirmed(string id)
 	{
-		await services.DeleteUser(id);
+		await userService.DeleteUser(id);
 
 		return RedirectToAction(nameof(Index));
 	}

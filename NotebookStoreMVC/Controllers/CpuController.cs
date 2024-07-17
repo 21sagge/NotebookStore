@@ -43,6 +43,7 @@ public class CpuController : Controller
 
     // GET: CpuViewModel/Create
     [HttpGet]
+    [Authorize(Policy = "Add Cpu")]
     public IActionResult Create()
     {
         return View();
@@ -51,6 +52,7 @@ public class CpuController : Controller
     // POST: CpuViewModel/Create
     [HttpPost]
     [ValidateAntiForgeryToken]
+    [Authorize(Policy = "Add Cpu")]
     public async Task<IActionResult> Create([Bind("Id,Brand,Model")] CpuViewModel CpuViewModel)
     {
         if (ModelState.IsValid)
@@ -65,6 +67,7 @@ public class CpuController : Controller
 
     // GET: CpuViewModel/Edit/5
     [HttpGet]
+    [Authorize(Policy = "Edit Cpu")]
     public async Task<IActionResult> Edit(int id)
     {
         var cpu = await services.Cpus.Find(id);
@@ -80,6 +83,7 @@ public class CpuController : Controller
     // POST: CpuViewModel/Edit/5
     [HttpPost]
     [ValidateAntiForgeryToken]
+    [Authorize(Policy = "Edit Cpu")]
     public async Task<IActionResult> Edit(int id, [Bind("Id,Brand,Model")] CpuViewModel CpuViewModel)
     {
         if (id != CpuViewModel.Id)
@@ -107,6 +111,7 @@ public class CpuController : Controller
 
     // GET: CpuViewModel/Delete/5
     [HttpGet]
+    [Authorize(Policy = "Delete Cpu")]
     public async Task<IActionResult> Delete(int id)
     {
         var cpu = await services.Cpus.Find(id);
@@ -122,6 +127,7 @@ public class CpuController : Controller
     // POST: CpuViewModel/Delete/5
     [HttpPost, ActionName("Delete")]
     [ValidateAntiForgeryToken]
+    [Authorize(Policy = "Delete Cpu")]
     public async Task<IActionResult> DeleteConfirmed(int id)
     {
         await services.Cpus.Delete(id);

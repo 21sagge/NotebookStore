@@ -34,7 +34,7 @@ internal class UserService : IUserService
 
         var userRoles = await userManager.GetRolesAsync(user);
 
-        userDto.Role = userRoles.FirstOrDefault() ?? "";
+        userDto.Roles = userRoles.ToArray() ?? Array.Empty<string>();
 
         return userDto;
     }
@@ -151,6 +151,20 @@ internal class UserService : IUserService
         return result.Succeeded;
     }
 
+    public async Task<bool> AddUserRoles(string id, string[] roles)
+    {
+        var user = await userManager.FindByIdAsync(id);
+
+        if (user == null)
+        {
+            return false;
+        }
+
+        var result = await userManager.AddToRolesAsync(user, roles);
+
+        return result.Succeeded;
+    }
+
     public async Task<bool> RemoveUserFromRole(string id, string role)
     {
         var user = await userManager.FindByIdAsync(id);
@@ -161,6 +175,20 @@ internal class UserService : IUserService
         }
 
         var result = await userManager.RemoveFromRoleAsync(user, role);
+
+        return result.Succeeded;
+    }
+
+    public async Task<bool> RemoveUserRoles(string id, string[] roles)
+    {
+        var user = await userManager.FindByIdAsync(id);
+
+        if (user == null)
+        {
+            return false;
+        }
+
+        var result = await userManager.RemoveFromRolesAsync(user, roles);
 
         return result.Succeeded;
     }

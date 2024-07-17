@@ -43,6 +43,7 @@ public class BrandController : Controller
 
     // GET: BrandViewModel/Create
     [HttpGet]
+    [Authorize(Policy = "Add Brand")]
     public IActionResult Create()
     {
         return View();
@@ -51,6 +52,7 @@ public class BrandController : Controller
     // POST: BrandViewModel/Create
     [HttpPost]
     [ValidateAntiForgeryToken]
+    [Authorize(Policy = "Add Brand")]
     public async Task<IActionResult> Create([Bind("Id,Name")] BrandViewModel BrandViewModel)
     {
         if (ModelState.IsValid)
@@ -64,6 +66,8 @@ public class BrandController : Controller
     }
 
     // GET: BrandViewModel/Edit/5
+    [HttpGet]
+    [Authorize(Policy = "Edit Brand")]
     public async Task<IActionResult> Edit(int id)
     {
         var brand = await services.Brands.Find(id);
@@ -79,6 +83,7 @@ public class BrandController : Controller
     // POST: BrandViewModel/Edit/5
     [HttpPost]
     [ValidateAntiForgeryToken]
+    [Authorize(Policy = "Edit Brand")]
     public async Task<IActionResult> EditAsync(int id, [Bind("Id,Name")] BrandViewModel BrandViewModel)
     {
         if (id != BrandViewModel.Id)
@@ -105,6 +110,7 @@ public class BrandController : Controller
 
     // GET: BrandViewModel/Delete/5
     [HttpGet]
+    [Authorize(Policy = "Delete Brand")]
     public async Task<IActionResult> Delete(int id)
     {
         var brand = await services.Brands.Find(id);
@@ -120,6 +126,7 @@ public class BrandController : Controller
     // POST: BrandViewModel/Delete/5
     [HttpPost, ActionName("Delete")]
     [ValidateAntiForgeryToken]
+    [Authorize(Policy = "Delete Brand")]
     public async Task<IActionResult> DeleteConfirmed(int id)
     {
         await services.Brands.Delete(id);

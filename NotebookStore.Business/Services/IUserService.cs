@@ -78,6 +78,8 @@
         /// <returns>All users in the role as a collection of UserDto objects.</returns>
         Task<bool> AddUserToRole(string id, string role);
 
+        Task<bool> AddUserRoles(string id, string[] roles);
+
         /// <summary>
         /// Removes a role from a user.
         /// </summary>
@@ -85,6 +87,14 @@
         /// <param name="role">The role to remove from the user.</param>
         /// <returns>True if the role was removed; otherwise, false.</returns>
         Task<bool> RemoveUserFromRole(string id, string role);
+
+        /// <summary>
+        /// Retrieves all roles.
+        /// </summary>
+        /// <param name="id">The ID of the user whose roles to retrieve.</param>
+        /// <param name="roles">The roles to add to the user.</param>
+        /// <returns>True if the roles were added; otherwise, false.</returns>
+        Task<bool> RemoveUserRoles(string id, string[] roles);
 
         /// <summary>
         /// Determines whether a user is in a role.
