@@ -82,7 +82,6 @@ public class RoleController : Controller
 		{
 			Name = role,
 			Claims = new List<string>(),
-			AllClaims = new List<string>()
 		};
 
 		var claims = await roleService.GetClaims(role);
@@ -90,13 +89,6 @@ public class RoleController : Controller
 		foreach (var claim in claims)
 		{
 			roleViewModel.Claims.Add(claim);
-		}
-
-		var allClaims = await roleService.GetAllClaims();
-
-		foreach (var claim in allClaims)
-		{
-			roleViewModel.AllClaims.Add(claim);
 		}
 
 		return View(roleViewModel);

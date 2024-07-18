@@ -12,18 +12,20 @@ internal class Services : IServices
     private readonly IUserContext _context;
     private readonly UserManager<IdentityUser> _userManager;
     private readonly RoleManager<IdentityRole> _roleManager;
+    private readonly SignInManager<IdentityUser> _signInManager;
 
-    public Services(IUnitOfWork unitOfWork, IMapper mapper, IUserContext context, UserManager<IdentityUser> userManager, RoleManager<IdentityRole> roleManager)
+    public Services(IUnitOfWork unitOfWork, IMapper mapper, IUserContext context, UserManager<IdentityUser> userManager, RoleManager<IdentityRole> roleManager, SignInManager<IdentityUser> signInManager)
     {
         _unitOfWork = unitOfWork;
         _mapper = mapper;
         _context = context;
         _userManager = userManager;
         _roleManager = roleManager;
+        _signInManager = signInManager;
     }
 
     public IUserService Users => new UserService(_mapper, _context, _userManager);
-    public IRoleService Roles => new RoleService(_roleManager);
+    public IRoleService Roles => new RoleService(_roleManager, _userManager, _signInManager);
     public IPermissionService Permissions => new PermissionService();
     public IService<BrandDto> Brands => new BrandService(_unitOfWork, _mapper, Users, Permissions);
     public IService<CpuDto> Cpus => new CpuService(_unitOfWork, _mapper, Users, Permissions);
