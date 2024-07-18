@@ -43,6 +43,7 @@ public class ModelController : Controller
 
     // GET: ModelViewModel/Create
     [HttpGet]
+    [Authorize(Policy = "Add Model")]
     public IActionResult Create()
     {
         return View();
@@ -51,6 +52,7 @@ public class ModelController : Controller
     // POST: ModelViewModel/Create
     [HttpPost]
     [ValidateAntiForgeryToken]
+    [Authorize(Policy = "Add Model")]
     public async Task<IActionResult> Create([Bind("Id,Name")] ModelViewModel ModelViewModel)
     {
         if (ModelState.IsValid)
@@ -65,6 +67,7 @@ public class ModelController : Controller
 
     // GET: ModelViewModel/Edit/5
     [HttpGet]
+    [Authorize(Policy = "Edit Model")]
     public async Task<IActionResult> Edit(int id)
     {
         var model = await services.Models.Find(id);
@@ -80,6 +83,7 @@ public class ModelController : Controller
     // POST: ModelViewModel/Edit/5
     [HttpPost]
     [ValidateAntiForgeryToken]
+    [Authorize(Policy = "Edit Model")]
     public async Task<IActionResult> Edit(int id, [Bind("Id,Name")] ModelViewModel ModelViewModel)
     {
         if (id != ModelViewModel.Id)
@@ -106,6 +110,7 @@ public class ModelController : Controller
 
     // GET: ModelViewModel/Delete/5
     [HttpGet]
+    [Authorize(Policy = "Delete Model")]
     public async Task<IActionResult> Delete(int id)
     {
         var model = await services.Models.Find(id);
@@ -121,6 +126,7 @@ public class ModelController : Controller
     // POST: ModelViewModel/Delete/5
     [HttpPost, ActionName("Delete")]
     [ValidateAntiForgeryToken]
+    [Authorize(Policy = "Delete Model")]
     public async Task<IActionResult> DeleteConfirmed(int id)
     {
         await services.Models.Delete(id);

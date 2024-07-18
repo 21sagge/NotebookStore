@@ -47,7 +47,7 @@ public class NotebookController : Controller
 
 	// GET: Notebook/Create
 	[HttpGet]
-	[Authorize(Roles = "Admin, Editor")]
+	[Authorize(Policy = "Add Notebook")]
 	public async Task<IActionResult> Create()
 	{
 		var brandDtos = await services.Brands.GetAll();
@@ -70,7 +70,7 @@ public class NotebookController : Controller
 	// POST: Notebook/Create
 	[HttpPost]
 	[ValidateAntiForgeryToken]
-	[Authorize(Roles = "Admin, Editor")]
+	[Authorize(Policy = "Add Notebook")]
 	public async Task<IActionResult> Create([Bind("Id,Color,Price,BrandId,ModelId,CpuId,DisplayId,MemoryId,StorageId")] NotebookViewModel notebook)
 	{
 		if (ModelState.IsValid)
@@ -85,7 +85,7 @@ public class NotebookController : Controller
 
 	// GET: Notebook/Edit/5
 	[HttpGet]
-	[Authorize(Roles = "Admin, Editor")]
+	[Authorize(Policy = "Edit Notebook")]
 	public async Task<IActionResult> Edit(int id)
 	{
 		var notebook = await services.Notebooks.Find(id);
@@ -115,7 +115,7 @@ public class NotebookController : Controller
 	// POST: Notebook/Edit/5
 	[HttpPost]
 	[ValidateAntiForgeryToken]
-	[Authorize(Roles = "Admin, Editor")]
+	[Authorize(Policy = "Edit Notebook")]
 	public async Task<IActionResult> Edit(int id, [Bind("Id,Color,Price,BrandId,ModelId,CpuId,DisplayId,MemoryId,StorageId")] NotebookViewModel notebook)
 	{
 		if (id != notebook.Id)
@@ -142,7 +142,7 @@ public class NotebookController : Controller
 
 	// GET: Notebook/Delete/5
 	[HttpGet]
-	[Authorize(Roles = "Admin,Editor")]
+	[Authorize(Policy = "Delete Notebook")]
 	public async Task<IActionResult> Delete(int id)
 	{
 		var notebook = await services.Notebooks.Find(id);
@@ -158,7 +158,7 @@ public class NotebookController : Controller
 	// POST: Notebook/Delete/5
 	[HttpPost, ActionName("Delete")]
 	[ValidateAntiForgeryToken]
-	[Authorize(Roles = "Admin, Editor")]
+	[Authorize(Policy = "Delete Notebook")]
 	public async Task<IActionResult> DeleteConfirmed(int id)
 	{
 		await services.Notebooks.Delete(id);

@@ -24,7 +24,7 @@ internal class Services : IServices
         _signInManager = signInManager;
     }
 
-    public IUserService Users => new UserService(_mapper, _context, _userManager);
+    public IUserService Users => new UserService(_mapper, _context, _userManager, _roleManager);
     public IRoleService Roles => new RoleService(_roleManager, _userManager, _signInManager);
     public IPermissionService Permissions => new PermissionService();
     public IService<BrandDto> Brands => new BrandService(_unitOfWork, _mapper, Users, Permissions);

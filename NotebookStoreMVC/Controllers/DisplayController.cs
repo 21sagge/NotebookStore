@@ -43,6 +43,7 @@ public class DisplayController : Controller
 
     // GET: DisplayViewModel/Create
     [HttpGet]
+    [Authorize(Policy = "Add Display")]
     public IActionResult Create()
     {
         return View();
@@ -51,6 +52,7 @@ public class DisplayController : Controller
     // POST: DisplayViewModel/Create
     [HttpPost]
     [ValidateAntiForgeryToken]
+    [Authorize(Policy = "Add Display")]
     public async Task<IActionResult> Create([Bind("Id, Size, ResolutionWidth, ResolutionHeight, PanelType")] DisplayViewModel DisplayViewModel)
     {
         if (ModelState.IsValid)
@@ -65,6 +67,7 @@ public class DisplayController : Controller
 
     // GET: DisplayViewModel/Edit/5
     [HttpGet]
+    [Authorize(Policy = "Edit Display")]
     public async Task<IActionResult> Edit(int id)
     {
         var display = await services.Displays.Find(id);
@@ -80,6 +83,7 @@ public class DisplayController : Controller
     // POST: DisplayViewModel/Edit/5
     [HttpPost]
     [ValidateAntiForgeryToken]
+    [Authorize(Policy = "Edit Display")]
     public async Task<IActionResult> Edit(int id, [Bind("Id, Size, ResolutionWidth, ResolutionHeight, PanelType")] DisplayViewModel DisplayViewModel)
     {
         if (id != DisplayViewModel.Id)
@@ -107,6 +111,7 @@ public class DisplayController : Controller
 
     // GET: DisplayViewModel/Delete/5
     [HttpGet]
+    [Authorize(Policy = "Delete Display")]
     public async Task<IActionResult> Delete(int id)
     {
         var display = await services.Displays.Find(id);
@@ -122,6 +127,7 @@ public class DisplayController : Controller
     // POST: DisplayViewModel/Delete/5
     [HttpPost, ActionName("Delete")]
     [ValidateAntiForgeryToken]
+    [Authorize(Policy = "Delete Display")]
     public async Task<IActionResult> DeleteConfirmed(int id)
     {
         await services.Displays.Delete(id);

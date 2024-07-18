@@ -30,6 +30,15 @@ public class UserController : Controller
 		{
 			var roles = await userService.GetUserRoles(user.Id);
 			user.Roles = roles?.ToArray() ?? Array.Empty<string>();
+
+			var claims = new List<string>();
+
+			foreach(var role in user.Roles)
+			{
+				claims.AddRange(await roleService.GetClaims(role));
+			}
+
+			user.Claims = claims.ToArray();
 		}
 
 		return View(mapper.Map<IEnumerable<UserViewModel>>(users));
