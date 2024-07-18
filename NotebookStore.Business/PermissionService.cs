@@ -52,10 +52,10 @@ internal class PermissionService : IPermissionService
             currentUser.Id == notebook.CreatedBy ||
             notebook.CreatedBy == null
         ) &&
-        CanUpdateBrand(notebook.Brand, currentUser) &&
-        CanUpdateModel(notebook.Model, currentUser) &&
-        CanUpdateCpu(notebook.Cpu, currentUser) &&
-        CanUpdateStorage(notebook.Storage, currentUser) &&
-        CanUpdateMemory(notebook.Memory, currentUser) &&
-        CanUpdateDisplay(notebook.Display, currentUser);
+        CanUpdateBrand(notebook.Brand!, currentUser) &&
+        CanUpdateModel(notebook.Model!, currentUser) &&
+        CanUpdateCpu(notebook.Cpu!, currentUser) &&
+        CanUpdateStorage(notebook.Storage!, currentUser) &&
+        CanUpdateMemory(notebook.Memory!, currentUser) &&
+        CanUpdateDisplay(notebook.Display!, currentUser);
 }

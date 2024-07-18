@@ -34,8 +34,8 @@ builder.Services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.Requ
 
 builder.Services.AddAuthorization(options =>
 {
-    options.AddPolicy("Edit Brand", policy => policy.RequireClaim("Permission", "Edit Brand"));
     options.AddPolicy("Add Brand", policy => policy.RequireClaim("Permission", "Add Brand"));
+    options.AddPolicy("Edit Brand", policy => policy.RequireClaim("Permission", "Edit Brand"));
     options.AddPolicy("Delete Brand", policy => policy.RequireClaim("Permission", "Delete Brand"));
     options.AddPolicy("Add Notebook", policy => policy.RequireClaim("Permission", "Add Notebook"));
     options.AddPolicy("Edit Notebook", policy => policy.RequireClaim("Permission", "Edit Notebook"));

@@ -25,7 +25,7 @@ public class RoleController : Controller
 
 		foreach (var role in roles)
 		{
-			if(role == null)
+			if (role == null)
 			{
 				continue;
 			}
@@ -80,10 +80,53 @@ public class RoleController : Controller
 
 		var roleViewModel = new RoleViewModel
 		{
-			Name = role
+			Name = role,
+			Claims = new List<string>(),
+			AllClaims = new List<string>()
 		};
 
 		var claims = await roleService.GetClaims(role);
+
+		foreach (var claim in claims)
+		{
+			roleViewModel.Claims.Add(claim);
+		}
+
+		var allClaims = await roleService.GetAllClaims();
+
+		foreach (var claim in allClaims)
+		{
+			roleViewModel.AllClaims.Add(claim);
+		}
+
+		return View(roleViewModel);
+	}
+
+	// POST: RoleViewModel/Edit/RoleName
+	[HttpPost]
+	[ValidateAntiForgeryToken]
+	public async Task<IActionResult> Edit(string name, [Bind("Name,Claims")] RoleViewModel roleViewModel)
+	{
+		if (name != roleViewModel.Name)
+		{
+			return NotFound();
+		}
+
+		if (ModelState.IsValid)
+		{
+			roleViewModel.Claims ??= new List<string>();
+
+			var result = await roleService.UpdateRole(roleViewModel.Name, roleViewModel.Claims);
+
+			if (!result)
+			{
+				ModelState.AddModelError(string.Empty, "Role not found.");
+			}
+			else
+			{
+				return RedirectToAction(nameof(Index));
+			}
+		}
 
 		return View(roleViewModel);
 	}
