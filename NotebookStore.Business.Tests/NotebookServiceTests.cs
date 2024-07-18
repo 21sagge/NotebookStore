@@ -141,7 +141,7 @@ public class NotebookServiceTests
                 Name = "User 1",
                 Email = "",
                 Password = "",
-                Role = "Admin"
+                Roles = new[] { "Admin" }
             });
 
         Mock.Get(context.PermissionService)
@@ -253,7 +253,7 @@ public class NotebookServiceTests
                 Name = "User 1",
                 Email = "",
                 Password = "",
-                Role = "Admin"
+                Roles = new[] { "Admin" }
             });
 
         Mock.Get(context.PermissionService)
@@ -309,7 +309,7 @@ public class NotebookServiceTests
                 Name = "User 1",
                 Email = "",
                 Password = "",
-                Role = "Admin"
+                Roles = new[] { "Admin" }
             });
 
         Mock.Get(context.PermissionService)
@@ -454,7 +454,7 @@ public class NotebookServiceTests
                 Name = "User 1",
                 Email = "",
                 Password = "",
-                Role = "Admin"
+                Roles = new[] { "Admin" }
             });
 
         Mock.Get(context.PermissionService)
@@ -566,7 +566,7 @@ public class NotebookServiceTests
                 Name = "User 1",
                 Email = "",
                 Password = "",
-                Role = "Admin"
+                Roles = new[] { "Admin" }
             });
 
         Mock.Get(context.PermissionService)
