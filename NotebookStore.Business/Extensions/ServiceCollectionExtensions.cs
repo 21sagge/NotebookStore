@@ -23,6 +23,8 @@ namespace NotebookStore.Business
             services.AddScoped<IServices, Services>();
             services.AddScoped<IUserService, UserService>();
             services.AddScoped<IRoleService, RoleService>();
+            services.AddScoped<IService<BrandDto>, BrandService>();
+            services.AddSingleton<IPermissionService, PermissionService>();
 
             services.AddScoped<ISerializer, JsonHandler>();
             services.AddScoped<ISerializer, XmlHandler>();

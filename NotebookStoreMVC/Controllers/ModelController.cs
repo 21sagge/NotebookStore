@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Authorization;
 
 namespace NotebookStoreMVC.Controllers;
 
-[Authorize(Roles = "Admin,Editor")]
+[Authorize]
 public class ModelController : Controller
 {
     private readonly IServices services;

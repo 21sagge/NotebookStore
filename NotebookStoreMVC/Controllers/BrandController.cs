@@ -6,13 +6,13 @@ using Microsoft.AspNetCore.Authorization;
 
 namespace NotebookStoreMVC.Controllers;
 
-[Authorize(Roles = "Admin,Editor")]
+[Authorize]
 public class BrandController : Controller
 {
     private readonly IMapper mapper;
-    private readonly IServices services;
+    private readonly IService<BrandDto> services;
 
-    public BrandController(IMapper mapper, IServices services)
+    public BrandController(IMapper mapper, IService<BrandDto> services)
     {
         this.mapper = mapper;
         this.services = services;
@@ -22,7 +22,7 @@ public class BrandController : Controller
     [HttpGet]
     public async Task<IActionResult> Index()
     {
-        var brandDtos = await services.Brands.GetAll();
+        var brandDtos = await services.GetAll();
 
         return View(mapper.Map<IEnumerable<BrandViewModel>>(brandDtos));
     }
@@ -31,7 +31,7 @@ public class BrandController : Controller
     [HttpGet]
     public async Task<IActionResult> Details(int id)
     {
-        var brandDto = await services.Brands.Find(id);
+        var brandDto = await services.Find(id);
 
         if (brandDto == null)
         {
@@ -57,7 +57,7 @@ public class BrandController : Controller
     {
         if (ModelState.IsValid)
         {
-            await services.Brands.Create(mapper.Map<BrandDto>(BrandViewModel));
+            await services.Create(mapper.Map<BrandDto>(BrandViewModel));
 
             return RedirectToAction(nameof(Index));
         }
@@ -70,7 +70,7 @@ public class BrandController : Controller
     [Authorize(Policy = "Edit Brand")]
     public async Task<IActionResult> Edit(int id)
     {
-        var brand = await services.Brands.Find(id);
+        var brand = await services.Find(id);
 
         if (brand == null)
         {
@@ -93,7 +93,7 @@ public class BrandController : Controller
 
         if (ModelState.IsValid)
         {
-            var result = await services.Brands.Update(mapper.Map<BrandDto>(BrandViewModel));
+            var result = await services.Update(mapper.Map<BrandDto>(BrandViewModel));
 
             if (result)
             {
@@ -113,7 +113,7 @@ public class BrandController : Controller
     [Authorize(Policy = "Delete Brand")]
     public async Task<IActionResult> Delete(int id)
     {
-        var brand = await services.Brands.Find(id);
+        var brand = await services.Find(id);
 
         if (brand == null)
         {
@@ -129,7 +129,7 @@ public class BrandController : Controller
     [Authorize(Policy = "Delete Brand")]
     public async Task<IActionResult> DeleteConfirmed(int id)
     {
-        await services.Brands.Delete(id);
+        await services.Delete(id);
 
         return RedirectToAction(nameof(Index));
     }

@@ -2,6 +2,7 @@
 using System.Security.Claims;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using NotebookStore.Business.Context;
 
 namespace NotebookStore.Business;
 
@@ -10,12 +11,15 @@ internal class RoleService : IRoleService
 	private readonly RoleManager<IdentityRole> roleManager;
     private readonly UserManager<IdentityUser> userManager;
     private readonly SignInManager<IdentityUser> signInManager;
+    private readonly IUserContext userContext;
 
-    public RoleService(RoleManager<IdentityRole> _roleManager, UserManager<IdentityUser> _userManager, SignInManager<IdentityUser> _signInManager)
+    public RoleService(RoleManager<IdentityRole> _roleManager, UserManager<IdentityUser> _userManager, SignInManager<IdentityUser> _signInManager,
+		IUserContext userContext)
 	{
 		roleManager = _roleManager;
         userManager = _userManager;
         signInManager = _signInManager;
+        this.userContext = userContext;
     }
 
 	public async Task<bool> CreateRole(string role)
@@ -84,7 +88,7 @@ internal class RoleService : IRoleService
 		}
 
 		// Refresh current user claims
-		var currentUser = await userManager.GetUserAsync(signInManager.Context.User);
+		var currentUser = await userManager.GetUserAsync(userContext.GetCurrentUser());
 
 		var users = await userManager.GetUsersInRoleAsync(role);
 

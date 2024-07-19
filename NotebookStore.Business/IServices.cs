@@ -10,6 +10,5 @@ public interface IServices
     IService<StorageDto> Storages { get; }
     IService<NotebookDto> Notebooks { get; }
     IUserService Users { get; }
-    IRoleService Roles { get; }
     IPermissionService Permissions { get; }
 }
