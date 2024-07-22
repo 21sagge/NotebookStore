@@ -37,12 +37,6 @@ public interface IRoleService
 	Task<IEnumerable<string>> GetClaims(string role);
 
 	/// <summary>
-	///	Gets all claims.
-	/// </summary>
-	/// <returns>A collection of claims.</returns>
-	Task<IEnumerable<string>> GetAllClaims();
-
-	/// <summary>
 	///	Updates a role with the specified claims and refreshes the user's claims.
 	/// </summary>
 	/// <param name="role">The name of the role to update.</param>

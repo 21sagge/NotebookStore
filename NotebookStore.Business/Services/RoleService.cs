@@ -13,13 +13,16 @@ internal class RoleService : IRoleService
     private readonly SignInManager<IdentityUser> signInManager;
     private readonly IUserContext userContext;
 
-    public RoleService(RoleManager<IdentityRole> _roleManager, UserManager<IdentityUser> _userManager, SignInManager<IdentityUser> _signInManager,
-		IUserContext userContext)
+    public RoleService(
+		RoleManager<IdentityRole> _roleManager, 
+		UserManager<IdentityUser> _userManager, 
+		SignInManager<IdentityUser> _signInManager,
+		IUserContext _userContext)
 	{
 		roleManager = _roleManager;
         userManager = _userManager;
         signInManager = _signInManager;
-        this.userContext = userContext;
+    	userContext = _userContext;
     }
 
 	public async Task<bool> CreateRole(string role)
@@ -98,21 +101,5 @@ internal class RoleService : IRoleService
 		}
 
 		return true;
-	}
-
-	public async Task<IEnumerable<string>> GetAllClaims()
-	{
-		var allRoles = await roleManager.Roles.ToListAsync();
-		var allClaims = new List<Claim>();
-
-		foreach (var role in allRoles)
-		{
-			var claims = await roleManager.GetClaimsAsync(role);
-			allClaims.AddRange(claims);
-		}
-
-		var distinctClaims = allClaims.Select(c => c.Value).Distinct();
-
-		return distinctClaims;
 	}
 }
