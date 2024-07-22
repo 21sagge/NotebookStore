@@ -88,7 +88,7 @@ internal class RoleService : IRoleService
 		}
 
 		// Refresh current user claims
-		var currentUser = await userManager.GetUserAsync(userContext.GetCurrentUser());
+		var currentUser = await userManager.GetUserAsync(userContext.GetCurrentUser()!);
 
 		var users = await userManager.GetUsersInRoleAsync(role);
 
