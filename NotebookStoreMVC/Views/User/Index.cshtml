@@ -31,8 +31,8 @@
 				</a>
 				@if (!item.Roles.Contains("Admin"))
 				{
-					<form asp-action="Delete" method="post">
-						<input type="hidden" asp-for="@item.Name" name="Name" />
+
+					<form asp-action="Delete" asp-route-id="@item.Id" method="post">
 						<button type="submit" class="btn btn-sm btn-danger">Delete</button>
 					</form>
 				}

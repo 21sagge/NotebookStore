@@ -1,9 +1,9 @@
-﻿namespace NotebookStore.Business;
-
-using AutoMapper;
+﻿using AutoMapper;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using NotebookStore.Business.Context;
+
+namespace NotebookStore.Business;
 
 internal class UserService : IUserService
 {

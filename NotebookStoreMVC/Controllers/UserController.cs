@@ -101,43 +101,13 @@ public class UserController : Controller
 		return View(userViewModel);
 	}
 
-	// GET: userViewModel/Delete/5
-	[HttpGet]
+	// POST: userViewModel/Delete/5
+	[HttpPost]
+	[ValidateAntiForgeryToken]
 	[Authorize(Roles = "Admin")]
 	public async Task<IActionResult> Delete(string id)
 	{
-		var user = await userService.GetUser(id);
-
-		if (user == null)
-		{
-			return NotFound();
-		}
-
-		// if user is the current user, redirect to the index page
-		if (User.Identity!.Name == user.Name)
-		{
-			return RedirectToAction(nameof(Index));
-		}
-
-		// if user is an admin, redirect to the index page
-		if (User.IsInRole("Admin") && user.Roles.Contains("Admin"))
-		{
-			return RedirectToAction(nameof(Index));
-		}
-
-		var roles = await userService.GetUserRoles(user.Id);
-		user.Roles = roles?.ToArray() ?? Array.Empty<string>();
-
-		return View(mapper.Map<UserViewModel>(user));
-	}
-
-	// POST: userViewModel/Delete/5
-	[HttpPost, ActionName("Delete")]
-	[ValidateAntiForgeryToken]
-	[Authorize(Roles = "Admin")]
-	public async Task<IActionResult> DeleteConfirmed(string id)
-	{
-		await userService.DeleteUser(id);
+		var result = await userService.DeleteUser(id);
 
 		return RedirectToAction(nameof(Index));
 	}
