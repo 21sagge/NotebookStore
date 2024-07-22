@@ -91,6 +91,8 @@ public class RoleController : Controller
 			roleViewModel.Claims.Add(claim);
 		}
 
+		ViewBag.Claims = Claims.AllClaims;
+
 		return View(roleViewModel);
 	}
 

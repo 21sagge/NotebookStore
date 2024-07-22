@@ -2,36 +2,6 @@
 
 @{
 	ViewData["Title"] = "Edit";
-	var allClaims = new List<string>()
-	{
-		"Add Brand",
-		"Edit Brand",
-		"Delete Brand",
-		
-		"Add Notebook",
-		"Edit Notebook",
-		"Delete Notebook",
-		
-		"Add Cpu",
-		"Edit Cpu",
-		"Delete Cpu",
-		
-		"Add Display",
-		"Edit Display",
-		"Delete Display",
-		
-		"Add Model",
-		"Edit Model",
-		"Delete Model",
-		
-		"Add Memory",
-		"Edit Memory",
-		"Delete Memory",
-
-		"Add Storage",
-		"Edit Storage",
-		"Delete Storage"
-	};
 }
 
 <header class="d-flex flex-column align-items-start column-gap-2">
@@ -64,7 +34,7 @@
 				</div>
 
 				<div class="row">
-					@foreach (var claim in allClaims)
+					@foreach (var claim in ViewBag.Claims as string[])
 					{
 						<div class="form-check">
 							<input type="checkbox" value="@claim" name="Claims" class="form-check-input"

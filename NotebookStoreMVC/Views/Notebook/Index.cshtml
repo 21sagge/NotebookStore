@@ -6,7 +6,7 @@
 
 <header class="d-flex justify-content-between align-items-center">
     <h1>Notebooks</h1>
-    @if (User.IsInRole("Admin") || User.IsInRole("Editor"))
+    @if (User.Claims.Any(c => c.Value == "Add Notebook"))
     {
         <a asp-action="Create" class="btn btn-outline-primary">Create New</a>
     }

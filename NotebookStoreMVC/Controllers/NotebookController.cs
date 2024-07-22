@@ -47,7 +47,7 @@ public class NotebookController : Controller
 
 	// GET: Notebook/Create
 	[HttpGet]
-	[Authorize(Policy = "Add Notebook")]
+	[Authorize(Policy = Claims.AddNotebook)]
 	public async Task<IActionResult> Create()
 	{
 		var brandDtos = await services.Brands.GetAll();
@@ -70,7 +70,7 @@ public class NotebookController : Controller
 	// POST: Notebook/Create
 	[HttpPost]
 	[ValidateAntiForgeryToken]
-	[Authorize(Policy = "Add Notebook")]
+	[Authorize(Policy = Claims.AddNotebook)]
 	public async Task<IActionResult> Create([Bind("Id,Color,Price,BrandId,ModelId,CpuId,DisplayId,MemoryId,StorageId")] NotebookViewModel notebook)
 	{
 		if (ModelState.IsValid)

@@ -34,27 +34,10 @@ builder.Services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.Requ
 
 builder.Services.AddAuthorization(options =>
 {
-    options.AddPolicy("Add Brand", policy => policy.RequireClaim("Permission", "Add Brand"));
-    options.AddPolicy("Edit Brand", policy => policy.RequireClaim("Permission", "Edit Brand"));
-    options.AddPolicy("Delete Brand", policy => policy.RequireClaim("Permission", "Delete Brand"));
-    options.AddPolicy("Add Notebook", policy => policy.RequireClaim("Permission", "Add Notebook"));
-    options.AddPolicy("Edit Notebook", policy => policy.RequireClaim("Permission", "Edit Notebook"));
-    options.AddPolicy("Delete Notebook", policy => policy.RequireClaim("Permission", "Delete Notebook"));
-    options.AddPolicy("Add Cpu", policy => policy.RequireClaim("Permission", "Add Cpu"));
-    options.AddPolicy("Edit Cpu", policy => policy.RequireClaim("Permission", "Edit Cpu"));
-    options.AddPolicy("Delete Cpu", policy => policy.RequireClaim("Permission", "Delete Cpu"));
-    options.AddPolicy("Add Display", policy => policy.RequireClaim("Permission", "Add Display"));
-    options.AddPolicy("Edit Display", policy => policy.RequireClaim("Permission", "Edit Display"));
-    options.AddPolicy("Delete Display", policy => policy.RequireClaim("Permission", "Delete Display"));
-    options.AddPolicy("Add Memory", policy => policy.RequireClaim("Permission", "Add Memory"));
-    options.AddPolicy("Edit Memory", policy => policy.RequireClaim("Permission", "Edit Memory"));
-    options.AddPolicy("Delete Memory", policy => policy.RequireClaim("Permission", "Delete Memory"));
-    options.AddPolicy("Add Model", policy => policy.RequireClaim("Permission", "Add Model"));
-    options.AddPolicy("Edit Model", policy => policy.RequireClaim("Permission", "Edit Model"));
-    options.AddPolicy("Delete Model", policy => policy.RequireClaim("Permission", "Delete Model"));
-    options.AddPolicy("Add Storage", policy => policy.RequireClaim("Permission", "Add Storage"));
-    options.AddPolicy("Edit Storage", policy => policy.RequireClaim("Permission", "Edit Storage"));
-    options.AddPolicy("Delete Storage", policy => policy.RequireClaim("Permission", "Delete Storage"));
+    foreach (var claim in Claims.AllClaims)
+    {
+        options.AddPolicy(claim, policy => policy.RequireClaim("Permission", claim));
+    }
 });
 
 builder.Services.Configure<IdentityOptions>(options =>
