@@ -1,7 +1,5 @@
 ﻿using AutoMapper;
-using Microsoft.AspNetCore.Identity;
 using NotebookStore.Business;
-using NotebookStore.Entities;
 using NotebookStoreMVC.Models;
 
 namespace NotebookStoreMVC;
