@@ -106,7 +106,7 @@ body {
 }
 
 .fadein {
-	animation: fadein 1s;
+	animation: fadein 500ms;
 }
 
 @keyframes fadein {
