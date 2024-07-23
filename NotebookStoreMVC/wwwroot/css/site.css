@@ -104,3 +104,18 @@ body {
 	background-color: #d4d5d6;
 	border-radius: 0.25rem;
 }
+
+.fadein {
+	animation: fadein 1s;
+}
+
+@keyframes fadein {
+	from {
+		opacity: 0;
+		transform: translateX(5%);
+	}
+	to {
+		opacity: 1;
+		transform: translateX(0);
+	}
+}
