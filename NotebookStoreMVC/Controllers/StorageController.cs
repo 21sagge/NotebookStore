@@ -43,7 +43,7 @@ public class StorageController : Controller
 
     // GET: StorageViewModel/Create
     [HttpGet]
-    [Authorize(Policy = "Add Storage")]
+    [Authorize(Policy = Claims.AddStorage)]
     public IActionResult Create()
     {
         return View();
@@ -52,7 +52,7 @@ public class StorageController : Controller
     // POST: StorageViewModel/Create
     [HttpPost]
     [ValidateAntiForgeryToken]
-    [Authorize(Policy = "Add Storage")]
+    [Authorize(Policy = Claims.AddStorage)]
     public async Task<IActionResult> Create([Bind("Id,Capacity,Type")] StorageViewModel StorageViewModel)
     {
         if (ModelState.IsValid)
@@ -67,7 +67,7 @@ public class StorageController : Controller
 
     // GET: StorageViewModel/Edit/5
     [HttpGet]
-    [Authorize(Policy = "Edit Storage")]
+    [Authorize(Policy = Claims.EditStorage)]
     public async Task<IActionResult> Edit(int id)
     {
         var storage = await services.Storages.Find(id);
@@ -83,7 +83,7 @@ public class StorageController : Controller
     // POST: StorageViewModel/Edit/5
     [HttpPost]
     [ValidateAntiForgeryToken]
-    [Authorize(Policy = "Edit Storage")]
+    [Authorize(Policy = Claims.EditStorage)]
     public async Task<IActionResult> Edit(int id, [Bind("Id,Capacity,Type")] StorageViewModel StorageViewModel)
     {
         if (id != StorageViewModel.Id)
@@ -110,7 +110,7 @@ public class StorageController : Controller
 
     // GET: StorageViewModel/Delete/5
     [HttpGet]
-    [Authorize(Policy = "Delete Storage")]
+    [Authorize(Policy = Claims.DeleteStorage)]
     public async Task<IActionResult> Delete(int id)
     {
         var storage = await services.Storages.Find(id);
@@ -126,7 +126,7 @@ public class StorageController : Controller
     // POST: StorageViewModel/Delete/5
     [HttpPost, ActionName("Delete")]
     [ValidateAntiForgeryToken]
-    [Authorize(Policy = "Delete Storage")]
+    [Authorize(Policy = Claims.DeleteStorage)]
     public async Task<IActionResult> DeleteConfirmed(int id)
     {
         await services.Storages.Delete(id);

@@ -43,7 +43,7 @@ public class MemoryController : Controller
 
     // GET: MemoryViewModel/Create
     [HttpGet]
-    [Authorize(Policy = "Add Memory")]
+    [Authorize(Policy = Claims.AddMemory)]
     public IActionResult Create()
     {
         return View();
@@ -52,7 +52,7 @@ public class MemoryController : Controller
     // POST: MemoryViewModel/Create
     [HttpPost]
     [ValidateAntiForgeryToken]
-    [Authorize(Policy = "Add Memory")]
+    [Authorize(Policy = Claims.AddMemory)]
     public async Task<IActionResult> Create([Bind("Id,Capacity,Speed")] MemoryViewModel MemoryViewModel)
     {
         if (ModelState.IsValid)
@@ -67,7 +67,7 @@ public class MemoryController : Controller
 
     // GET: MemoryViewModel/Edit/5
     [HttpGet]
-    [Authorize(Policy = "Edit Memory")]
+    [Authorize(Policy = Claims.EditMemory)]
     public async Task<IActionResult> Edit(int id)
     {
         var memory = await services.Memories.Find(id);
@@ -83,7 +83,7 @@ public class MemoryController : Controller
     // POST: MemoryViewModel/Edit/5
     [HttpPost]
     [ValidateAntiForgeryToken]
-    [Authorize(Policy = "Edit Memory")]
+    [Authorize(Policy = Claims.EditMemory)]
     public async Task<IActionResult> Edit(int id, [Bind("Id,Capacity,Speed")] MemoryViewModel MemoryViewModel)
     {
         if (id != MemoryViewModel.Id)
@@ -111,7 +111,7 @@ public class MemoryController : Controller
 
     // GET: MemoryViewModel/Delete/5
     [HttpGet]
-    [Authorize(Policy = "Delete Memory")]
+    [Authorize(Policy = Claims.DeleteMemory)]
     public async Task<IActionResult> Delete(int id)
     {
         var memory = await services.Memories.Find(id);
@@ -127,7 +127,7 @@ public class MemoryController : Controller
     // POST: MemoryViewModel/Delete/5
     [HttpPost, ActionName("Delete")]
     [ValidateAntiForgeryToken]
-    [Authorize(Policy = "Delete Memory")]
+    [Authorize(Policy = Claims.DeleteMemory)]
     public async Task<IActionResult> DeleteConfirmed(int id)
     {
         await services.Memories.Delete(id);

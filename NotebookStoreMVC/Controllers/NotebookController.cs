@@ -85,7 +85,7 @@ public class NotebookController : Controller
 
 	// GET: Notebook/Edit/5
 	[HttpGet]
-	[Authorize(Policy = "Edit Notebook")]
+	[Authorize(Policy = Claims.EditNotebook)]
 	public async Task<IActionResult> Edit(int id)
 	{
 		var notebook = await services.Notebooks.Find(id);
@@ -115,7 +115,7 @@ public class NotebookController : Controller
 	// POST: Notebook/Edit/5
 	[HttpPost]
 	[ValidateAntiForgeryToken]
-	[Authorize(Policy = "Edit Notebook")]
+	[Authorize(Policy = Claims.EditNotebook)]
 	public async Task<IActionResult> Edit(int id, [Bind("Id,Color,Price,BrandId,ModelId,CpuId,DisplayId,MemoryId,StorageId")] NotebookViewModel notebook)
 	{
 		if (id != notebook.Id)
@@ -142,7 +142,7 @@ public class NotebookController : Controller
 
 	// GET: Notebook/Delete/5
 	[HttpGet]
-	[Authorize(Policy = "Delete Notebook")]
+	[Authorize(Policy = Claims.DeleteNotebook)]
 	public async Task<IActionResult> Delete(int id)
 	{
 		var notebook = await services.Notebooks.Find(id);
@@ -158,7 +158,7 @@ public class NotebookController : Controller
 	// POST: Notebook/Delete/5
 	[HttpPost, ActionName("Delete")]
 	[ValidateAntiForgeryToken]
-	[Authorize(Policy = "Delete Notebook")]
+	[Authorize(Policy = Claims.DeleteNotebook)]
 	public async Task<IActionResult> DeleteConfirmed(int id)
 	{
 		await services.Notebooks.Delete(id);

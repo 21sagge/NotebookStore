@@ -43,7 +43,7 @@ public class DisplayController : Controller
 
     // GET: DisplayViewModel/Create
     [HttpGet]
-    [Authorize(Policy = "Add Display")]
+    [Authorize(Policy = Claims.AddDisplay)]
     public IActionResult Create()
     {
         return View();
@@ -52,7 +52,7 @@ public class DisplayController : Controller
     // POST: DisplayViewModel/Create
     [HttpPost]
     [ValidateAntiForgeryToken]
-    [Authorize(Policy = "Add Display")]
+    [Authorize(Policy = Claims.AddDisplay)]
     public async Task<IActionResult> Create([Bind("Id, Size, ResolutionWidth, ResolutionHeight, PanelType")] DisplayViewModel DisplayViewModel)
     {
         if (ModelState.IsValid)
@@ -67,7 +67,7 @@ public class DisplayController : Controller
 
     // GET: DisplayViewModel/Edit/5
     [HttpGet]
-    [Authorize(Policy = "Edit Display")]
+    [Authorize(Policy = Claims.EditDisplay)]
     public async Task<IActionResult> Edit(int id)
     {
         var display = await services.Displays.Find(id);
@@ -83,7 +83,7 @@ public class DisplayController : Controller
     // POST: DisplayViewModel/Edit/5
     [HttpPost]
     [ValidateAntiForgeryToken]
-    [Authorize(Policy = "Edit Display")]
+    [Authorize(Policy = Claims.EditDisplay)]
     public async Task<IActionResult> Edit(int id, [Bind("Id, Size, ResolutionWidth, ResolutionHeight, PanelType")] DisplayViewModel DisplayViewModel)
     {
         if (id != DisplayViewModel.Id)
