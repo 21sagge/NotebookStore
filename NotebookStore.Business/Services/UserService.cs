@@ -10,14 +10,12 @@ internal class UserService : IUserService
     private readonly IMapper mapper;
     private readonly IUserContext context;
     private readonly UserManager<IdentityUser> userManager;
-    private readonly RoleManager<IdentityRole> roleManager;
 
-    public UserService(IMapper _mapper, IUserContext _context, UserManager<IdentityUser> _userManager, RoleManager<IdentityRole> _roleManager)
+    public UserService(IMapper _mapper, IUserContext _context, UserManager<IdentityUser> _userManager)
     {
         mapper = _mapper;
         context = _context;
         userManager = _userManager;
-        roleManager = _roleManager;
     }
 
     public async Task<IEnumerable<UserDto>> GetUsers()
@@ -37,24 +35,6 @@ internal class UserService : IUserService
         var userRoles = await userManager.GetRolesAsync(user);
 
         userDto.Roles = userRoles.ToArray() ?? Array.Empty<string>();
-
-        var claims = new List<string>();
-
-        foreach (var role in userDto.Roles)
-        {
-            var IdentityRole = await roleManager.FindByNameAsync(role);
-
-            if (IdentityRole == null)
-            {
-                continue;
-            }
-
-            var roleClaims = await roleManager.GetClaimsAsync(IdentityRole);
-
-            claims.AddRange(roleClaims.Select(c => c.Value));
-        }
-
-        userDto.Claims = claims.ToArray();
 
         return userDto;
     }

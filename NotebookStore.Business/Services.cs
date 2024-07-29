@@ -22,7 +22,7 @@ internal class Services : IServices
         _roleManager = roleManager;
     }
 
-    public IUserService Users => new UserService(_mapper, _context, _userManager, _roleManager);
+    public IUserService Users => new UserService(_mapper, _context, _userManager);
     public IPermissionService Permissions => new PermissionService();
     public IService<BrandDto> Brands => new BrandService(_unitOfWork, _mapper, Users, Permissions);
     public IService<CpuDto> Cpus => new CpuService(_unitOfWork, _mapper, Users, Permissions);

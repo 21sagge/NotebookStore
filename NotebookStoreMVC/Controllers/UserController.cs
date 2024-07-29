@@ -11,14 +11,14 @@ public class UserController : Controller
 {
 	private readonly IUserService userService;
 	private readonly IMapper mapper;
-    private readonly IRoleService roleService;
+	private readonly IRoleService roleService;
 
-    public UserController(IUserService userService, IMapper mapper, IRoleService roleService)
+	public UserController(IUserService userService, IMapper mapper, IRoleService roleService)
 	{
 		this.userService = userService;
 		this.mapper = mapper;
-        this.roleService = roleService;
-    }
+		this.roleService = roleService;
+	}
 
 	// GET: userViewModel
 	[HttpGet]
@@ -33,7 +33,7 @@ public class UserController : Controller
 
 			var claims = new List<string>();
 
-			foreach(var role in user.Roles)
+			foreach (var role in user.Roles)
 			{
 				claims.AddRange(await roleService.GetClaims(role));
 			}
@@ -59,7 +59,9 @@ public class UserController : Controller
 		var roles = await userService.GetUserRoles(user.Id);
 		user.Roles = roles?.ToArray() ?? Array.Empty<string>();
 
-		ViewData["Roles"] = await roleService.GetRoles();
+		var allRoles = await roleService.GetRoles();
+
+		ViewBag.Roles = allRoles.Select(r => r.Name).ToArray();
 
 		return View(mapper.Map<UserViewModel>(user));
 	}
