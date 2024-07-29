@@ -4,10 +4,10 @@ using NotebookStore.Entities;
 
 namespace NotebookStore.Business.Mapping
 {
-	internal class BusinessMapper : Profile
-	{
-		public BusinessMapper()
-		{
+    internal class BusinessMapper : Profile
+    {
+        public BusinessMapper()
+        {
             CreateMap<Brand, BrandDto>()
             .ReverseMap();
 
@@ -33,6 +33,9 @@ namespace NotebookStore.Business.Mapping
             .ForMember(dest => dest.Name, act => act.MapFrom(src => src.UserName))
             .ForMember(dest => dest.Password, act => act.MapFrom(src => src.PasswordHash))
             .ReverseMap();
+
+            CreateMap<IdentityRole, RoleDto>()
+            .ReverseMap();
         }
-	}
+    }
 }

@@ -1,28 +1,20 @@
 ﻿using System.Security.Claims;
+using AutoMapper;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using NotebookStore.Business.Context;
 
 namespace NotebookStore.Business;
 
 internal class RoleService : IRoleService
 {
 	private readonly RoleManager<IdentityRole> roleManager;
-    private readonly UserManager<IdentityUser> userManager;
-    private readonly SignInManager<IdentityUser> signInManager;
-    private readonly IUserContext userContext;
+	private readonly IMapper mapper;
 
-    public RoleService(
-		RoleManager<IdentityRole> _roleManager, 
-		UserManager<IdentityUser> _userManager, 
-		SignInManager<IdentityUser> _signInManager,
-		IUserContext _userContext)
+	public RoleService(RoleManager<IdentityRole> _roleManager, IMapper _mapper)
 	{
 		roleManager = _roleManager;
-        userManager = _userManager;
-        signInManager = _signInManager;
-    	userContext = _userContext;
-    }
+		mapper = _mapper;
+	}
 
 	public async Task<bool> CreateRole(string role)
 	{
@@ -42,16 +34,18 @@ internal class RoleService : IRoleService
 		return result.Succeeded;
 	}
 
-	public async Task<IEnumerable<string?>> GetRoles()
+	public async Task<IEnumerable<RoleDto?>> GetRoles()
 	{
-		return await roleManager.Roles.Select(r => r.Name).ToListAsync();
+		var roles = await roleManager.Roles.ToListAsync();
+
+		return mapper.Map<IEnumerable<RoleDto>>(roles);
 	}
 
-	public async Task<string?> GetRole(string role)
+	public async Task<RoleDto?> GetRole(string role)
 	{
 		var IdentityRole = await roleManager.FindByNameAsync(role);
 
-		return IdentityRole?.Name;
+		return mapper.Map<RoleDto>(IdentityRole);
 	}
 
 	public async Task<IEnumerable<string>> GetClaims(string role)
@@ -67,6 +61,9 @@ internal class RoleService : IRoleService
 
 	public async Task<bool> UpdateRole(string role, List<string> claims)
 	{
+		if (claims == null) throw new ArgumentNullException(nameof(claims), "Cannot be null");
+		if (string.IsNullOrEmpty(role)) throw new ArgumentNullException(nameof(role), "Cannot be empty or null");
+
 		var IdentityRole = await roleManager.FindByNameAsync(role);
 
 		if (IdentityRole == null) return false;
@@ -87,16 +84,6 @@ internal class RoleService : IRoleService
 			if (existingClaims.Any(c => c.Value == claim)) continue;
 
 			await roleManager.AddClaimAsync(IdentityRole, new Claim("Permission", claim));
-		}
-
-		// Refresh current user claims
-		var currentUser = await userManager.GetUserAsync(userContext.GetCurrentUser()!);
-
-		var users = await userManager.GetUsersInRoleAsync(role);
-
-		if (currentUser != null && users.Any(u => u.Id == currentUser.Id))
-		{
-			await signInManager.RefreshSignInAsync(currentUser);
 		}
 
 		return true;

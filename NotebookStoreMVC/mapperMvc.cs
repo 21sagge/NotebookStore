@@ -38,5 +38,8 @@ public class MapperMvc : Profile
 
         CreateMap<UserDto, UserViewModel>()
             .ReverseMap();
+
+        CreateMap<RoleDto, RoleViewModel>()
+            .ReverseMap();
     }
 }

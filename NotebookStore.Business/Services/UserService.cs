@@ -12,9 +12,9 @@ internal class UserService : IUserService
     private readonly UserManager<IdentityUser> userManager;
     private readonly RoleManager<IdentityRole> roleManager;
 
-    public UserService(IMapper mapper, IUserContext _context, UserManager<IdentityUser> _userManager, RoleManager<IdentityRole> _roleManager)
+    public UserService(IMapper _mapper, IUserContext _context, UserManager<IdentityUser> _userManager, RoleManager<IdentityRole> _roleManager)
     {
-        this.mapper = mapper;
+        mapper = _mapper;
         context = _context;
         userManager = _userManager;
         roleManager = _roleManager;

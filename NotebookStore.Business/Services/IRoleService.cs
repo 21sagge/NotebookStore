@@ -20,14 +20,14 @@ public interface IRoleService
 	/// Gets all roles.
 	/// </summary>
 	/// <returns>A collection of roles.</returns>
-	Task<IEnumerable<string?>> GetRoles();
+	Task<IEnumerable<RoleDto?>> GetRoles();
 
 	/// <summary>
 	///	Gets a role.
 	/// </summary>
 	/// <param name="role">The name of the role to get.</param>
 	/// <returns>The role.</returns>
-	Task<string?> GetRole(string role);
+	Task<RoleDto?> GetRole(string role);
 
 	/// <summary>
 	///	Gets the claims for a role.

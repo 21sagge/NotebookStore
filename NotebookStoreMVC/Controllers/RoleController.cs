@@ -1,5 +1,8 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using NotebookStore.Business;
 using NotebookStoreMVC.Models;
 
@@ -9,11 +12,17 @@ namespace NotebookStoreMVC.Controllers;
 public class RoleController : Controller
 {
 	private readonly IRoleService roleService;
+	private readonly IMapper mapper;
+    private readonly IUserService userService;
+    private readonly SignInManager<IdentityUser> signInManager;
 
-	public RoleController(IRoleService roleService)
+    public RoleController(IRoleService roleService, IMapper mapper, IUserService userService, SignInManager<IdentityUser> signInManager)
 	{
 		this.roleService = roleService;
-	}
+		this.mapper = mapper;
+        this.userService = userService;
+        this.signInManager = signInManager;
+    }
 
 	// GET: RoleViewModel
 	[HttpGet]
@@ -21,22 +30,7 @@ public class RoleController : Controller
 	{
 		var roles = await roleService.GetRoles();
 
-		var roleViewModels = new List<RoleViewModel>();
-
-		foreach (var role in roles)
-		{
-			if (role == null)
-			{
-				continue;
-			}
-
-			roleViewModels.Add(new RoleViewModel
-			{
-				Name = role,
-			});
-		}
-
-		return View(roleViewModels);
+		return View(mapper.Map<IEnumerable<RoleViewModel>>(roles));
 	}
 
 	// GET: RoleViewModel/Create
@@ -78,13 +72,9 @@ public class RoleController : Controller
 			return NotFound();
 		}
 
-		var roleViewModel = new RoleViewModel
-		{
-			Name = role,
-			Claims = new List<string>(),
-		};
+		var roleViewModel = mapper.Map<RoleViewModel>(role);
 
-		var claims = await roleService.GetClaims(role);
+		var claims = await roleService.GetClaims(role.Name);
 
 		foreach (var claim in claims)
 		{
@@ -99,7 +89,7 @@ public class RoleController : Controller
 	// POST: RoleViewModel/Edit/RoleName
 	[HttpPost]
 	[ValidateAntiForgeryToken]
-	public async Task<IActionResult> Edit(string name, [Bind("Name,Claims")] RoleViewModel roleViewModel)
+	public async Task<IActionResult> Edit(string name, [Bind("Id,Name,Claims")] RoleViewModel roleViewModel)
 	{
 		if (name != roleViewModel.Name)
 		{
@@ -108,8 +98,6 @@ public class RoleController : Controller
 
 		if (ModelState.IsValid)
 		{
-			roleViewModel.Claims ??= new List<string>();
-
 			var result = await roleService.UpdateRole(roleViewModel.Name, roleViewModel.Claims);
 
 			if (!result)
@@ -118,6 +106,10 @@ public class RoleController : Controller
 			}
 			else
 			{
+				var currentUser = await userService.GetCurrentUser();
+
+				await signInManager.RefreshSignInAsync(mapper.Map<IdentityUser>(currentUser));
+
 				return RedirectToAction(nameof(Index));
 			}
 		}
