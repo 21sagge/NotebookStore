@@ -74,18 +74,9 @@ public class RoleController : Controller
 			return NotFound();
 		}
 
-		var roleViewModel = mapper.Map<RoleViewModel>(role);
-
-		var claims = await roleService.GetClaims(role.Name);
-
-		foreach (var claim in claims)
-		{
-			roleViewModel.Claims.Add(claim);
-		}
-
 		ViewBag.Claims = Claims.AllClaims;
 
-		return View(roleViewModel);
+		return View(mapper.Map<RoleViewModel>(role));
 	}
 
 	// POST: RoleViewModel/Edit/RoleName
