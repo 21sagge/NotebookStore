@@ -26,7 +26,7 @@
         /// </summary>
         /// <param name="id">The ID of the user to delete.</param>
         /// <returns>The deleted user as a UserDto object.</returns>
-        Task<UserDto?> DeleteUser(string id);
+        Task<bool> DeleteUser(string id);
 
         /// <summary>
         /// Retrieves the roles of a user.

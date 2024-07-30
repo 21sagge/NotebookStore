@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using NotebookStore.Business;
+using NotebookStore.Business.Context;
 using NotebookStoreMVC.Models;
 
 namespace NotebookStoreMVC.Controllers;
