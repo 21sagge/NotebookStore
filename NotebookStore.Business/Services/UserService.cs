@@ -12,23 +12,25 @@ internal class UserService : IUserService
     private readonly UserManager<IdentityUser> userManager;
     private readonly IRoleService roleService;
 
-    public UserService(IMapper _mapper, IUserContext _context, UserManager<IdentityUser> _userManager, IRoleService roleService)
+    public UserService(
+        IMapper _mapper,
+        IUserContext _context,
+        UserManager<IdentityUser> _userManager,
+        IRoleService _roleService)
     {
         mapper = _mapper;
         context = _context;
         userManager = _userManager;
-        this.roleService = roleService;
+        roleService = _roleService;
     }
 
     public async Task<IEnumerable<UserDto>> GetUsers()
     {
         var users = await userManager.Users.ToListAsync();
 
-        IEnumerable<Task<UserDto>> userDtos = users.Select(async u => await MapUserAsync(u));
+        var userDtos = users.Select(async u => await MapUserAsync(u));
 
-        IEnumerable<UserDto> dtos = await Task.WhenAll(userDtos);
-
-        return dtos;
+        return await Task.WhenAll(userDtos);
     }
 
     public async Task<UserDto> GetCurrentUser()
@@ -36,18 +38,14 @@ internal class UserService : IUserService
         var user = await userManager.GetUserAsync(context.GetCurrentUser() ?? throw new Exception("User not found"))
             ?? throw new Exception("User not found");
 
-        UserDto userDto = await MapUserAsync(user);
-
-        return userDto;
+        return await MapUserAsync(user);
     }
 
     public async Task<UserDto> GetUser(string id)
     {
         var user = await userManager.FindByIdAsync(id);
 
-        var userDto = await MapUserAsync(user);
-
-        return userDto;
+        return await MapUserAsync(user);
     }
 
     public async Task<bool> DeleteUser(string id)

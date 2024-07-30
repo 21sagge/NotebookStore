@@ -38,14 +38,16 @@ internal class RoleService : IRoleService
 	{
 		var roles = await roleManager.Roles.ToListAsync();
 
-		return mapper.Map<IEnumerable<RoleDto>>(roles);
+		var roleDtos = roles.Select(async r => await MapRoleAsync(r));
+
+		return await Task.WhenAll(roleDtos);
 	}
 
 	public async Task<RoleDto?> GetRole(string role)
 	{
 		var IdentityRole = await roleManager.FindByNameAsync(role);
 
-		return mapper.Map<RoleDto>(IdentityRole);
+		return await MapRoleAsync(IdentityRole);
 	}
 
 	public async Task<IEnumerable<string>> GetClaims(string role)
@@ -87,5 +89,16 @@ internal class RoleService : IRoleService
 		}
 
 		return true;
+	}
+
+	private async Task<RoleDto> MapRoleAsync(IdentityRole identityRole)
+	{
+		var roleDto = mapper.Map<RoleDto>(identityRole);
+
+		var claims = await roleManager.GetClaimsAsync(identityRole);
+
+		roleDto.Claims = claims.Select(c => c.Value).ToList();
+
+		return roleDto;
 	}
 }
