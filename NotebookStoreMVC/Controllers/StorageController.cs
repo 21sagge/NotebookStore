@@ -20,6 +20,7 @@ public class StorageController : Controller
 
     // GET: StorageViewModel
     [HttpGet]
+    [Authorize(Policy = Claims.ReadStorage)]
     public async Task<IActionResult> Index()
     {
         var storageDtos = await services.Storages.GetAll();
@@ -43,7 +44,7 @@ public class StorageController : Controller
 
     // GET: StorageViewModel/Create
     [HttpGet]
-    [Authorize(Policy = Claims.AddStorage)]
+    [Authorize(Policy = Claims.CreateStorage)]
     public IActionResult Create()
     {
         return View();
@@ -52,7 +53,7 @@ public class StorageController : Controller
     // POST: StorageViewModel/Create
     [HttpPost]
     [ValidateAntiForgeryToken]
-    [Authorize(Policy = Claims.AddStorage)]
+    [Authorize(Policy = Claims.CreateStorage)]
     public async Task<IActionResult> Create([Bind("Id,Capacity,Type")] StorageViewModel StorageViewModel)
     {
         if (ModelState.IsValid)
@@ -67,7 +68,7 @@ public class StorageController : Controller
 
     // GET: StorageViewModel/Edit/5
     [HttpGet]
-    [Authorize(Policy = Claims.EditStorage)]
+    [Authorize(Policy = Claims.UpdateStorage)]
     public async Task<IActionResult> Edit(int id)
     {
         var storage = await services.Storages.Find(id);
@@ -83,7 +84,7 @@ public class StorageController : Controller
     // POST: StorageViewModel/Edit/5
     [HttpPost]
     [ValidateAntiForgeryToken]
-    [Authorize(Policy = Claims.EditStorage)]
+    [Authorize(Policy = Claims.UpdateStorage)]
     public async Task<IActionResult> Edit(int id, [Bind("Id,Capacity,Type")] StorageViewModel StorageViewModel)
     {
         if (id != StorageViewModel.Id)

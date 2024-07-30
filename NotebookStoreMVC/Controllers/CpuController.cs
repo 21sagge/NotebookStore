@@ -20,6 +20,7 @@ public class CpuController : Controller
 
     // GET: CpuViewModel
     [HttpGet]
+    [Authorize(Policy = Claims.ReadCpu)]
     public async Task<IActionResult> Index()
     {
         var cpus = await services.Cpus.GetAll();
@@ -43,7 +44,7 @@ public class CpuController : Controller
 
     // GET: CpuViewModel/Create
     [HttpGet]
-    [Authorize(Policy = Claims.AddCpu)]
+    [Authorize(Policy = Claims.CreateCpu)]
     public IActionResult Create()
     {
         return View();
@@ -52,7 +53,7 @@ public class CpuController : Controller
     // POST: CpuViewModel/Create
     [HttpPost]
     [ValidateAntiForgeryToken]
-    [Authorize(Policy = Claims.AddCpu)]
+    [Authorize(Policy = Claims.CreateCpu)]
     public async Task<IActionResult> Create([Bind("Id,Brand,Model")] CpuViewModel CpuViewModel)
     {
         if (ModelState.IsValid)
@@ -67,7 +68,7 @@ public class CpuController : Controller
 
     // GET: CpuViewModel/Edit/5
     [HttpGet]
-    [Authorize(Policy = Claims.EditCpu)]
+    [Authorize(Policy = Claims.UpdateCpu)]
     public async Task<IActionResult> Edit(int id)
     {
         var cpu = await services.Cpus.Find(id);
@@ -83,7 +84,7 @@ public class CpuController : Controller
     // POST: CpuViewModel/Edit/5
     [HttpPost]
     [ValidateAntiForgeryToken]
-    [Authorize(Policy = Claims.EditCpu)]
+    [Authorize(Policy = Claims.UpdateCpu)]
     public async Task<IActionResult> Edit(int id, [Bind("Id,Brand,Model")] CpuViewModel CpuViewModel)
     {
         if (id != CpuViewModel.Id)

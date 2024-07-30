@@ -2,9 +2,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using NotebookStore.Business;
-using NotebookStore.Business.Context;
 using NotebookStoreMVC.Models;
 
 namespace NotebookStoreMVC.Controllers;
@@ -51,16 +49,6 @@ public class RoleController : Controller
 			await roleService.CreateRole(roleViewModel.Name);
 
 			return RedirectToAction(nameof(Index));
-		}
-		else
-		{
-			foreach (var modelState in ModelState.Values)
-			{
-				foreach (var error in modelState.Errors)
-				{
-					Console.WriteLine(error.ErrorMessage);
-				}
-			}
 		}
 
 		return View(roleViewModel);

@@ -20,10 +20,11 @@ public class DisplayController : Controller
 
     // GET: DisplayViewModel
     [HttpGet]
+    [Authorize(Policy = Claims.ReadDisplay)]
     public async Task<IActionResult> Index()
     {
         var displays = await services.Displays.GetAll();
-        
+
         return View(mapper.Map<IEnumerable<DisplayViewModel>>(displays));
     }
 
@@ -43,7 +44,7 @@ public class DisplayController : Controller
 
     // GET: DisplayViewModel/Create
     [HttpGet]
-    [Authorize(Policy = Claims.AddDisplay)]
+    [Authorize(Policy = Claims.CreateDisplay)]
     public IActionResult Create()
     {
         return View();
@@ -52,7 +53,7 @@ public class DisplayController : Controller
     // POST: DisplayViewModel/Create
     [HttpPost]
     [ValidateAntiForgeryToken]
-    [Authorize(Policy = Claims.AddDisplay)]
+    [Authorize(Policy = Claims.CreateDisplay)]
     public async Task<IActionResult> Create([Bind("Id, Size, ResolutionWidth, ResolutionHeight, PanelType")] DisplayViewModel DisplayViewModel)
     {
         if (ModelState.IsValid)
@@ -67,7 +68,7 @@ public class DisplayController : Controller
 
     // GET: DisplayViewModel/Edit/5
     [HttpGet]
-    [Authorize(Policy = Claims.EditDisplay)]
+    [Authorize(Policy = Claims.UpdateDisplay)]
     public async Task<IActionResult> Edit(int id)
     {
         var display = await services.Displays.Find(id);
@@ -83,7 +84,7 @@ public class DisplayController : Controller
     // POST: DisplayViewModel/Edit/5
     [HttpPost]
     [ValidateAntiForgeryToken]
-    [Authorize(Policy = Claims.EditDisplay)]
+    [Authorize(Policy = Claims.UpdateDisplay)]
     public async Task<IActionResult> Edit(int id, [Bind("Id, Size, ResolutionWidth, ResolutionHeight, PanelType")] DisplayViewModel DisplayViewModel)
     {
         if (id != DisplayViewModel.Id)

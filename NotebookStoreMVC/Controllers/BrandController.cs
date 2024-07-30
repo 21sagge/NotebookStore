@@ -20,6 +20,7 @@ public class BrandController : Controller
 
     // GET: BrandViewModel
     [HttpGet]
+    [Authorize(Policy = Claims.ReadBrand)]
     public async Task<IActionResult> Index()
     {
         var brandDtos = await services.GetAll();
@@ -43,7 +44,7 @@ public class BrandController : Controller
 
     // GET: BrandViewModel/Create
     [HttpGet]
-    [Authorize(Policy = Claims.AddBrand)]
+    [Authorize(Policy = Claims.CreateBrand)]
     public IActionResult Create()
     {
         return View();
@@ -52,7 +53,7 @@ public class BrandController : Controller
     // POST: BrandViewModel/Create
     [HttpPost]
     [ValidateAntiForgeryToken]
-    [Authorize(Policy = Claims.AddBrand)]
+    [Authorize(Policy = Claims.CreateBrand)]
     public async Task<IActionResult> Create([Bind("Id,Name")] BrandViewModel BrandViewModel)
     {
         if (ModelState.IsValid)
@@ -67,7 +68,7 @@ public class BrandController : Controller
 
     // GET: BrandViewModel/Edit/5
     [HttpGet]
-    [Authorize(Policy = Claims.EditBrand)]
+    [Authorize(Policy = Claims.UpdateBrand)]
     public async Task<IActionResult> Edit(int id)
     {
         var brand = await services.Find(id);
@@ -83,7 +84,7 @@ public class BrandController : Controller
     // POST: BrandViewModel/Edit/5
     [HttpPost]
     [ValidateAntiForgeryToken]
-    [Authorize(Policy = Claims.EditBrand)]
+    [Authorize(Policy = Claims.UpdateBrand)]
     public async Task<IActionResult> EditAsync(int id, [Bind("Id,Name")] BrandViewModel BrandViewModel)
     {
         if (id != BrandViewModel.Id)

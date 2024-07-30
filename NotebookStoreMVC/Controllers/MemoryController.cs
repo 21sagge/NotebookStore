@@ -20,6 +20,7 @@ public class MemoryController : Controller
 
     // GET: MemoryViewModel
     [HttpGet]
+    [Authorize(Policy = Claims.ReadMemory)]
     public async Task<IActionResult> Index()
     {
         var memories = await services.Memories.GetAll();
@@ -43,7 +44,7 @@ public class MemoryController : Controller
 
     // GET: MemoryViewModel/Create
     [HttpGet]
-    [Authorize(Policy = Claims.AddMemory)]
+    [Authorize(Policy = Claims.CreateMemory)]
     public IActionResult Create()
     {
         return View();
@@ -52,7 +53,7 @@ public class MemoryController : Controller
     // POST: MemoryViewModel/Create
     [HttpPost]
     [ValidateAntiForgeryToken]
-    [Authorize(Policy = Claims.AddMemory)]
+    [Authorize(Policy = Claims.CreateMemory)]
     public async Task<IActionResult> Create([Bind("Id,Capacity,Speed")] MemoryViewModel MemoryViewModel)
     {
         if (ModelState.IsValid)
@@ -67,7 +68,7 @@ public class MemoryController : Controller
 
     // GET: MemoryViewModel/Edit/5
     [HttpGet]
-    [Authorize(Policy = Claims.EditMemory)]
+    [Authorize(Policy = Claims.UpdateMemory)]
     public async Task<IActionResult> Edit(int id)
     {
         var memory = await services.Memories.Find(id);
@@ -83,7 +84,7 @@ public class MemoryController : Controller
     // POST: MemoryViewModel/Edit/5
     [HttpPost]
     [ValidateAntiForgeryToken]
-    [Authorize(Policy = Claims.EditMemory)]
+    [Authorize(Policy = Claims.UpdateMemory)]
     public async Task<IActionResult> Edit(int id, [Bind("Id,Capacity,Speed")] MemoryViewModel MemoryViewModel)
     {
         if (id != MemoryViewModel.Id)

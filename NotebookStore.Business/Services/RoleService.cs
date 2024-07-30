@@ -71,6 +71,12 @@ internal class RoleService : IRoleService
 
 		if (IdentityRole == null) return false;
 
+		IdentityRole.Name = roleDto.Name;
+
+		var result = await roleManager.UpdateAsync(IdentityRole);
+
+		if (!result.Succeeded) return false;
+
 		var existingClaims = await roleManager.GetClaimsAsync(IdentityRole);
 
 		// Remove claims

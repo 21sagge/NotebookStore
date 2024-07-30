@@ -19,7 +19,7 @@ public class NotebookController : Controller
 
 	// GET: Notebook
 	[HttpGet]
-	[Authorize]
+	[Authorize(Policy = Claims.ReadNotebook)]
 	public async Task<IActionResult> Index()
 	{
 		var notebookDtos = await services.Notebooks.GetAll();
@@ -47,7 +47,7 @@ public class NotebookController : Controller
 
 	// GET: Notebook/Create
 	[HttpGet]
-	[Authorize(Policy = Claims.AddNotebook)]
+	[Authorize(Policy = Claims.CreateNotebook)]
 	public async Task<IActionResult> Create()
 	{
 		var brandDtos = await services.Brands.GetAll();
@@ -70,7 +70,7 @@ public class NotebookController : Controller
 	// POST: Notebook/Create
 	[HttpPost]
 	[ValidateAntiForgeryToken]
-	[Authorize(Policy = Claims.AddNotebook)]
+	[Authorize(Policy = Claims.CreateNotebook)]
 	public async Task<IActionResult> Create([Bind("Id,Color,Price,BrandId,ModelId,CpuId,DisplayId,MemoryId,StorageId")] NotebookViewModel notebook)
 	{
 		if (ModelState.IsValid)
@@ -85,7 +85,7 @@ public class NotebookController : Controller
 
 	// GET: Notebook/Edit/5
 	[HttpGet]
-	[Authorize(Policy = Claims.EditNotebook)]
+	[Authorize(Policy = Claims.UpdateNotebook)]
 	public async Task<IActionResult> Edit(int id)
 	{
 		var notebook = await services.Notebooks.Find(id);
@@ -115,7 +115,7 @@ public class NotebookController : Controller
 	// POST: Notebook/Edit/5
 	[HttpPost]
 	[ValidateAntiForgeryToken]
-	[Authorize(Policy = Claims.EditNotebook)]
+	[Authorize(Policy = Claims.UpdateNotebook)]
 	public async Task<IActionResult> Edit(int id, [Bind("Id,Color,Price,BrandId,ModelId,CpuId,DisplayId,MemoryId,StorageId")] NotebookViewModel notebook)
 	{
 		if (id != notebook.Id)

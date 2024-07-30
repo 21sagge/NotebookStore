@@ -2,50 +2,64 @@
 
 public class Claims
 {
-	public const string AddNotebook = "Add Notebook";
-	public const string EditNotebook = "Edit Notebook";
+	public const string CreateNotebook = "Create Notebook";
+	public const string ReadNotebook = "Read Notebook";
+	public const string UpdateNotebook = "Update Notebook";
 	public const string DeleteNotebook = "Delete Notebook";
-	public const string AddBrand = "Add Brand";
-	public const string EditBrand = "Edit Brand";
+	public const string CreateBrand = "Create Brand";
+	public const string ReadBrand = "Read Brand";
+	public const string UpdateBrand = "Update Brand";
 	public const string DeleteBrand = "Delete Brand";
-	public const string AddCpu = "Add Cpu";
-	public const string EditCpu = "Edit Cpu";
+	public const string CreateCpu = "Create Cpu";
+	public const string ReadCpu = "Read Cpu";
+	public const string UpdateCpu = "Update Cpu";
 	public const string DeleteCpu = "Delete Cpu";
-	public const string AddDisplay = "Add Display";
-	public const string EditDisplay = "Edit Display";
+	public const string CreateDisplay = "Create Display";
+	public const string ReadDisplay = "Read Display";
+	public const string UpdateDisplay = "Update Display";
 	public const string DeleteDisplay = "Delete Display";
-	public const string AddMemory = "Add Memory";
-	public const string EditMemory = "Edit Memory";
+	public const string CreateMemory = "Create Memory";
+	public const string ReadMemory = "Read Memory";
+	public const string UpdateMemory = "Update Memory";
 	public const string DeleteMemory = "Delete Memory";
-	public const string AddModel = "Add Model";
-	public const string EditModel = "Edit Model";
+	public const string CreateModel = "Create Model";
+	public const string ReadModel = "Read Model";
+	public const string UpdateModel = "Update Model";
 	public const string DeleteModel = "Delete Model";
-	public const string AddStorage = "Add Storage";
-	public const string EditStorage = "Edit Storage";
+	public const string CreateStorage = "Create Storage";
+	public const string ReadStorage = "Read Storage";
+	public const string UpdateStorage = "Update Storage";
 	public const string DeleteStorage = "Delete Storage";
 
 	public static readonly string[] AllClaims = new string[]
 	{
-		AddNotebook,
-		EditNotebook,
+		CreateNotebook,
+		ReadNotebook,
+		UpdateNotebook,
 		DeleteNotebook,
-		AddBrand,
-		EditBrand,
+		CreateBrand,
+		ReadBrand,
+		UpdateBrand,
 		DeleteBrand,
-		AddCpu,
-		EditCpu,
+		CreateCpu,
+		ReadCpu,
+		UpdateCpu,
 		DeleteCpu,
-		AddDisplay,
-		EditDisplay,
+		CreateDisplay,
+		ReadDisplay,
+		UpdateDisplay,
 		DeleteDisplay,
-		AddMemory,
-		EditMemory,
+		CreateMemory,
+		ReadMemory,
+		UpdateMemory,
 		DeleteMemory,
-		AddModel,
-		EditModel,
+		CreateModel,
+		ReadModel,
+		UpdateModel,
 		DeleteModel,
-		AddStorage,
-		EditStorage,
+		CreateStorage,
+		ReadStorage,
+		UpdateStorage,
 		DeleteStorage
 	};
 }
