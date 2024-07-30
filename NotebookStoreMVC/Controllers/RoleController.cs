@@ -14,16 +14,16 @@ public class RoleController : Controller
 {
 	private readonly IRoleService roleService;
 	private readonly IMapper mapper;
-    private readonly IUserService userService;
-    private readonly SignInManager<IdentityUser> signInManager;
+	private readonly IUserService userService;
+	private readonly SignInManager<IdentityUser> signInManager;
 
-    public RoleController(IRoleService roleService, IMapper mapper, IUserService userService, SignInManager<IdentityUser> signInManager)
+	public RoleController(IRoleService roleService, IMapper mapper, IUserService userService, SignInManager<IdentityUser> signInManager)
 	{
 		this.roleService = roleService;
 		this.mapper = mapper;
-        this.userService = userService;
-        this.signInManager = signInManager;
-    }
+		this.userService = userService;
+		this.signInManager = signInManager;
+	}
 
 	// GET: RoleViewModel
 	[HttpGet]
@@ -44,30 +44,33 @@ public class RoleController : Controller
 	// POST: RoleViewModel/Create
 	[HttpPost]
 	[ValidateAntiForgeryToken]
-	public async Task<IActionResult> Create([Bind("Name")] RoleViewModel roleViewModel)
+	public async Task<IActionResult> Create([Bind("Id,Name,Claims")] RoleViewModel roleViewModel)
 	{
 		if (ModelState.IsValid)
 		{
-			var result = await roleService.CreateRole(roleViewModel.Name);
+			await roleService.CreateRole(roleViewModel.Name);
 
-			if (!result)
+			return RedirectToAction(nameof(Index));
+		}
+		else
+		{
+			foreach (var modelState in ModelState.Values)
 			{
-				ModelState.AddModelError(string.Empty, "Role already exists.");
-			}
-			else
-			{
-				return RedirectToAction(nameof(Index));
+				foreach (var error in modelState.Errors)
+				{
+					Console.WriteLine(error.ErrorMessage);
+				}
 			}
 		}
 
 		return View(roleViewModel);
 	}
 
-	// GET: RoleViewModel/Edit/RoleName
+	// GET: RoleViewModel/Edit/Id
 	[HttpGet]
-	public async Task<IActionResult> Edit(string name)
+	public async Task<IActionResult> Edit(string id)
 	{
-		var role = await roleService.GetRole(name);
+		var role = await roleService.GetRole(id);
 
 		if (role == null)
 		{
@@ -79,19 +82,19 @@ public class RoleController : Controller
 		return View(mapper.Map<RoleViewModel>(role));
 	}
 
-	// POST: RoleViewModel/Edit/RoleName
+	// POST: RoleViewModel/Edit/Id
 	[HttpPost]
 	[ValidateAntiForgeryToken]
-	public async Task<IActionResult> Edit(string name, [Bind("Id,Name,Claims")] RoleViewModel roleViewModel)
+	public async Task<IActionResult> Edit(string id, [Bind("Id,Name,Claims")] RoleViewModel roleViewModel)
 	{
-		if (name != roleViewModel.Name)
+		if (id != roleViewModel.Id)
 		{
 			return NotFound();
 		}
 
 		if (ModelState.IsValid)
 		{
-			var result = await roleService.UpdateRole(roleViewModel.Name, roleViewModel.Claims);
+			var result = await roleService.UpdateRole(mapper.Map<RoleDto>(roleViewModel));
 
 			if (!result)
 			{
@@ -110,12 +113,12 @@ public class RoleController : Controller
 		return View(roleViewModel);
 	}
 
-	// POST: RoleViewModel/Delete/RoleName
+	// POST: RoleViewModel/Delete/Id
 	[HttpPost]
 	[ValidateAntiForgeryToken]
-	public async Task<IActionResult> Delete(string name)
+	public async Task<IActionResult> Delete(string id)
 	{
-		await roleService.DeleteRole(name);
+		await roleService.DeleteRole(id);
 
 		return RedirectToAction(nameof(Index));
 	}

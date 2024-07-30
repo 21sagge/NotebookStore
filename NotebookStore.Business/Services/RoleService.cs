@@ -16,16 +16,18 @@ internal class RoleService : IRoleService
 		mapper = _mapper;
 	}
 
-	public async Task<bool> CreateRole(string role)
+	public async Task<bool> CreateRole(string name)
 	{
-		var result = await roleManager.CreateAsync(new IdentityRole(role));
+		var role = new IdentityRole(name);
+
+		var result = await roleManager.CreateAsync(role);
 
 		return result.Succeeded;
 	}
 
-	public async Task<bool> DeleteRole(string role)
+	public async Task<bool> DeleteRole(string id)
 	{
-		var IdentityRole = await roleManager.FindByNameAsync(role);
+		var IdentityRole = await roleManager.FindByIdAsync(id);
 
 		if (IdentityRole == null) return false;
 
@@ -43,16 +45,18 @@ internal class RoleService : IRoleService
 		return await Task.WhenAll(roleDtos);
 	}
 
-	public async Task<RoleDto?> GetRole(string role)
+	public async Task<RoleDto?> GetRole(string id)
 	{
-		var IdentityRole = await roleManager.FindByNameAsync(role);
+		var IdentityRole = await roleManager.FindByIdAsync(id);
+
+		if (IdentityRole == null) return null;
 
 		return await MapRoleAsync(IdentityRole);
 	}
 
-	public async Task<IEnumerable<string>> GetClaims(string role)
+	public async Task<IEnumerable<string>> GetClaims(string name)
 	{
-		var IdentityRole = await roleManager.FindByNameAsync(role);
+		var IdentityRole = await roleManager.FindByNameAsync(name);
 
 		if (IdentityRole == null) return new List<string>();
 
@@ -61,12 +65,9 @@ internal class RoleService : IRoleService
 		return claims.Select(c => c.Value);
 	}
 
-	public async Task<bool> UpdateRole(string role, List<string> claims)
+	public async Task<bool> UpdateRole(RoleDto roleDto)
 	{
-		if (claims == null) throw new ArgumentNullException(nameof(claims), "Cannot be null");
-		if (string.IsNullOrEmpty(role)) throw new ArgumentNullException(nameof(role), "Cannot be empty or null");
-
-		var IdentityRole = await roleManager.FindByNameAsync(role);
+		var IdentityRole = await roleManager.FindByIdAsync(roleDto.Id);
 
 		if (IdentityRole == null) return false;
 
@@ -75,13 +76,13 @@ internal class RoleService : IRoleService
 		// Remove claims
 		foreach (var claim in existingClaims)
 		{
-			if (claims.Any(c => c == claim.Value)) continue;
+			if (roleDto.Claims.Contains(claim.Value)) continue;
 
 			await roleManager.RemoveClaimAsync(IdentityRole, claim);
 		}
 
 		// Add new claims
-		foreach (var claim in claims)
+		foreach (var claim in roleDto.Claims)
 		{
 			if (existingClaims.Any(c => c.Value == claim)) continue;
 

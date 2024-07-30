@@ -12,9 +12,9 @@ public interface IRoleService
 	/// <summary>
 	/// Deletes a role.
 	/// </summary>
-	/// <param name="role">The name of the role to delete.</param>
+	/// <param name="id">The ID of the role to delete.</param>
 	/// <returns>True if the role was deleted; otherwise, false.</returns>
-	Task<bool> DeleteRole(string role);
+	Task<bool> DeleteRole(string id);
 
 	/// <summary>
 	/// Gets all roles.
@@ -25,22 +25,21 @@ public interface IRoleService
 	/// <summary>
 	///	Gets a role.
 	/// </summary>
-	/// <param name="role">The name of the role to get.</param>
+	/// <param name="id">The ID of the role to get.</param>
 	/// <returns>The role.</returns>
-	Task<RoleDto?> GetRole(string role);
+	Task<RoleDto?> GetRole(string id);
 
 	/// <summary>
 	///	Gets the claims for a role.
 	/// </summary>
-	/// <param name="role">The name of the role to get claims for.</param>
+	/// <param name="id">The ID of the role to get claims for.</param>
 	/// <returns>A collection of claims.</returns>
-	Task<IEnumerable<string>> GetClaims(string role);
+	Task<IEnumerable<string>> GetClaims(string id);
 
 	/// <summary>
-	///	Updates a role with the specified claims and refreshes the user's claims.
+	///	Updates a role with the specified claims.
 	/// </summary>
-	/// <param name="role">The name of the role to update.</param>
-	/// <param name="claims">The claims to update.</param>
+	/// <param name="role">The role to update.</param>
 	/// <returns>True if the role was updated; otherwise, false.</returns>
-	Task<bool> UpdateRole(string role, List<string> claims);
+	Task<bool> UpdateRole(RoleDto role);
 }
