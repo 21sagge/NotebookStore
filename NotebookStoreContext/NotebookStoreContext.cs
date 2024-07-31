@@ -18,6 +18,7 @@ public class NotebookStoreContext : IdentityDbContext<IdentityUser, IdentityRole
     public DbSet<Memory> Memories { get; set; }
     public DbSet<Storage> Storages { get; set; }
     public DbSet<Notebook> Notebooks { get; set; }
+    public DbSet<NotebooksQuantities> NotebooksQuantities { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -92,6 +93,13 @@ public class NotebookStoreContext : IdentityDbContext<IdentityUser, IdentityRole
             n.HasOne(n => n.Memory).WithMany().HasForeignKey(n => n.MemoryId);
             n.HasOne(n => n.Storage).WithMany().HasForeignKey(n => n.StorageId);
             n.HasIndex(n => new { n.BrandId, n.ModelId, n.CpuId, n.DisplayId, n.MemoryId, n.StorageId, n.Color, n.Price }).IsUnique();
+        });
+
+        modelBuilder.Entity<NotebooksQuantities>(nq =>
+        {
+            nq.HasKey(nq => nq.NotebookId);
+            nq.Property(nq => nq.Quantity).IsRequired();
+            nq.HasOne(nq => nq.Notebook).WithOne().HasForeignKey<NotebooksQuantities>(nq => nq.NotebookId);
         });
 
         base.OnModelCreating(modelBuilder);
