@@ -1,0 +1,43 @@
+{
+	"Customer": "IBM",
+	"Notebooks": [
+		{
+			"Quantity": 10,
+			"Name": "Huawei",
+			"Price": 1500.0,
+			"CPU": 3,
+			"Color": "#000000",
+			"DateOfProduction": "2022-11-18T00:00:00.0000000Z",
+			"Ram": 8,
+			"ProcessorModel": "I9",
+			"Monitor": {
+				"Width": 3840,
+				"Height": 2160,
+				"SupportedRefreshRate": [60, 90, 120, 144]
+			},
+			"Ports": {
+				"Usb": 1,
+				"Hdmi": null
+			}
+		},
+		{
+			"Quantity": 5,
+			"Name": "Lenovo",
+			"Price": 2400.0,
+			"CPU": 4,
+			"Color": "Violet",
+			"DateOfProduction": "2021-11-18T00:00:00.0000000Z",
+			"Ram": 16,
+			"ProcessorModel": "I11",
+			"Monitor": {
+				"Width": 3840,
+				"Height": 2160,
+				"SupportedRefreshRate": [60, 90]
+			},
+			"Ports": {
+				"Usb": 2,
+				"Hdmi": 1
+			}
+		}
+	]
+}
