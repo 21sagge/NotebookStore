@@ -1,9 +1,9 @@
-﻿namespace NotebookStoreImporter;
+﻿namespace IbmImporter.Models;
 
 public class Notebook
 {
 	public int Quantity { get; set; }
-	public string Name { get; set; } = "Gennaro";
+	public string Name { get; set; } = string.Empty;
 	public double Price { get; set; }
 	public int CPU { get; set; }
 	public string Color { get; set; } = string.Empty;

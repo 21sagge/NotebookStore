@@ -1,4 +1,4 @@
-﻿namespace NotebookStoreImporter;
+﻿namespace IbmImporter.Models;
 
 public class Monitor
 {

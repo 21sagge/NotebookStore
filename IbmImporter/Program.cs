@@ -1,29 +1,25 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
-using NotebookStore.Business;
-using NotebookStoreImporter;
+using IbmImporter.Models;
+using IbmImporter;
 
-var services = new ServiceCollection();
-
-services.AddSingleton<ISerializer, JsonHandler>();
-
-var serviceProvider = services.BuildServiceProvider();
-
-var serializer = serviceProvider.GetRequiredService<ISerializer>();
-
-var jsonString = File.ReadAllText("IBM.json");
-
-var notebookStore = serializer.Deserialize<NotebookData>(jsonString);
-
-PrintNotebook(notebookStore);
-
-static void PrintNotebook(NotebookData? notebookData)
+if (args.Length == 0)
 {
-	if (notebookData is null)
-	{
-		Console.WriteLine("Notebook is null");
-		return;
-	}
+	Console.WriteLine("Please provide a path to the json file");
+	return;
+}
 
+var serviceProvider = RegisterIbmImporter.Register();
+
+var parser = serviceProvider.GetRequiredService<IJsonFileParser>();
+
+var notebookData = parser.Parse(args[0]);
+
+if (notebookData == null) return;
+
+PrintNotebook(notebookData);
+
+static void PrintNotebook(NotebookData notebookData)
+{
 	Console.WriteLine($"Customer: {notebookData.Customer}");
 	Console.WriteLine("Notebooks:");
 	foreach (var notebook in notebookData.Notebooks)

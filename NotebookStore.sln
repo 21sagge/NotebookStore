@@ -19,7 +19,9 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{579D8AF5
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NotebookStore.Business.Tests", "NotebookStore.Business.Tests\NotebookStore.Business.Tests.csproj", "{B8CA9571-018C-474F-B604-66D6AD55C7A5}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NotebookStoreImporter", "NotebookStoreImporter\NotebookStoreImporter.csproj", "{62051CA0-D348-4AD2-8997-61650E93D5AF}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Importers", "Importers", "{831763A8-35AE-4533-A7B2-8EB443460121}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IbmImporter", "IbmImporter\IbmImporter.csproj", "{DF881CFD-91F9-4D38-A684-FB653B04D209}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -55,15 +57,16 @@ Global
 		{B8CA9571-018C-474F-B604-66D6AD55C7A5}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B8CA9571-018C-474F-B604-66D6AD55C7A5}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B8CA9571-018C-474F-B604-66D6AD55C7A5}.Release|Any CPU.Build.0 = Release|Any CPU
-		{62051CA0-D348-4AD2-8997-61650E93D5AF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{62051CA0-D348-4AD2-8997-61650E93D5AF}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{62051CA0-D348-4AD2-8997-61650E93D5AF}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{62051CA0-D348-4AD2-8997-61650E93D5AF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DF881CFD-91F9-4D38-A684-FB653B04D209}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DF881CFD-91F9-4D38-A684-FB653B04D209}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DF881CFD-91F9-4D38-A684-FB653B04D209}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DF881CFD-91F9-4D38-A684-FB653B04D209}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{B8CA9571-018C-474F-B604-66D6AD55C7A5} = {579D8AF5-C87C-431D-B082-02ACDBE939EB}
+		{DF881CFD-91F9-4D38-A684-FB653B04D209} = {831763A8-35AE-4533-A7B2-8EB443460121}
 	EndGlobalSection
 EndGlobal

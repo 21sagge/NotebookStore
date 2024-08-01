@@ -4,6 +4,10 @@
     <ProjectReference Include="..\NotebookStore.Business\NotebookStore.Business.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Parsers/" />
+  </ItemGroup>
+
   <PropertyGroup>
     <OutputType>Exe</OutputType>
     <TargetFramework>net7.0</TargetFramework>
