@@ -1,6 +1,6 @@
 ﻿namespace NotebookStore.Entities;
 
-public class NotebooksQuantities
+public class NotebookInventory
 {
 	public int NotebookId { get; set; }
 	public int Quantity { get; set; }
