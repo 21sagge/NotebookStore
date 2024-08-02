@@ -12,11 +12,20 @@ var serviceProvider = RegisterIbmImporter.Register();
 
 var parser = serviceProvider.GetRequiredService<IJsonFileParser>();
 
+var validator = serviceProvider.GetRequiredService<IValidator<NotebookData>>();
+
 var notebookData = parser.Parse(args[0]);
 
 if (notebookData == null) return;
 
-PrintNotebook(notebookData);
+if (validator.Validate(notebookData))
+{
+	PrintNotebook(notebookData);
+}
+else
+{
+	Console.WriteLine("Invalid data");
+}
 
 static void PrintNotebook(NotebookData notebookData)
 {

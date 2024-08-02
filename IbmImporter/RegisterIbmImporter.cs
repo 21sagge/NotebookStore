@@ -1,5 +1,7 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using IbmImporter.Models;
+using Microsoft.Extensions.DependencyInjection;
 using NotebookStore.Business;
+using Monitor = IbmImporter.Models.Monitor;
 
 namespace IbmImporter;
 
@@ -16,7 +18,12 @@ public static class RegisterIbmImporter
 
 		services.RegisterNotebookBusiness();
 
-		services.AddSingleton<IJsonFileParser, JsonFileParser>();
+		services.AddScoped<IJsonFileParser, JsonFileParser>();
+
+		services.AddScoped<IValidator<NotebookData>, NotebookDataValidator>();
+		services.AddScoped<IValidator<Notebook>, NotebookValidator>();
+		services.AddScoped<IValidator<Monitor>, MonitorValidator>();
+		services.AddScoped<IValidator<Ports>, PortsValidator>();
 
 		return services.BuildServiceProvider();
 	}
