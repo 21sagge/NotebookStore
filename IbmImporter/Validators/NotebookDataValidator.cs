@@ -19,7 +19,9 @@ public class NotebookDataValidator : IValidator<NotebookData>
 		}
 
 		if (string.IsNullOrEmpty(model.Customer) ||
-			model.Notebooks.TrueForAll(notebook => notebookValidator.Validate(notebook) == false))
+			model.Notebooks == null ||
+			model.Notebooks.Count == 0 ||
+			model.Notebooks.Any(notebook => notebookValidator.Validate(notebook) == false))
 		{
 			return false;
 		}

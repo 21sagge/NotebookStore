@@ -11,8 +11,7 @@ public class PortsValidator : IValidator<Ports>
 			return false;
 		}
 
-		if (model.Hdmi == 0 &&
-			model.Usb == 0)
+		if (model.Hdmi is null && model.Usb is null)
 		{
 			return false;
 		}
