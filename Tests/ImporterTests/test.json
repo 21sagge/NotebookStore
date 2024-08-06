@@ -1,0 +1,62 @@
+{
+	"Customer": "Customer",
+	"Notebooks": [
+		{
+			"Quantity": 1,
+			"Name": "Name",
+			"Price": 1700,
+			"CPU": 1,
+			"Color": "Color",
+			"DateOfProduction": "2023-10-05T14:48:00.000Z",
+			"Ram": 1,
+			"ProcessorModel": "ProcessorModel",
+			"Monitor": {
+				"Height": 1,
+				"Width": 1,
+				"SupportedRefreshRate": [1]
+			},
+			"Ports": {
+				"Hdmi": 1,
+				"Usb": 1
+			}
+		},
+		{
+			"Quantity": 1,
+			"Name": "Name",
+			"Price": 1500,
+			"CPU": 1,
+			"Color": "Color",
+			"DateOfProduction": "2023-10-05T14:48:00.000Z",
+			"Ram": 1,
+			"ProcessorModel": "ProcessorModel",
+			"Monitor": {
+				"Height": 1,
+				"Width": 1,
+				"SupportedRefreshRate": [1]
+			},
+			"Ports": {
+				"Hdmi": 1,
+				"Usb": 1
+			}
+		},
+		{
+			"Quantity": 1,
+			"Name": "bjkas",
+			"Price": 1700,
+			"CPU": 1,
+			"Color": "Color",
+			"DateOfProduction": "2023-10-05T14:48:00.000Z",
+			"Ram": 2,
+			"ProcessorModel": "sbdjkl",
+			"Monitor": {
+				"Height": 2,
+				"Width": 2,
+				"SupportedRefreshRate": [2]
+			},
+			"Ports": {
+				"Hdmi": 1,
+				"Usb": 1
+			}
+		}
+	]
+}

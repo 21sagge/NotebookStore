@@ -1,6 +1,8 @@
 ﻿using IbmImporter.Models;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using NotebookStore.Business;
+using NotebookStore.DAL;
 using Monitor = IbmImporter.Models.Monitor;
 
 namespace IbmImporter;
@@ -18,6 +20,11 @@ public static class RegisterIbmImporter
 
 		services.RegisterNotebookBusiness();
 
+		services.AddDbContext<NotebookStoreContext.NotebookStoreContext>(options =>
+		{
+			options.UseSqlite($"DataSource=../NotebookStoreMVC/notebookstore.db");
+		});
+
 		services.AddScoped<IJsonFileParser, JsonFileParser>();
 
 		services.AddScoped<IValidator<NotebookData>, NotebookDataValidator>();
@@ -26,6 +33,8 @@ public static class RegisterIbmImporter
 		services.AddScoped<IValidator<Ports>, PortsValidator>();
 
 		services.AddScoped<DataImporter>();
+
+		services.AddScoped<IRepository<NotebookStore.Entities.Notebook>, NotebookRepository>();
 
 		return services.BuildServiceProvider();
 	}

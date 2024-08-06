@@ -3,7 +3,6 @@ using IbmImporter.Models;
 using Microsoft.Extensions.DependencyInjection;
 using NotebookStore.DAL;
 using NotebookStore.Business;
-using Moq;
 using Microsoft.EntityFrameworkCore;
 
 namespace ImporterTests;
@@ -23,13 +22,15 @@ public class TestStartup
 			options.UseSqlite($"DataSource=ImporterTests_{Guid.NewGuid()}.db");
 		});
 
+		services.AddScoped<IJsonFileParser, JsonFileParser>();
+
 		services.AddScoped<IValidator<Notebook>, NotebookValidator>();
 		services.AddScoped<IValidator<IbmImporter.Models.Monitor>, MonitorValidator>();
 		services.AddScoped<IValidator<Ports>, PortsValidator>();
-		services.AddScoped<IRepository<NotebookStore.Entities.Notebook>, NotebookRepository>();
+
 		services.AddScoped<DataImporter>();
 
-		services.AddScoped(_ => new Mock<IJsonFileParser>().Object);
+		services.AddScoped<IRepository<NotebookStore.Entities.Notebook>, NotebookRepository>();
 	}
 
 	public static void Register<T>() where T : class

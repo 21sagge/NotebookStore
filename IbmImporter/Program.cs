@@ -13,11 +13,15 @@ var ibmImporter = serviceProvider.GetRequiredService<DataImporter>();
 
 var importResult = ibmImporter.Import(args[0]);
 
-Console.WriteLine($"{importResult.Success} of {importResult.Success + importResult.Unsuccess.Count} Notebooks have been imported");
+DisplayImportSummary(importResult);
 
-foreach (var unsuccessfulNotebook in importResult.Unsuccess)
+static void DisplayImportSummary(ImportResult importResult)
 {
-    Console.WriteLine($"Notebook {unsuccessfulNotebook.Index} cannot be imported: {unsuccessfulNotebook.ErrorMessage}");
-    Console.WriteLine();
-    Console.WriteLine(unsuccessfulNotebook.Notebook);
+    Console.WriteLine($"{importResult.Success} of {importResult.Success + importResult.Unsuccess.Count} Notebooks have been imported");
+
+    foreach (var unsuccessfulNotebook in importResult.Unsuccess)
+    {
+        Console.WriteLine($"\nNotebook {unsuccessfulNotebook.Index} cannot be imported: {unsuccessfulNotebook.ErrorMessage}");
+        Console.WriteLine("\n" + unsuccessfulNotebook.Notebook);
+    }
 }
