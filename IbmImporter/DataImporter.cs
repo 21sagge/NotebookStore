@@ -39,34 +39,34 @@ public class DataImporter
 		{
 			var validationResult = validator.Validate(notebook);
 
-			if (string.IsNullOrEmpty(validationResult))
-			{
-				var importNotebookResult = await ImportNotebook(notebook, notebookData.Customer);
+            if (!string.IsNullOrEmpty(validationResult))
+            {
+                importResult.Unsuccess.Add(new UnimportedNotebook
+                {
+                    Index = notebookData.Notebooks.IndexOf(notebook),
+                    ErrorMessage = validationResult,
+                    Notebook = notebook
+                });
+            }
+            else
+            {
+                var importNotebookResult = await ImportNotebook(notebook, notebookData.Customer);
 
-				if (!string.IsNullOrEmpty(importNotebookResult))
-				{
-					importResult.Unsuccess.Add(new UnimportedNotebook
-					{
-						Index = notebookData.Notebooks.IndexOf(notebook),
-						ErrorMessage = importNotebookResult,
-						Notebook = notebook
-					});
-				}
-				else
-				{
-					importResult.Success++;
-				}
-			}
-			else
-			{
-				importResult.Unsuccess.Add(new UnimportedNotebook
-				{
-					Index = notebookData.Notebooks.IndexOf(notebook),
-					ErrorMessage = validationResult,
-					Notebook = notebook
-				});
-			}
-		});
+                if (!string.IsNullOrEmpty(importNotebookResult))
+                {
+                    importResult.Unsuccess.Add(new UnimportedNotebook
+                    {
+                        Index = notebookData.Notebooks.IndexOf(notebook),
+                        ErrorMessage = importNotebookResult,
+                        Notebook = notebook
+                    });
+                }
+                else
+                {
+                    importResult.Success++;
+                }
+            }
+        });
 
 		return importResult;
 	}
