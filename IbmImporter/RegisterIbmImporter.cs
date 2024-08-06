@@ -25,6 +25,8 @@ public static class RegisterIbmImporter
 		services.AddScoped<IValidator<Monitor>, MonitorValidator>();
 		services.AddScoped<IValidator<Ports>, PortsValidator>();
 
+		services.AddScoped<DataImporter>();
+
 		return services.BuildServiceProvider();
 	}
 }

@@ -6,9 +6,9 @@ public class Cpu : IAuditable
 {
   public int Id { get; set; }
   [MaxLength(50)]
-  public required string Brand { get; set; }
+  public string Brand { get; set; } = string.Empty;
   [MaxLength(50)]
-  public required string Model { get; set; }
+  public string Model { get; set; } = string.Empty;
   public string? CreatedBy { get; set; }
-  public required string CreatedAt { get; set; }
+  public string CreatedAt { get; set; } = DateTime.Now.ToString();
 }

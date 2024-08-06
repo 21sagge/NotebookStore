@@ -11,21 +11,21 @@ public class NotebookDataValidator : IValidator<NotebookData>
 		this.notebookValidator = notebookValidator;
 	}
 
-	public bool Validate(NotebookData model)
+	public string Validate(NotebookData model)
 	{
 		if (model == null)
 		{
-			return false;
+			return "NotebookData is null";
 		}
 
 		if (string.IsNullOrEmpty(model.Customer) ||
 			model.Notebooks == null ||
 			model.Notebooks.Count == 0 ||
-			model.Notebooks.Any(notebook => notebookValidator.Validate(notebook) == false))
+			model.Notebooks.Any(notebook => notebookValidator.Validate(notebook) != string.Empty))
 		{
-			return false;
+			return "NotebookData is invalid";
 		}
 
-		return true;
+		return string.Empty;
 	}
 }

@@ -12,4 +12,18 @@ public class Notebook
 	public string ProcessorModel { get; set; } = string.Empty;
 	public Monitor Monitor { get; set; } = new();
 	public Ports Ports { get; set; } = new();
+
+	public override string ToString()
+	{
+		return $"Notebook: {Name}" +
+			   $"\nQuantity: {Quantity}" +
+			   $"\nPrice: {Price}" +
+			   $"\nCPU: {CPU}" +
+			   $"\nColor: {Color}" +
+			   $"\nDate of production: {DateOfProduction}" +
+			   $"\nRam: {Ram}" +
+			   $"\nProcessor model: {ProcessorModel}" +
+			   $"\nMonitor: {Monitor}" +
+			   $"\nPorts: {Ports}";
+	}
 }

@@ -4,21 +4,19 @@ namespace IbmImporter;
 
 public class MonitorValidator : IValidator<Monitor>
 {
-	public bool Validate(Monitor model)
+	public string Validate(Monitor model)
 	{
 		if (model == null)
 		{
-			return false;
+			return "Monitor is null";
 		}
 
-		if (model.Width == 0 ||
-			model.Height == 0 ||
-			model.SupportedRefreshRate == null ||
-			model.SupportedRefreshRate.Count == 0)
-		{
-			return false;
-		}
+		if (model.Width == 0) return "Width is 0";
 
-		return true;
+		if (model.Height == 0) return "Height is 0";
+
+		if (model.SupportedRefreshRate.Count == 0) return "Supported refresh rate is empty";
+
+		return string.Empty;
 	}
 }

@@ -10,13 +10,13 @@ public class Storage : IAuditable
     /// Type of the storage (e.g. SSD, HDD)
     /// </summary>
     [MaxLength(10)]
-    public required string Type { get; set; }
+    public string Type { get; set; } = string.Empty;
 
     /// <summary>
     /// Capacity of the storage in gigabytes (e.g. 256, 512)
     /// </summary>
     [Range(128, 4096)]
-    public required int Capacity { get; set; }
+    public int Capacity { get; set; }
     public string? CreatedBy { get; set; }
-    public required string CreatedAt { get; set; }
+    public string CreatedAt { get; set; } = string.Empty;
 }

@@ -4,18 +4,18 @@ namespace IbmImporter;
 
 public class PortsValidator : IValidator<Ports>
 {
-	public bool Validate(Ports model)
+	public string Validate(Ports model)
 	{
 		if (model == null)
 		{
-			return false;
+			return "Ports is null";
 		}
 
 		if (model.Hdmi is null && model.Usb is null)
 		{
-			return false;
+			return "Both HDMI and USB are null";
 		}
 
-		return true;
+		return string.Empty;
 	}
 }

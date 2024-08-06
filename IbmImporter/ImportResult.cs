@@ -1,9 +1,7 @@
-﻿using IbmImporter.Models;
-
-namespace IbmImporter;
+﻿namespace IbmImporter;
 
 public class ImportResult
 {
     public int Success { get; set; }
-    public List<UnimportedNotebook> Unsuccess { get; set; } = new List<UnimportedNotebook>();
+    public List<UnimportedNotebook> Unsuccess { get; set; } = new();
 }

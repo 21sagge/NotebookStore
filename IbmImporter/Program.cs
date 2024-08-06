@@ -1,6 +1,5 @@
-﻿using Microsoft.Extensions.DependencyInjection;
-using IbmImporter.Models;
-using IbmImporter;
+﻿using IbmImporter;
+using Microsoft.Extensions.DependencyInjection;
 
 if (args.Length == 0)
 {
@@ -10,37 +9,15 @@ if (args.Length == 0)
 
 var serviceProvider = RegisterIbmImporter.Register();
 
-var parser = serviceProvider.GetRequiredService<IJsonFileParser>();
+var ibmImporter = serviceProvider.GetRequiredService<DataImporter>();
 
-var validator = serviceProvider.GetRequiredService<IValidator<NotebookData>>();
+var importResult = ibmImporter.Import(args[0]);
 
-var ibmImporter = new IbmImporter.IbmImporter();
+Console.WriteLine($"{importResult.Success} of {importResult.Success + importResult.Unsuccess.Count} Notebooks have been imported");
 
-var importResult = ibmImporter.Import();
-
-Console.WriteLine($"{importResult.Success} Notebooks have been imported");
-
-foreach(var unsuccessfulNotebook in importResult.Unsuccess)
+foreach (var unsuccessfulNotebook in importResult.Unsuccess)
 {
-    Console.WriteLine($"{unsuccessfulNotebook.Index} cannot be imported because {unsuccessfulNotebook.ErrorMessage}");
+    Console.WriteLine($"Notebook {unsuccessfulNotebook.Index} cannot be imported: {unsuccessfulNotebook.ErrorMessage}");
+    Console.WriteLine();
     Console.WriteLine(unsuccessfulNotebook.Notebook);
-}
-
-static void PrintNotebook(NotebookData notebookData)
-{
-    Console.WriteLine($"Customer: {notebookData.Customer}");
-    Console.WriteLine("Notebooks:");
-    foreach (var notebook in notebookData.Notebooks)
-    {
-        Console.WriteLine($"- {notebook.Quantity}x {notebook.Name}");
-        Console.WriteLine($"  Price: {notebook.Price}");
-        Console.WriteLine($"  CPU: {notebook.CPU}");
-        Console.WriteLine($"  Color: {notebook.Color}");
-        Console.WriteLine($"  Date of production: {notebook.DateOfProduction}");
-        Console.WriteLine($"  RAM: {notebook.Ram}");
-        Console.WriteLine($"  Processor model: {notebook.ProcessorModel}");
-        Console.WriteLine($"  Monitor:");
-        Console.WriteLine($"    Resolution: {notebook.Monitor.Width}x{notebook.Monitor.Height}");
-        Console.WriteLine($"    Refresh rates: {string.Join(", ", notebook.Monitor.SupportedRefreshRate)}");
-    }
 }

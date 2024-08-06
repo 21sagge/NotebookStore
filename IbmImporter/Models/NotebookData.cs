@@ -2,6 +2,6 @@
 
 public class NotebookData
 {
-	public string Customer { get; set; }
-	public List<Notebook> Notebooks { get; set; }
+	public string Customer { get; set; } = string.Empty;
+	public List<Notebook> Notebooks { get; set; } = new();
 }

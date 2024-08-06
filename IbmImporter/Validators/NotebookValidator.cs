@@ -14,22 +14,37 @@ public class NotebookValidator : IValidator<Notebook>
 		this.portsValidator = portsValidator;
 	}
 
-	public bool Validate(Notebook model)
+	public string Validate(Notebook model)
 	{
 		if (model == null)
 		{
-			return false;
+			return "Notebook is null";
 		}
 
-		if (string.IsNullOrEmpty(model.Name) ||
-			string.IsNullOrEmpty(model.Color) ||
-			string.IsNullOrEmpty(model.ProcessorModel) ||
-			monitorValidator.Validate(model.Monitor) == false ||
-			portsValidator.Validate(model.Ports) == false)
-		{
-			return false;
-		}
+		if (string.IsNullOrEmpty(model.Name)) return "Name is null or empty";
 
-		return true;
+		if (model.Price == 0) return "Price is 0";
+
+		if (model.Ram == 0) return "Ram is 0";
+
+		if (model.CPU == 0) return "CPU is 0";
+
+		if (string.IsNullOrEmpty(model.Color)) return "Color is null or empty";
+
+		if (string.IsNullOrEmpty(model.ProcessorModel)) return "Processor model is null or empty";
+
+		if (model.DateOfProduction == DateTime.MinValue) return "Date of production is not set";
+
+		if (model.Monitor == null) return "Monitor is null";
+
+		var monitorValidationResult = monitorValidator.Validate(model.Monitor);
+		if (!string.IsNullOrEmpty(monitorValidator.Validate(model.Monitor))) return monitorValidationResult;
+
+		var portsValidationResult = portsValidator.Validate(model.Ports);
+		if (!string.IsNullOrEmpty(portsValidationResult)) return portsValidationResult;
+
+		if (model.Price < 1600) return "Price is less than 1600";
+
+		return string.Empty;
 	}
 }
