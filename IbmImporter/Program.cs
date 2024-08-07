@@ -11,7 +11,7 @@ var serviceProvider = RegisterIbmImporter.Register();
 
 var ibmImporter = serviceProvider.GetRequiredService<DataImporter>();
 
-var importResult = ibmImporter.Import(args[0]);
+var importResult = await ibmImporter.ImportAsync(args[0]);
 
 DisplayImportSummary(importResult);
 

@@ -6,38 +6,38 @@ namespace IbmImporter;
 
 public class DataImporter
 {
-	private readonly IJsonFileParser parser;
-	private readonly IValidator<Notebook> validator;
-	private readonly IRepository<NotebookStore.Entities.Notebook> notebookRepository;
+    private readonly IJsonFileParser parser;
+    private readonly IValidator<Notebook> validator;
+    private readonly IRepository<NotebookStore.Entities.Notebook> notebookRepository;
 
-	public DataImporter(
-		IJsonFileParser parser,
-		IValidator<Notebook> validator,
-		IRepository<NotebookStore.Entities.Notebook> notebookRepository)
-	{
-		this.parser = parser;
-		this.validator = validator;
-		this.notebookRepository = notebookRepository;
-	}
+    public DataImporter(
+        IJsonFileParser parser,
+        IValidator<Notebook> validator,
+        IRepository<NotebookStore.Entities.Notebook> notebookRepository)
+    {
+        this.parser = parser;
+        this.validator = validator;
+        this.notebookRepository = notebookRepository;
+    }
 
-	public ImportResult Import(string file)
-	{
-		// Parsing file json
-		// Validare
-		//      Se non è valido aggiungere UnimportedNotebook all'ImportResult
-		//      Se valido andare avanti
-		// Importare Notebook validi
-		//      Se l'importazione non va a buon fine aggiugnere UnimportedNotebook ad ImportResult
-		//      Se l'importazione va a buon fine andare avanti
-		// Ritornare ImportResult
+    public async Task<ImportResult> ImportAsync(string file)
+    {
+        // Parsing file json
+        // Validare
+        //      Se non è valido aggiungere UnimportedNotebook all'ImportResult
+        //      Se valido andare avanti
+        // Importare Notebook validi
+        //      Se l'importazione non va a buon fine aggiugnere UnimportedNotebook ad ImportResult
+        //      Se l'importazione va a buon fine andare avanti
+        // Ritornare ImportResult
 
-		var importResult = new ImportResult();
+        var importResult = new ImportResult();
 
-		var notebookData = parser.Parse(file);
+        var notebookData = parser.Parse(file);
 
-		notebookData?.Notebooks.ForEach(async notebook =>
-		{
-			var validationResult = validator.Validate(notebook);
+        foreach (var notebook in notebookData.Notebooks)
+        {
+            var validationResult = validator.Validate(notebook);
 
             if (!string.IsNullOrEmpty(validationResult))
             {
@@ -47,93 +47,94 @@ public class DataImporter
                     ErrorMessage = validationResult,
                     Notebook = notebook
                 });
+
+                continue;
             }
-            else
+
+            var importNotebookResult = await ImportNotebook(notebook, notebookData.Customer);
+
+            if (!string.IsNullOrEmpty(importNotebookResult))
             {
-                var importNotebookResult = await ImportNotebook(notebook, notebookData.Customer);
+                importResult.Unsuccess.Add(new UnimportedNotebook
+                {
+                    Index = notebookData.Notebooks.IndexOf(notebook),
+                    ErrorMessage = importNotebookResult,
+                    Notebook = notebook
+                });
 
-                if (!string.IsNullOrEmpty(importNotebookResult))
-                {
-                    importResult.Unsuccess.Add(new UnimportedNotebook
-                    {
-                        Index = notebookData.Notebooks.IndexOf(notebook),
-                        ErrorMessage = importNotebookResult,
-                        Notebook = notebook
-                    });
-                }
-                else
-                {
-                    importResult.Success++;
-                }
+                continue;
             }
-        });
 
-		return importResult;
-	}
+            importResult.Success++;
+        }
 
-	private async Task<string> ImportNotebook(Notebook notebook, string customer)
-	{
-		var culture = new System.Globalization.CultureInfo("it-IT");
+        return importResult;
+    }
 
-		NotebookStore.Entities.Notebook notebookEntity = new()
-		{
-			Color = notebook.Color,
-			Price = (int)notebook.Price,
-			Brand = new()
-			{
-				Name = notebook.Name,
-				CreatedBy = customer,
-				CreatedAt = DateTime.Now.ToString(culture)
-			},
-			Cpu = new()
-			{
-				Model = notebook.ProcessorModel,
-				CreatedBy = customer,
-				CreatedAt = DateTime.Now.ToString(culture)
-			},
-			Display = new()
-			{
-				ResolutionWidth = notebook.Monitor.Width,
-				ResolutionHeight = notebook.Monitor.Height,
-				CreatedBy = customer,
-				CreatedAt = DateTime.Now.ToString(culture)
-			},
-			Memory = new()
-			{
-				Capacity = notebook.Ram,
-				CreatedBy = customer,
-				CreatedAt = DateTime.Now.ToString(culture)
-			},
-			Model = new()
-			{
-				CreatedAt = DateTime.Now.ToString(culture),
-			},
-			Storage = new()
-			{
-				// Capacità casuale per evitare unique constraint del database 
-				// (perché non viene passata la capacità dello storage nel json)
-				Capacity = RandomNumberGenerator.GetInt32(128, 1024),
-				CreatedBy = customer,
-				CreatedAt = DateTime.Now.ToString(culture)
-			},
-			CreatedBy = customer,
-			CreatedAt = DateTime.Now.ToString(culture)
-		};
+    private async Task<string> ImportNotebook(Notebook notebook, string customer)
+    {
+        var culture = new System.Globalization.CultureInfo("it-IT");
 
-		try
-		{
-			await notebookRepository.Create(notebookEntity);
-		}
-		catch (Exception e)
-		{
-			if (e.InnerException != null)
-			{
-				return e.InnerException.Message;
-			}
+        NotebookStore.Entities.Notebook notebookEntity = new()
+        {
+            Color = notebook.Color,
+            Price = (int)notebook.Price,
+            Brand = new()
+            {
+                Name = notebook.Name,
+                CreatedBy = customer,
+                CreatedAt = DateTime.Now.ToString(culture)
+            },
+            Cpu = new()
+            {
+                Model = notebook.ProcessorModel,
+                CreatedBy = customer,
+                CreatedAt = DateTime.Now.ToString(culture)
+            },
+            Display = new()
+            {
+                ResolutionWidth = notebook.Monitor.Width,
+                ResolutionHeight = notebook.Monitor.Height,
+                CreatedBy = customer,
+                CreatedAt = DateTime.Now.ToString(culture)
+            },
+            Memory = new()
+            {
+                Capacity = notebook.Ram,
+                CreatedBy = customer,
+                CreatedAt = DateTime.Now.ToString(culture)
+            },
+            Model = new()
+            {
+                CreatedBy = customer,
+                CreatedAt = DateTime.Now.ToString(culture),
+            },
+            Storage = new()
+            {
+                // Capacità casuale per evitare unique constraint del database 
+                // (perché non viene passata la capacità dello storage nel json)
+                Capacity = RandomNumberGenerator.GetInt32(128, 1024),
+                CreatedBy = customer,
+                CreatedAt = DateTime.Now.ToString(culture)
+            },
+            CreatedBy = customer,
+            CreatedAt = DateTime.Now.ToString(culture)
+        };
 
-			return e.Message;
-		}
+        try
+        {
+            await notebookRepository.Create(notebookEntity);
+        }
+        catch (Exception e)
+        {
+            if (e.InnerException != null)
+            {
+                return e.InnerException.Message;
+            }
 
-		return string.Empty;
-	}
+            return e.Message;
+        }
+
+        return string.Empty;
+    }
 }

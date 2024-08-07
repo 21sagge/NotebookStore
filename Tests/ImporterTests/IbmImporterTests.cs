@@ -5,13 +5,13 @@ namespace ImporterTests;
 public class IbmImporterTests
 {
     [Test]
-    public void DataImporter_Import_Returns2SuccessAnd1Unsuccess()
+    public async Task DataImporter_Import_Returns2SuccessAnd1Unsuccess()
     {
         using var context = TestStartup.CreateComponentsContext();
 
         var sut = context.Resolve<DataImporter>();
 
-        var result = sut.Import("test.json");
+        var result = await sut.ImportAsync("test.json");
 
         Assert.Multiple(() =>
         {
@@ -19,5 +19,15 @@ public class IbmImporterTests
             Assert.That(result.Unsuccess, Has.Count.EqualTo(1));
             Assert.That(result.Unsuccess[0].Index, Is.EqualTo(1));
         });
+    }
+
+    [Test]
+    public void Import_FileDoesNotExist()
+    {
+        using var context = TestStartup.CreateComponentsContext();
+
+        var sut = context.Resolve<DataImporter>();
+
+        Assert.CatchAsync(async () => await sut.ImportAsync("abc.json"));
     }
 }

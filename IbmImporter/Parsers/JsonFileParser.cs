@@ -22,13 +22,11 @@ public class JsonFileParser : IJsonFileParser
 		}
 		catch (FileNotFoundException)
 		{
-			Console.WriteLine("File not found");
-			return null;
+			throw new InvalidOperationException("File not found");
 		}
 		catch (Exception)
 		{
-			Console.WriteLine("An error occurred while parsing the file");
-			return null;
+			throw new InvalidOperationException("An error occurred while parsing the file");
 		}
 	}
 }
