@@ -44,9 +44,9 @@ public class TestStartup
 		return new ComponentsContext(serviceProvider, context);
 	}
 
-	public static ComponentsContext CreateComponentsContext(Action<ServiceCollection>? configureServices = null)
+	public static ComponentsContext CreateComponentsContext(Action<ServiceCollection> configureServices)
 	{
-        configureServices?.Invoke(services);
+        configureServices(services);
 
         var serviceProvider = services.BuildServiceProvider();
 

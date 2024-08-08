@@ -26,6 +26,42 @@ public class IbmImporterTests
     }
 
     [Test]
+    public void Parse_WithEmptyPathString_ShouldThrowException()
+    {
+        using var context = TestStartup.CreateComponentsContext();
+
+        var sut = context.Resolve<IJsonFileParser>();
+
+        Assert.Throws<ArgumentException>(() => sut.Parse(string.Empty));
+    }
+
+    [Test]
+    public void Parse_WithFileNotFound_ShouldThrowException()
+    {
+        using var context = TestStartup.CreateComponentsContext();
+
+        var sut = context.Resolve<IJsonFileParser>();
+
+        Assert.Throws<FileNotFoundException>(() => sut.Parse("invalid.json"));
+    }
+
+    [Test]
+    public void Parse_WithEmptyFile_ShouldReturnEmptyNotebookData()
+    {
+        using var context = TestStartup.CreateComponentsContext();
+
+        var sut = context.Resolve<IJsonFileParser>();
+
+        var result = sut.Parse("empty.json");
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(result.Customer, Is.Empty);
+            Assert.That(result.Notebooks, Is.Empty);
+        });
+    }
+
+    [Test]
     public async Task Import_WithValidData_ShouldReturnSuccess()
     {
         using var context = TestStartup.CreateComponentsContext(services =>
@@ -170,7 +206,7 @@ public class IbmImporterTests
     }
 
     [Test]
-    public async Task Import_WithInvalidData_ShouldReturnUnsuccessAndSuccessAndUnsuccess()
+    public async Task Import_WithInvalidData_ShouldReturnTwoUnsuccessAndOneSuccess()
     {
         using var context = TestStartup.CreateComponentsContext(services =>
         {
@@ -225,6 +261,37 @@ public class IbmImporterTests
             Assert.That(context.Resolve<NotebookStoreContext.NotebookStoreContext>().Notebooks.First().Brand?.Name, Is.EqualTo("Name"));
             Assert.That(result.Unsuccess.First().ErrorMessage, Is.EqualTo("Name is null or empty"));
             Assert.That(result.Unsuccess.Last().ErrorMessage, Is.EqualTo("Name is null or empty"));
+        });
+    }
+
+    [Test]
+    public async Task Import_WithoutNotebooks_ShouldReturnUnsuccess()
+    {
+        using var context = TestStartup.CreateComponentsContext(services =>
+        {
+            var mockParser = new Mock<IJsonFileParser>();
+
+            mockParser
+                .Setup(x => x.Parse(It.IsAny<string>()))
+                .Returns(new NotebookData
+                {
+                    Customer = "Customer",
+                    Notebooks = new List<Notebook>()
+                });
+
+            services.AddScoped(_ => mockParser.Object);
+        });
+
+        var sut = context.Resolve<DataImporter>();
+
+        var result = await sut.ImportAsync("");
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(result.Unsuccess, Has.Count.EqualTo(1));
+            Assert.That(result.Success, Is.EqualTo(0));
+            Assert.That(context.Resolve<NotebookStoreContext.NotebookStoreContext>().Notebooks, Is.Empty);
+            Assert.That(result.Unsuccess.First().ErrorMessage, Is.EqualTo("No notebooks found in the file"), result.Unsuccess.FirstOrDefault()?.ErrorMessage);
         });
     }
 }

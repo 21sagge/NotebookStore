@@ -22,18 +22,21 @@ public class DataImporter
 
     public async Task<ImportResult> ImportAsync(string file)
     {
-        // Parsing file json
-        // Validare
-        //      Se non è valido aggiungere UnimportedNotebook all'ImportResult
-        //      Se valido andare avanti
-        // Importare Notebook validi
-        //      Se l'importazione non va a buon fine aggiugnere UnimportedNotebook ad ImportResult
-        //      Se l'importazione va a buon fine andare avanti
-        // Ritornare ImportResult
-
         var importResult = new ImportResult();
 
         var notebookData = parser.Parse(file);
+
+        if(notebookData.Notebooks == null || notebookData.Notebooks.Count == 0)
+        {
+            importResult.Unsuccess.Add(new UnimportedNotebook
+            {
+                Index = 0,
+                ErrorMessage = "No notebooks found in the file",
+                Notebook = null
+            });
+
+            return importResult;
+        }
 
         foreach (var notebook in notebookData.Notebooks)
         {
