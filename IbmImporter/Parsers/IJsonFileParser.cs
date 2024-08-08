@@ -10,5 +10,5 @@ public interface IJsonFileParser
 	/// <param name="json">Json file</param>
 	/// <returns>Notebook data</returns>
 	/// <exception cref="InvalidOperationException">Parser cannot process the file</exception>
-	NotebookData? Parse(string json);
+	NotebookData Parse(string json);
 }

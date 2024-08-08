@@ -22,8 +22,6 @@ public class TestStartup
 			options.UseSqlite($"DataSource=ImporterTests_{Guid.NewGuid()}.db");
 		});
 
-		services.AddScoped<IJsonFileParser, JsonFileParser>();
-
 		services.AddScoped<IValidator<Notebook>, NotebookValidator>();
 		services.AddScoped<IValidator<IbmImporter.Models.Monitor>, MonitorValidator>();
 		services.AddScoped<IValidator<Ports>, PortsValidator>();
@@ -33,12 +31,24 @@ public class TestStartup
 		services.AddScoped<IRepository<NotebookStore.Entities.Notebook>, NotebookRepository>();
 	}
 
-	public static void Register<T>() where T : class
-	=> services.AddScoped<T>();
-
 	public static ComponentsContext CreateComponentsContext()
 	{
+		services.AddScoped<IJsonFileParser, JsonFileParser>();
+
 		var serviceProvider = services.BuildServiceProvider();
+
+		var context = serviceProvider.GetRequiredService<NotebookStoreContext.NotebookStoreContext>();
+
+		context.Database.EnsureCreated();
+
+		return new ComponentsContext(serviceProvider, context);
+	}
+
+	public static ComponentsContext CreateComponentsContext(Action<ServiceCollection>? configureServices = null)
+	{
+        configureServices?.Invoke(services);
+
+        var serviceProvider = services.BuildServiceProvider();
 
 		var context = serviceProvider.GetRequiredService<NotebookStoreContext.NotebookStoreContext>();
 

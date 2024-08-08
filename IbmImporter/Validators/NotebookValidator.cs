@@ -43,8 +43,6 @@ public class NotebookValidator : IValidator<Notebook>
 		var portsValidationResult = portsValidator.Validate(model.Ports);
 		if (!string.IsNullOrEmpty(portsValidationResult)) return portsValidationResult;
 
-		if (model.Price < 1600) return "Price is less than 1600";
-
 		return string.Empty;
 	}
 }
