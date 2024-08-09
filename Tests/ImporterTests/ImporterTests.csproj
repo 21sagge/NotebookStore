@@ -24,11 +24,20 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Update="test.json">
+    <None Remove="_data\" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Update="_data\empty.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Update="empty.json">
+    <None Update="_data\test.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Update="_data\pippo.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="_data\" />
   </ItemGroup>
 </Project>

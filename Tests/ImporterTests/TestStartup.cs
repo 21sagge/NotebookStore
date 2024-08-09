@@ -31,7 +31,14 @@ public class TestStartup
 		services.AddScoped<IRepository<NotebookStore.Entities.Notebook>, NotebookRepository>();
 	}
 
-	public static ComponentsContext CreateComponentsContext()
+    /// <summary>
+    /// Register a service
+    /// </summary>
+    /// <typeparam name="T">Service type</typeparam>
+    public static void Register<T>() where T : class
+    => services.AddSingleton<T>();
+
+    public static ComponentsContext CreateComponentsContext()
 	{
 		services.AddScoped<IJsonFileParser, JsonFileParser>();
 
