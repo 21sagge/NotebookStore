@@ -1,19 +1,21 @@
 using IbmImporter;
-using IbmImporter.Models;
-using Microsoft.Extensions.DependencyInjection;
-using Moq;
-using Monitor = IbmImporter.Models.Monitor;
 
 namespace ImporterTests;
 
 public class JsonFileParserTests
 {
+    [OneTimeSetUp]
+    public void OneTimeSetUp()
+    {
+        TestStartup.Register<JsonFileParser>();
+    }
+
     [Test]
     public void Parse_WithValidData_ShouldReturnNotebookData()
     {
         using var context = TestStartup.CreateComponentsContext();
 
-        var sut = context.Resolve<IJsonFileParser>();
+        var sut = context.Resolve<JsonFileParser>();
 
         var result = sut.Parse("_data/test.json");
 
@@ -30,7 +32,7 @@ public class JsonFileParserTests
     {
         using var context = TestStartup.CreateComponentsContext();
 
-        var sut = context.Resolve<IJsonFileParser>();
+        var sut = context.Resolve<JsonFileParser>();
 
         Assert.Throws<InvalidOperationException>(() => sut.Parse(string.Empty));
     }
@@ -40,7 +42,7 @@ public class JsonFileParserTests
     {
         using var context = TestStartup.CreateComponentsContext();
 
-        var sut = context.Resolve<IJsonFileParser>();
+        var sut = context.Resolve<JsonFileParser>();
 
         Assert.Throws<InvalidOperationException>(() => sut.Parse("invalid.json"));
     }
@@ -50,7 +52,7 @@ public class JsonFileParserTests
     {
         using var context = TestStartup.CreateComponentsContext();
 
-        var sut = context.Resolve<IJsonFileParser>();
+        var sut = context.Resolve<JsonFileParser>();
 
         var result = sut.Parse("_data/empty.json");
 
@@ -66,7 +68,7 @@ public class JsonFileParserTests
     {
         using var context = TestStartup.CreateComponentsContext();
 
-        var sut = context.Resolve<IJsonFileParser>();
+        var sut = context.Resolve<JsonFileParser>();
 
         Assert.Throws<InvalidOperationException>(() => sut.Parse("_data/pippo.txt"));
     }

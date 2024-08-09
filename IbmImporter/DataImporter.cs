@@ -26,30 +26,13 @@ public class DataImporter
 
         var notebookData = parser.Parse(file);
 
-        if(notebookData.Notebooks == null || notebookData.Notebooks.Count == 0)
-        {
-            importResult.Unsuccess.Add(new UnimportedNotebook
-            {
-                Index = 0,
-                ErrorMessage = "No notebooks found in the file",
-                Notebook = null
-            });
-
-            return importResult;
-        }
-
         foreach (var notebook in notebookData.Notebooks)
         {
             var validationResult = validator.Validate(notebook);
 
             if (!string.IsNullOrEmpty(validationResult))
             {
-                importResult.Unsuccess.Add(new UnimportedNotebook
-                {
-                    Index = notebookData.Notebooks.IndexOf(notebook),
-                    ErrorMessage = validationResult,
-                    Notebook = notebook
-                });
+                importResult.Unsuccess.Add(new UnimportedNotebook(notebookData.Notebooks.IndexOf(notebook), notebook, validationResult));
 
                 continue;
             }
@@ -58,12 +41,7 @@ public class DataImporter
 
             if (!string.IsNullOrEmpty(importNotebookResult))
             {
-                importResult.Unsuccess.Add(new UnimportedNotebook
-                {
-                    Index = notebookData.Notebooks.IndexOf(notebook),
-                    ErrorMessage = importNotebookResult,
-                    Notebook = notebook
-                });
+                importResult.Unsuccess.Add(new UnimportedNotebook(notebookData.Notebooks.IndexOf(notebook), notebook, importNotebookResult));
 
                 continue;
             }

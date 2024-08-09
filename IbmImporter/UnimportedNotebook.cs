@@ -4,8 +4,15 @@ namespace IbmImporter
 {
     public class UnimportedNotebook
     {
-        public int Index { get; set; }
-        public Notebook? Notebook { get; set; } = new();
-        public string ErrorMessage { get; set; } = string.Empty;
+        public int Index { get; }
+        public Notebook Notebook { get; }
+        public string ErrorMessage { get; } = string.Empty;
+
+        public UnimportedNotebook(int index, Notebook notebook, string errorMessage)
+        {
+            Index = index;
+            Notebook = notebook;
+            ErrorMessage = errorMessage;
+        }
     }
 }

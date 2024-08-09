@@ -26,8 +26,6 @@ public class TestStartup
 		services.AddScoped<IValidator<IbmImporter.Models.Monitor>, MonitorValidator>();
 		services.AddScoped<IValidator<Ports>, PortsValidator>();
 
-		services.AddScoped<DataImporter>();
-
 		services.AddScoped<IRepository<NotebookStore.Entities.Notebook>, NotebookRepository>();
 	}
 
@@ -38,24 +36,16 @@ public class TestStartup
     public static void Register<T>() where T : class
     => services.AddSingleton<T>();
 
-    public static ComponentsContext CreateComponentsContext()
-	{
-		services.AddScoped<IJsonFileParser, JsonFileParser>();
+	/// <summary>
+	/// Register a mock service
+	/// </summary>
+	/// <typeparam name="T">Service type</typeparam>
+	public static void Register<T>(T mock) where T : class
+	=> services.AddSingleton(mock);
 
+	public static ComponentsContext CreateComponentsContext()
+	{
 		var serviceProvider = services.BuildServiceProvider();
-
-		var context = serviceProvider.GetRequiredService<NotebookStoreContext.NotebookStoreContext>();
-
-		context.Database.EnsureCreated();
-
-		return new ComponentsContext(serviceProvider, context);
-	}
-
-	public static ComponentsContext CreateComponentsContext(Action<ServiceCollection> configureServices)
-	{
-        configureServices(services);
-
-        var serviceProvider = services.BuildServiceProvider();
 
 		var context = serviceProvider.GetRequiredService<NotebookStoreContext.NotebookStoreContext>();
 

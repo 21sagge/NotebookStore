@@ -1,27 +1,31 @@
 ﻿using IbmImporter;
 using IbmImporter.Models;
-using Microsoft.Extensions.DependencyInjection;
 using Moq;
 using Monitor = IbmImporter.Models.Monitor;
 
 namespace ImporterTests
 {
-	public class DataImporterTests
-	{
+    public class DataImporterTests
+    {
+        [OneTimeSetUp]
+        public void OneTimeSetUp()
+        {
+            TestStartup.Register<DataImporter>();
+            TestStartup.Register(new Mock<IJsonFileParser>().Object);
+        }
+
         [Test]
         public async Task Import_WithValidData_ShouldReturnSuccess()
         {
-            using var context = TestStartup.CreateComponentsContext(services =>
-            {
-                var mockParser = new Mock<IJsonFileParser>();
+            using var context = TestStartup.CreateComponentsContext();
 
-                mockParser
-                    .Setup(x => x.Parse(It.IsAny<string>()))
-                    .Returns(new NotebookData
+            Mock.Get(context.Resolve<IJsonFileParser>())
+                .Setup(x => x.Parse(It.IsAny<string>()))
+                .Returns(new NotebookData
+                {
+                    Customer = "Customer",
+                    Notebooks = new List<Notebook>
                     {
-                        Customer = "Customer",
-                        Notebooks = new List<Notebook>
-                        {
                         new()
                         {
                             Quantity = 1,
@@ -44,11 +48,8 @@ namespace ImporterTests
                                 Hdmi = 1
                             }
                         }
-                        }
-                    });
-
-                services.AddScoped(_ => mockParser.Object);
-            });
+                    }
+                });
 
             var sut = context.Resolve<DataImporter>();
 
@@ -66,21 +67,15 @@ namespace ImporterTests
         [Test]
         public async Task Import_WithInvalidData_ShouldReturnUnsuccess()
         {
-            using var context = TestStartup.CreateComponentsContext(services =>
-            {
-                var mockParser = new Mock<IJsonFileParser>();
+            using var context = TestStartup.CreateComponentsContext();
 
-                mockParser
-                    .Setup(x => x.Parse(It.IsAny<string>()))
-                    .Returns(new NotebookData
-                    {
-                        Customer = "Customer",
-                        // Invalid data - missing required fields
-                        Notebooks = new List<Notebook> { new() }
-                    });
-
-                services.AddScoped(_ => mockParser.Object);
-            });
+            Mock.Get(context.Resolve<IJsonFileParser>())
+                .Setup(x => x.Parse(It.IsAny<string>()))
+                .Returns(new NotebookData
+                {
+                    Customer = "Customer",
+                    Notebooks = new List<Notebook> { new() }
+                });
 
             var sut = context.Resolve<DataImporter>();
 
@@ -98,17 +93,15 @@ namespace ImporterTests
         [Test]
         public async Task Import_WithInvalidData_ShouldReturnUnsuccessAndSuccess()
         {
-            using var context = TestStartup.CreateComponentsContext(services =>
-            {
-                var mockParser = new Mock<IJsonFileParser>();
+            using var context = TestStartup.CreateComponentsContext();
 
-                mockParser
-                    .Setup(x => x.Parse(It.IsAny<string>()))
-                    .Returns(new NotebookData
+            Mock.Get(context.Resolve<IJsonFileParser>())
+                .Setup(x => x.Parse(It.IsAny<string>()))
+                .Returns(new NotebookData
+                {
+                    Customer = "Customer",
+                    Notebooks = new List<Notebook>
                     {
-                        Customer = "Customer",
-                        Notebooks = new List<Notebook>
-                        {
                         new(),
                         new()
                         {
@@ -132,11 +125,8 @@ namespace ImporterTests
                                 Hdmi = 1
                             }
                         }
-                        }
-                    });
-
-                services.AddScoped(_ => mockParser.Object);
-            });
+                    }
+                });
 
             var sut = context.Resolve<DataImporter>();
 
@@ -155,46 +145,41 @@ namespace ImporterTests
         [Test]
         public async Task Import_WithInvalidData_ShouldReturnTwoUnsuccessAndOneSuccess()
         {
-            using var context = TestStartup.CreateComponentsContext(services =>
-            {
-                var mockParser = new Mock<IJsonFileParser>();
+            using var context = TestStartup.CreateComponentsContext();
 
-                mockParser
+            Mock.Get(context.Resolve<IJsonFileParser>())
                 .Setup(x => x.Parse(It.IsAny<string>()))
                 .Returns(new NotebookData
                 {
                     Customer = "Customer",
                     Notebooks = new List<Notebook>
                     {
-                    new(),
-                    new()
-                    {
-                        Quantity = 1,
-                        Name = "Name",
-                        Price = 1,
-                        CPU = 1,
-                        Color = "Color",
-                        DateOfProduction = DateTime.Now,
-                        Ram = 1,
-                        ProcessorModel = "ProcessorModel",
-                        Monitor = new Monitor
+                        new(),
+                        new()
                         {
-                            Width = 1,
-                            Height = 1,
-                            SupportedRefreshRate = { 1, 2, 3 }
+                            Quantity = 1,
+                            Name = "Name",
+                            Price = 1,
+                            CPU = 1,
+                            Color = "Color",
+                            DateOfProduction = DateTime.Now,
+                            Ram = 1,
+                            ProcessorModel = "ProcessorModel",
+                            Monitor = new Monitor
+                            {
+                                Width = 1,
+                                Height = 1,
+                                SupportedRefreshRate = { 1, 2, 3 }
+                            },
+                            Ports = new Ports
+                            {
+                                Usb = 1,
+                                Hdmi = 1
+                            }
                         },
-                        Ports = new Ports
-                        {
-                            Usb = 1,
-                            Hdmi = 1
-                        }
-                    },
-                    new()
+                        new()
                     }
                 });
-
-                services.AddScoped(_ => mockParser.Object);
-            });
 
             var sut = context.Resolve<DataImporter>();
 
@@ -214,20 +199,15 @@ namespace ImporterTests
         [Test]
         public async Task Import_WithoutNotebooks_ShouldReturnUnsuccess()
         {
-            using var context = TestStartup.CreateComponentsContext(services =>
-            {
-                var mockParser = new Mock<IJsonFileParser>();
+            using var context = TestStartup.CreateComponentsContext();
 
-                mockParser
-                    .Setup(x => x.Parse(It.IsAny<string>()))
-                    .Returns(new NotebookData
-                    {
-                        Customer = "Customer",
-                        Notebooks = new List<Notebook>()
-                    });
-
-                services.AddScoped(_ => mockParser.Object);
-            });
+            Mock.Get(context.Resolve<IJsonFileParser>())
+                .Setup(x => x.Parse(It.IsAny<string>()))
+                .Returns(new NotebookData
+                {
+                    Customer = "Customer",
+                    Notebooks = new List<Notebook>()
+                });
 
             var sut = context.Resolve<DataImporter>();
 
@@ -235,10 +215,10 @@ namespace ImporterTests
 
             Assert.Multiple(() =>
             {
-                Assert.That(result.Unsuccess, Has.Count.EqualTo(1));
+                Assert.That(result.Unsuccess, Is.Empty);
                 Assert.That(result.Success, Is.EqualTo(0));
                 Assert.That(context.Resolve<NotebookStoreContext.NotebookStoreContext>().Notebooks, Is.Empty);
-                Assert.That(result.Unsuccess.First().ErrorMessage, Is.EqualTo("No notebooks found in the file"), result.Unsuccess.FirstOrDefault()?.ErrorMessage);
+                Assert.That(result.IsSuccess, Is.False);
             });
         }
     }
